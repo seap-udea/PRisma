@@ -1,0 +1,28 @@
+# Core numerics / data
+numpy
+scipy
+pandas
+astropy
+
+# Bayesian inference
+emcee
+dynesty
+corner
+lmfit
+
+# Parallelism
+multiprocess
+
+# Plotting / post-processing
+matplotlib
+opencv-python
+
+# Notebooks & pipeline orchestration
+jupyter
+ipywidgets
+nbformat
+papermill
+tqdm
+
+# Testing
+pytest

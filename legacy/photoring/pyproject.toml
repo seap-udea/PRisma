@@ -1,0 +1,4 @@
+[build-system]
+requires=['setuptools',
+          'scipy','matplotlib','pandas','jupyter','nbconvert','multiprocess']
+build-backend = "setuptools.build_meta"
