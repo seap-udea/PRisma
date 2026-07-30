@@ -16,8 +16,7 @@ import it and are driven by a single `CASE` variable.
 ```
 pipeline/
 ├── photoring/              # the analysis as importable .py modules (see "The photoring package")
-├── 01_observables.ipynb            # step 1: TTV posterior -> transit observables
-├── 01b_observables_plotting.ipynb  # step 1b: observable-posterior figure (optional)
+├── 01_observables.ipynb            # step 1: TTV posterior -> transit observables (+ figures)
 ├── 02_inference_dynesty.ipynb      # step 2: ring-geometry inference (nested sampling; gives ln Z)
 ├── 02_inference_emcee.ipynb        # step 2: ring-geometry inference (MCMC; cross-check)
 ├── 03_results_plotting.ipynb       # step 3: publication figures + summary tables
@@ -33,8 +32,7 @@ Nothing installs: each notebook's first cell puts the repo root (for `exorings`,
 
 | Step | Notebook | Purpose |
 |---|---|---|
-| 1 | `01_observables.ipynb` | Convert a planet's TTV-fit posterior `(Rp/R★, ρ★, b, P)` into the transit-observable set `(δ, a/R★, T14, T23, b, i, P)` (Zuluaga+2015 Eq. 1–4). Writes `<case>_<planet>_observables.dat`. |
-| 1b | `01b_observables_plotting.ipynb` | Publication figure of the observable posteriors. Optional / diagnostic. |
+| 1 | `01_observables.ipynb` | Convert a planet's TTV-fit posterior `(Rp/R★, ρ★, b, P)` into the transit-observable set `(δ, a/R★, T14, T23, b, i, P)` (Zuluaga+2015 Eq. 1–4). Combines multiple light-curve segments by importance sampling. Writes `<case>_<planet>_observables.dat` plus the observable-posterior, asterodensity and segment-consistency figures. |
 | 2 | `02_inference_dynesty.ipynb` | Build a joint KDE likelihood from the step-1 observables and sample the ring geometry with `dynesty` static nested sampling — the only one that yields the Bayesian evidence ln Z. |
 | 2 | `02_inference_emcee.ipynb` | Same model/likelihood sampled with `emcee` (MCMC) — an independent cross-check. |
 | 3 | `03_results_plotting.ipynb` | Read step-2 outputs and produce PPCs, corner plots, marginals with priors, ring diagrams, a consolidated panel, and summary tables. |

@@ -29,7 +29,7 @@ AppPR/
 ├── pipeline/            # THE reproducible method
 │   ├── photoring/       #   the analysis as importable modules
 │   ├── 01_observables.ipynb          02_inference_{emcee,dynesty}.ipynb
-│   ├── 01b_observables_plotting.ipynb  03_results_plotting.ipynb
+│   ├── 03_results_plotting.ipynb
 │   ├── run_sweep.py / run_sweep.sh   # multi-config sweep (papermill)
 │   ├── tests/           #   forward-model equivalence tests
 │   └── kepler_51/       #   the bundled worked example (inputs + outputs + writeup)
@@ -81,7 +81,7 @@ outputs, and [`pipeline/kepler_51/README.md`](pipeline/kepler_51/README.md). Cop
 
 ## `paper_figures/`
 
-Traceability for the (private) thesis paper's figures — the scripts (`scripts/`) and final images
+Exact reproduction of the manuscript's figures — a notebook driving the shared plotting layer, the reference posterior chains (`reference_runs/`) and the final images
 (`img/`) — **without any LaTeX**. See [`paper_figures/README.md`](paper_figures/README.md).
 
 ## `legacy/`

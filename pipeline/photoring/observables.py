@@ -99,7 +99,14 @@ def derive_observables(df):
     p = df["p"].values
     rho_obs = df["rho_obs"].values
     b = df["b"].values
-    P_days = df["P_days"].values
+    # Raw TTV posteriors name the period column 'P_days'; this function's own output
+    # names it 'P', so accept either and stay re-appliable to a combined posterior.
+    if "P_days" in df:
+        P_days = df["P_days"].values
+    elif "P" in df:
+        P_days = df["P"].values
+    else:
+        raise KeyError("derive_observables needs a period column named 'P_days' or 'P'")
     P_s = P_days * DAY
 
     # ── Observable 1: transit depth ───────────────────────────────────────
@@ -144,6 +151,248 @@ def derive_observables(df):
         "T23":     T23,
         "logL":    df["logL"].values if "logL" in df else np.nan,
     })
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Combining independent posteriors of the same planet
+# ══════════════════════════════════════════════════════════════════════════
+# A planet with many observed epochs can make a single nested-sampling run
+# intractable, because every epoch contributes its own mid-transit time as a free
+# parameter. The workaround is to split the light curve into independent temporal
+# segments, fit each separately, and combine the resulting posteriors afterwards.
+#
+# Those segments constrain *the same* transit-shape parameters, so the combined
+# posterior is their **product**, not their union. Concatenating them ("pooling")
+# would instead give the average of the segments, and keeping only one segment
+# would throw away most of the data — neither is a valid combination. Importance
+# sampling against the pooled proposal is the only method used here.
+
+#: Parameters combined in the product. These are the *native* TTV-fit quantities;
+#: every other observable is derived afterwards, from the combined samples.
+SEGMENT_NATIVE_KEYS = ["p", "rho_obs", "b"]
+
+
+def effective_sample_size(w):
+    """Kish effective sample size of (unnormalised) importance weights."""
+    w = np.asarray(w, dtype=float)
+    w = w / w.sum()
+    return float(1.0 / np.sum(w**2))
+
+
+def weight_diagnostics(w, label="", verbose=True):
+    """Report how concentrated a set of importance weights is.
+
+    A small effective sample size relative to the proposal size means a few samples
+    carry almost all the weight, and the combined posterior is correspondingly noisy.
+
+    Returns
+    -------
+    dict
+        ``n_eff, n_total, frac, n50, n90`` — the last two being how many samples carry
+        50% / 90% of the total weight.
+    """
+    w = np.asarray(w, dtype=float)
+    w_n = w / w.sum()
+    n_total = len(w_n)
+    n_eff = 1.0 / np.sum(w_n**2)
+
+    cumw = np.cumsum(np.sort(w_n)[::-1])
+    n50 = int(np.searchsorted(cumw, 0.50)) + 1
+    n90 = int(np.searchsorted(cumw, 0.90)) + 1
+    frac = n_eff / n_total
+
+    if verbose:
+        flag = "LOW ESS -- combination unreliable" if frac < 0.01 else "ok"
+        print(f"  [{label}]")
+        print(f"    N_eff = {n_eff:.0f} / {n_total}  ({100 * frac:.1f}%)  {flag}")
+        print(f"    50% of the weight in the top {n50} samples ({100 * n50 / n_total:.1f}%)")
+        print(f"    90% of the weight in the top {n90} samples ({100 * n90 / n_total:.1f}%)")
+    return dict(n_eff=float(n_eff), n_total=n_total, frac=float(frac), n50=n50, n90=n90)
+
+
+def drop_invalid(seg, keys=None):
+    """Keep only rows where the native parameters *and* the derived durations are finite."""
+    keys = list(keys or SEGMENT_NATIVE_KEYS)
+    check_cols = [c for c in keys + ["T14", "T23"] if c in seg.columns]
+    return seg[seg[check_cols].notna().all(axis=1)].reset_index(drop=True)
+
+
+def segment_tension(segments, keys=None, verbose=True):
+    """Pairwise tension between segments, in sigma, per native parameter.
+
+    Tension is ``|median_i - median_j| / sqrt(std_i^2 + std_j^2)``. Values above ~2
+    sigma flag a systematic inconsistency between epochs rather than statistical
+    scatter — for Kepler-51 b this is expected in the durations and the inferred
+    density, because different stretches of the light curve sample different stages of
+    the system's dynamical evolution (large-amplitude TTVs).
+
+    Returns
+    -------
+    dict
+        ``{param: {"i-j": tension}}``.
+    """
+    keys = list(keys or SEGMENT_NATIVE_KEYS)
+    pairs = [(i, j) for i in range(len(segments)) for j in range(i + 1, len(segments))]
+    out = {}
+    if verbose:
+        header = "  ".join(f"{f'{i+1}v{j+1}':>9s}" for i, j in pairs)
+        print(f"  {'Param':10s}  {header}")
+    for k in keys:
+        row = {}
+        cells = []
+        for i, j in pairs:
+            dm = abs(segments[i][k].median() - segments[j][k].median())
+            ds = np.sqrt(segments[i][k].std()**2 + segments[j][k].std()**2)
+            t = float(dm / ds) if ds > 0 else np.inf
+            row[f"{i+1}-{j+1}"] = t
+            cells.append(f"{t:.2f}s{'  !' if t > 2 else '   '}")
+        out[k] = row
+        if verbose:
+            print(f"  {k:10s}  " + "  ".join(f"{c:>9s}" for c in cells))
+    if verbose:
+        print("\n  Tension > 2 sigma indicates a systematic difference between epochs\n"
+              "  (e.g. starspots, or TTVs sampling different dynamical states).")
+    return out
+
+
+def combine_segments(segments, keys=None, seed=42, n_draw=None, verbose=True):
+    """Combine independent posteriors of one planet by importance sampling.
+
+    The segments constrain the same parameters, so the target is the **product** of
+    their densities. That product is estimated by importance sampling: the pooled
+    samples act as the proposal, each is weighted by the product of every segment's KDE
+    evaluated there, and the weighted set is resampled to equal weight.
+
+    Steps
+    -----
+    1. Drop rows that failed the transit-validity gate.
+    2. Report pairwise tension between segments (:func:`segment_tension`).
+    3. Standardise the pooled native parameters — they span several orders of magnitude
+       (``p ~ 0.07`` vs ``rho_obs ~ 2000``), and Scott's-rule bandwidths assume
+       comparable scales.
+    4. Fit one Gaussian KDE per segment in that standardised space.
+    5. Weight every pooled sample by ``prod_k p_k(theta)``, computed as a sum of
+       log-densities and shifted by its maximum for numerical stability.
+    6. Report the effective sample size, overall and for each pair of segments (which
+       identifies the segment most in tension with the rest).
+    7. Resample with replacement to equal weight.
+    8. Re-derive the observables **from the combined native parameters**, so
+       ``delta``/``aR``/``T14``/``T23`` stay mutually consistent — deriving them before
+       combining would break that.
+
+    Parameters
+    ----------
+    segments : sequence of pandas.DataFrame
+        Output of :func:`derive_observables` per segment. A single segment is returned
+        cleaned and unchanged (nothing to combine).
+    keys : list of str, optional
+        Native parameters spanning the KDE space. Defaults to
+        :data:`SEGMENT_NATIVE_KEYS`.
+    seed : int
+        Seed for the resampling draw, so the combined posterior is reproducible.
+    n_draw : int, optional
+        Number of resampled draws. Defaults to the effective sample size, which avoids
+        inflating the apparent precision of the combined posterior.
+
+    Returns
+    -------
+    tuple(pandas.DataFrame, dict)
+        The combined observables and a diagnostics dict (``n_eff``, ``tension``,
+        ``pair_ess``, ``n_draw``, ``bandwidths``).
+    """
+    from scipy.stats import gaussian_kde
+
+    keys = list(keys or SEGMENT_NATIVE_KEYS)
+    segs = [drop_invalid(s, keys) for s in segments]
+
+    if verbose:
+        print("=" * 62)
+        print(f"  Combining {len(segs)} segment(s) by importance sampling")
+        print("=" * 62)
+        for i, s in enumerate(segs, 1):
+            print(f"  Segment {i}: {len(s)} valid samples")
+
+    if len(segs) == 1:
+        if verbose:
+            print("  Single segment -- nothing to combine.")
+        out = segs[0].dropna().reset_index(drop=True)
+        return out, dict(n_eff=float(len(out)), n_draw=len(out), tension={}, pair_ess={})
+
+    if verbose:
+        print("\n-- Consistency: pairwise tension between segments " + "-" * 12)
+    tension = segment_tension(segs, keys, verbose=verbose)
+
+    # ── Proposal: the pooled samples ──────────────────────────────────────
+    pooled = pd.concat(segs, ignore_index=True)
+    X_all = pooled[keys].values.T
+    g_mean = X_all.mean(axis=1, keepdims=True)
+    g_std = X_all.std(axis=1, keepdims=True)
+
+    def _standardize(X):
+        return (X - g_mean) / g_std
+
+    if verbose:
+        print(f"\n-- {len(keys)}-D KDE per segment in standardised native space " + "-" * 8)
+    kdes = [gaussian_kde(_standardize(s[keys].values.T)) for s in segs]
+    bandwidths = [float(k.factor) for k in kdes]
+    if verbose:
+        for i, k in enumerate(kdes, 1):
+            print(f"  Segment {i}: Scott bandwidth h={k.factor:.4f}  (n={k.n}, d={k.d})")
+
+    # ── Importance weights = product of the segment densities ─────────────
+    X_pool = _standardize(pooled[keys].values.T)
+    log_ps = [k.logpdf(X_pool) for k in kdes]
+    log_w = np.sum(log_ps, axis=0)
+    log_w -= log_w.max()
+    w = np.exp(log_w)
+    w /= w.sum()
+
+    if verbose:
+        print("\n-- Weight diagnostics " + "-" * 40)
+    diag = weight_diagnostics(w, label=f"Product of {len(segs)} segments", verbose=verbose)
+    n_eff = diag["n_eff"]
+
+    pair_ess = {}
+    if verbose:
+        print("\n  Pairwise ESS (identifies the segment most in tension):")
+    for i in range(len(segs)):
+        for j in range(i + 1, len(segs)):
+            lw = log_ps[i] + log_ps[j]
+            lw -= lw.max()
+            wp = np.exp(lw)
+            wp /= wp.sum()
+            ne = effective_sample_size(wp)
+            pair_ess[f"{i+1}-{j+1}"] = ne
+            if verbose:
+                print(f"    Segments {i+1}+{j+1}: N_eff = {ne:.0f}/{len(pooled)} "
+                      f"({100 * ne / len(pooled):.1f}%)")
+
+    # ── Resample to equal weight ──────────────────────────────────────────
+    n_draw = int(n_draw or min(int(n_eff), len(pooled)))
+    if verbose and n_eff < 500:
+        print(f"\n  WARNING: N_eff={n_eff:.0f} < 500 -- the combined posterior may be "
+              f"noisy.\n  Check the tensions above before trusting it.")
+    rng = np.random.default_rng(seed)
+    idx = rng.choice(len(pooled), size=n_draw, replace=True, p=w)
+    native = pooled.iloc[idx].reset_index(drop=True)
+
+    # ── Re-derive observables from the combined native parameters ─────────
+    combined = derive_observables(native).dropna().reset_index(drop=True)
+
+    if verbose:
+        print("\n-- Combined posterior " + "-" * 40)
+        print(f"  Samples: {len(combined)}  (input N_eff = {n_eff:.0f})")
+        for name, vals, unit in [("delta [ppm]", combined["delta"] * 1e6, ""),
+                                 ("T14 [h]", combined["T14"], ""),
+                                 ("T23 [h]", combined["T23"], ""),
+                                 ("rho_obs [g/cm^3]", combined["rho_obs"] / 1000.0, ""),
+                                 ("b", combined["b"], ""),
+                                 ("a/R*", combined["aR"], "")]:
+            lo, med, hi = np.percentile(vals, [16, 50, 84])
+            print(f"  {name:18s}: {med:.4g}  +{hi - med:.3g} / -{med - lo:.3g}")
+
+    return combined, dict(n_eff=n_eff, n_draw=n_draw, tension=tension,
+                          pair_ess=pair_ess, bandwidths=bandwidths)
 
 
 def save_observables(obs_df, path):

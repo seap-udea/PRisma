@@ -1,0 +1,102 @@
+{
+  "planet": "d",
+  "run_tag": "k51d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+  "kde_observables": [
+    "delta",
+    "T14",
+    "rho_obs"
+  ],
+  "N_KDE": 5000,
+  "seed_kde": 123,
+  "nlive": 1200,
+  "sample": "rslice",
+  "dlogz": 0.01,
+  "seed_ns": 2026,
+  "B_FIXED": 0.003,
+  "B_SIGMA": 0.19,
+  "B_FREE": true,
+  "P_FREE": true,
+  "P_FIXED_VALUE": 0.022671100000000003,
+  "FORWARD_MODEL": "exorings",
+  "FI_FIXED": 1.0,
+  "FE_MAX": 10.0,
+  "TAU_FREE": true,
+  "TAU_FIXED": 1.0,
+  "TAU_PRIOR_LO": 0.1,
+  "TAU_PRIOR_HI": 10.0,
+  "P_fixed_days": 130.17802962,
+  "p_min": 0.022671100000000003,
+  "p_max": 0.09857,
+  "p_mean_ref": 0.09857,
+  "RHO_TRUE_FREE": true,
+  "RHO_TRUE_FIXED": 1.8832397719215275,
+  "RHO_TRUE_MIN": 0.7452350306103924,
+  "RHO_TRUE_MAX": 2.7287148303648876,
+  "logz": 1.432008091177189,
+  "logz_err": 0.0945592185894301,
+  "n_iter": 16006,
+  "runtime_s": 690.0271668434143,
+  "n_samples": 16006,
+  "param_names": [
+    "fe",
+    "ir",
+    "theta",
+    "p",
+    "tau",
+    "rho_true",
+    "b"
+  ],
+  "stat_fe_median": 2.0696826856918245,
+  "stat_fe_p16": 1.2817048506507274,
+  "stat_fe_p84": 4.3231643218636275,
+  "stat_ir_median": 71.25645495441682,
+  "stat_ir_p16": 52.01092774146452,
+  "stat_ir_p84": 85.36087533556898,
+  "stat_theta_median": 67.31059960708478,
+  "stat_theta_p16": 49.7960495230553,
+  "stat_theta_p84": 80.96872430295741,
+  "stat_p_median": 0.07826632077019316,
+  "stat_p_p16": 0.05258607880448632,
+  "stat_p_p84": 0.09349351074045628,
+  "stat_tau_median": 0.7192483626437023,
+  "stat_tau_p16": 0.26117841514193985,
+  "stat_tau_p84": 2.0494389460124465,
+  "stat_rho_true_median": 2.04602835709518,
+  "stat_rho_true_p16": 1.8683064154140807,
+  "stat_rho_true_p84": 2.1976398227503733,
+  "stat_b_median": 0.31366064791658194,
+  "stat_b_p16": 0.21603763250048072,
+  "stat_b_p84": 0.38739743200144217,
+  "ppc_stats": {
+    "delta": {
+      "W1": 16.79915334,
+      "KS": 0.064143,
+      "KS_p": 1e-08,
+      "E": 1.11964159
+    },
+    "T14": {
+      "W1": 0.01061626,
+      "KS": 0.10464,
+      "KS_p": 0.0,
+      "E": 0.03936986
+    },
+    "T23": {
+      "W1": 0.00759801,
+      "KS": 0.054122,
+      "KS_p": 2.02e-06,
+      "E": 0.02203921
+    },
+    "rho_obs": {
+      "W1": 0.0341641,
+      "KS": 0.110341,
+      "KS_p": 0.0,
+      "E": 0.07051395
+    },
+    "b_obs": {
+      "W1": 0.0273019,
+      "KS": 0.119568,
+      "KS_p": 0.0,
+      "E": 0.06647987
+    }
+  }
+}

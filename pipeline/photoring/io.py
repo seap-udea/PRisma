@@ -144,6 +144,80 @@ def save_run(results_dir, run_tag, arrays, meta, overwrite=False):
     return npz_path, json_path
 
 
+# Arrays of a live ``dynesty`` result worth persisting so a reloaded run can be
+# fed back to ``dynesty.plotting`` unchanged. ``samples_u`` (unit-cube samples) is
+# required by dynesty >= 3.0 to build a Results object at all.
+DYNESTY_ARRAYS = ("samples", "samples_u", "samples_it", "samples_id",
+                  "logwt", "logl", "logvol", "logz", "logzerr", "information")
+
+
+def dynesty_arrays(dres):
+    """Extract every :data:`DYNESTY_ARRAYS` entry present on a live dynesty result.
+
+    Pass the returned dict straight into :func:`save_run`'s ``arrays`` so the run can
+    later be reloaded into a *complete* Results object (see :func:`load_run`).
+    """
+    out = {}
+    for key in DYNESTY_ARRAYS:
+        val = getattr(dres, key, None)
+        if val is None and key in getattr(dres, "keys", lambda: [])():
+            val = dres[key]
+        if val is not None:
+            out[key] = np.asarray(val)
+    return out
+
+
+def _rebuild_dynesty_results(npz, meta):
+    """Rebuild a ``dynesty`` Results object from a saved ``.npz``.
+
+    Returns ``(results, is_complete)``. ``is_complete`` is ``True`` only when every
+    array dynesty needs was persisted at save time (see :func:`dynesty_arrays`).
+
+    Runs saved before ``samples_u`` was persisted are still usable for
+    :func:`~photoring.plotting.plot_corner`, which only reads ``samples``/``logwt``:
+    the missing arrays are filled with placeholders and ``is_complete`` is ``False``.
+    Do **not** feed such a result to ``dyplot.runplot``/``traceplot`` — the
+    placeholders are not the real sampling history.
+    """
+    try:
+        from dynesty.results import Results as DyResults
+    except Exception:
+        return None, False
+    if "samples" not in npz:
+        return None, False
+
+    samples = npz["samples"]
+    n = len(samples)
+    have = {k: npz[k] for k in DYNESTY_ARRAYS if k in npz}
+    is_complete = all(k in have for k in DYNESTY_ARRAYS)
+
+    fields = dict(
+        samples=samples,
+        samples_u=have.get("samples_u", np.zeros_like(samples)),
+        samples_it=have.get("samples_it", np.arange(n)),
+        samples_id=have.get("samples_id", np.zeros(n, dtype=int)),
+        logwt=have.get("logwt", np.zeros(n)),
+        logl=have.get("logl", np.zeros(n)),
+        niter=n,
+        eff=float(meta.get("eff", 1.0)),
+        nlive=int(meta.get("nlive", 0)) or 1,
+    )
+    # dynesty stores logz/logzerr as running arrays; a scalar in meta is the final value.
+    for key, meta_key in (("logz", "logz"), ("logzerr", "logz_err")):
+        if key in have:
+            fields[key] = have[key]
+        else:
+            fields[key] = np.full(n, float(meta.get(meta_key, 0.0)))
+    for key in ("logvol", "information"):
+        if key in have:
+            fields[key] = have[key]
+
+    try:
+        return DyResults(list(fields.items())), is_complete
+    except Exception:
+        return None, False
+
+
 def load_run(npz_path):
     """Load a single run from its ``.npz`` and ``_meta.json`` files into a dict."""
     npz_path = Path(npz_path)
@@ -152,22 +226,7 @@ def load_run(npz_path):
     json_path = npz_path.with_name(tag + "_meta.json")
     meta = json.loads(json_path.read_text()) if json_path.exists() else {}
 
-    dres = None
-    try:
-        from dynesty.results import Results as DyResults
-        dres = DyResults([
-            ("samples", npz["samples"]),
-            ("logwt", npz["logwt"]),
-            ("logl", npz["logl"]),
-        ])
-        if "logz" in meta:
-            dres["logz"] = np.full(len(npz["samples"]), meta["logz"])
-            dres["logzerr"] = np.full(len(npz["samples"]), meta.get("logz_err", 0.0))
-        else:
-            dres["logz"] = np.zeros(len(npz["samples"]))
-            dres["logzerr"] = np.zeros(len(npz["samples"]))
-    except Exception:
-        dres = None
+    dres, dres_full = _rebuild_dynesty_results(npz, meta)
 
     return dict(
         tag=tag,
@@ -177,6 +236,7 @@ def load_run(npz_path):
         logwt=npz["logwt"] if "logwt" in npz else None,
         logl=npz["logl"] if "logl" in npz else None,
         dres=dres,
+        dres_full=dres_full,
         meta=meta,
         param_names=meta.get("param_names", []),
         planet=meta.get("planet", "?"),

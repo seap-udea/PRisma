@@ -23,6 +23,10 @@ pipeline/**/figures/
 pipeline/**/tests_outputs/
 pipeline/**/tests_logs/
 **/tmp/
+#
+# NOTE: the posterior chains behind the manuscript figures are *not* here — they are
+# versioned as reference artefacts under paper_figures/reference_runs/, because they are
+# inputs to the paper reproduction rather than regenerable pipeline output.
 
 # --- Legacy exploratory outputs (regenerable; not versioned) ---
 legacy/photoring/dev/prdata/*.csv

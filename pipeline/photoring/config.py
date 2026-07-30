@@ -39,7 +39,7 @@ FIGURE_TYPES = (
     "ring",          # projected ring-geometry diagram
     "trace",         # sampler trace / run diagnostics
     "diagnostics",   # convergence diagnostics (emcee)
-    "observables",   # transit-observable posteriors (notebook 01b)
+    "observables",   # transit-observable posteriors and density anomaly (step 1)
     "panel",         # consolidated results panel
 )
 
