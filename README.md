@@ -1,4 +1,4 @@
-# AppPR — a reproducible pipeline for exoplanet-ring detection via asterodensity profiling
+# PRisma — a reproducible pipeline for exoplanet-ring detection via asterodensity profiling
 
 This repository is the consolidated, documented, and reproducible version of the thesis research
 by **Sebastián Numpaque** (Universidad de Antioquia), advised by **Jorge I. Zuluaga**, with

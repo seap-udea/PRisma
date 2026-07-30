@@ -23,7 +23,7 @@ exploratory MCRA analysis) is kept under [`legacy/`](legacy/).
 ## Top-level layout
 
 ```
-AppPR/
+PRisma/
 ├── exorings/            # closed-form ring-transit forward model (package)
 ├── geotrans/            # independent numerically-integrated model (package)
 ├── pipeline/            # THE reproducible method
@@ -105,6 +105,7 @@ Mallén-Ornelas 2003, …). Reference PDFs are not redistributed (copyright; see
 ## What's deliberately *not* here
 
 - **The paper's LaTeX source** — private; only figure-generating code and final images are traced.
-- **Bulk generated results/figures** — the pipeline regenerates them on demand
-  (`pipeline/**/results/`, `figures/` are gitignored).
+- **Bulk generated figures / scratch** — `pipeline/**/figures/`, `tests_outputs/`, and
+  `tests_logs/` are gitignored. Posterior chains under `pipeline/**/results/` are
+  versioned so tables and figures can be rebuilt without re-running nested sampling.
 - **Large external datasets** referenced by the legacy analysis.

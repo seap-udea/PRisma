@@ -140,8 +140,9 @@ pipeline/<case>/
 ```
 
 The `RUN_TAG` encodes the full configuration (case, planet, sampler, KDE observables, sampler
-settings, forward model, free-parameter flags). `results/` and `figures/` are **gitignored** — the
-pipeline regenerates them; only code and minimal inputs are versioned.
+settings, forward model, free-parameter flags). `figures/` is **gitignored** (regenerable).
+`results/` (`.npz` + `_meta.json` posterior chains) is **versioned** so tables and paper
+figures can be rebuilt without re-running nested sampling.
 
 ## Running a sweep
 

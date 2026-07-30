@@ -10,7 +10,7 @@ Usage
     python run_sweep.py [--sampler emcee|dynesty|both] [--case CASE]
                         [--notebook-emcee PATH] [--notebook-dynesty PATH] [--dry-run]
 
-Dependencies: ``pip install papermill``.
+Dependencies: ``pip install papermill`` (see the repo ``.venv``).
 
 How injection works
 -------------------
@@ -21,9 +21,19 @@ never expressions referencing other notebook variables (e.g. ``PLANET_PARAMS[PLA
 cell must contain only literals; the model is built in a *separate*, untagged cell that runs
 after injection.
 
-Outputs are written into the case directory: executed notebooks to ``<case>/tests_outputs/``,
-logs to ``<case>/tests_logs/``, and each run's chain/metadata to
-``<case>/results/<forward_model>/`` (the notebook itself writes these via ``photoring.CasePaths``).
+Outputs land only under the case directory (never under ``PaperFigures/``):
+
+- executed notebooks → ``<case>/tests_outputs/``
+- logs → ``<case>/tests_logs/``
+- chains / metadata → ``<case>/results/<forward_model>/``
+
+The manuscript figure chains in ``PaperFigures/reference_runs/`` are a separate artefact
+(``rhoFREE_bFREE_tauFREE_pFREE``) and are not part of this 32-run grid; this sweep will not
+overwrite them.
+
+Default grid size (dynesty)
+---------------------------
+``2 planets × 3 KDE sets × 4 nuisance combos × 2 τ × 2 p = 96`` runs.
 """
 
 import argparse
@@ -41,28 +51,41 @@ from pathlib import Path
 
 DEFAULT_CASE = "kepler_51"
 
+# Manuscript observable sets (Zuluaga/Numpaque retrieval suite). The optional
+# ``b_obs`` set is omitted from the default grid: Kipping ``bobs`` is often NaN
+# for ring geometries and used to crash nested sampling before the NaN guard.
 KDE_VARIANTS = [
     ["delta", "rho_obs"],
-    ["delta", "T14", "T23"],
-    ["delta", "rho_obs", "b_obs"],
     ["delta", "T14", "rho_obs"],
+    ["delta", "T14", "T23"],
 ]
 
+# Full 2×2 nuisance grid. With T14 in the likelihood, RHO/B fixed typically
+# yields a prior plateau (no live point hits the KDE island) — those runs are
+# expected to be rejected by the parallel runner's plateau guard.
 FREE_PARAM_VARIANTS = [
-    {"RHO_TRUE_FREE": False, "B_FREE": False},
+    {"RHO_TRUE_FREE": False, "B_FREE": False},  # All fixed (nuisance)
+    {"RHO_TRUE_FREE": True,  "B_FREE": False},  # ρ★,true free
+    {"RHO_TRUE_FREE": False, "B_FREE": True},   # b free
+    {"RHO_TRUE_FREE": True,  "B_FREE": True},   # All flexible (nuisance)
 ]
 
 TAU_FREE_VARIANTS = [False, True]
 P_FREE_VARIANTS = [True, False]
 FORWARD_MODEL_VARIANTS = ["exorings"]   # add "geotrans" to cross-check
 
+# Grid size (dynesty): 2 planets × 3 KDE × 4 nuisance × 2 τ × 2 p = 96 runs.
+
+# use_pool=False: papermill/ipykernel + multiprocessing "fork" deadlocks on macOS
+# (parent waits forever; workers sit idle as forked ipykernel copies). Parallelism
+# works in a plain script; under this sweep keep the pool off.
 MCMC_CONFIG_BASE = {
     "nwalkers": 64, "nsteps": 10000, "burnin": 2000, "thin": 50,
-    "seed": 2026, "use_pool": True, "n_procs": 6,
+    "seed": 2026, "use_pool": False, "n_procs": 1,
 }
 NS_CONFIG_BASE = {
     "nlive": 1200, "sample": "rslice", "dlogz": 0.01, "bound": "multi",
-    "seed": 2026, "use_pool": True, "n_procs": 6,
+    "seed": 2026, "use_pool": False, "n_procs": 1,
 }
 MODEL_CONFIG_BASE = {
     "RHO_TRUE_FIXED": None, "FI_FIXED": 1.0, "FE_MAX": 10.0,
@@ -88,6 +111,7 @@ OVERRIDES = {}   # {run_index: {'NS_CONFIG': {...}}}
 
 DEFAULT_NB_EMCEE = Path("02_inference_emcee.ipynb")
 DEFAULT_NB_DYNESTY = Path("02_inference_dynesty.ipynb")
+DEFAULT_KERNEL = "python3"  # repo .venv registers itself as the ``python3`` kernel
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -165,7 +189,14 @@ def fmt_duration(seconds):
 # CORE
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def execute_run(case, forward_model, notebook_in, run_tag, params, dry_run):
+def execute_run(case, forward_model, notebook_in, run_tag, params, dry_run, kernel=DEFAULT_KERNEL):
+    # Results / logs stay under pipeline/<case>/ — never under PaperFigures/.
+    results_root = (case_dir(case) / "results").resolve()
+    if "PaperFigures" in results_root.parts or "paper_figures" in results_root.parts:
+        raise RuntimeError(
+            f"Refusing to write results under PaperFigures: {results_root}"
+        )
+
     out_dir = case_dir(case) / "tests_outputs"
     log_dir = case_dir(case) / "tests_logs"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -183,7 +214,7 @@ def execute_run(case, forward_model, notebook_in, run_tag, params, dry_run):
 
     cmd = [sys.executable, "-m", "papermill", str(notebook_in), str(nb_out),
            "--cwd", ".", "--parameters_file", "/dev/stdin",
-           "--no-progress-bar", "--kernel", "python3"]
+           "--no-progress-bar", "--kernel", kernel]
     t0 = time.time()
     try:
         with open(log_out, "w") as log_fh:
@@ -213,10 +244,13 @@ def build_run_list(sampler, case):
 
 def main():
     ap = argparse.ArgumentParser(description="Photo-Ring pipeline sweep")
-    ap.add_argument("--sampler", choices=["emcee", "dynesty", "both"], default="both")
+    # dynesty is the manuscript sampler; emcee is an optional cross-check.
+    ap.add_argument("--sampler", choices=["emcee", "dynesty", "both"], default="dynesty")
     ap.add_argument("--case", default=DEFAULT_CASE, help="Case directory (default kepler_51)")
     ap.add_argument("--notebook-emcee", type=Path, default=DEFAULT_NB_EMCEE)
     ap.add_argument("--notebook-dynesty", type=Path, default=DEFAULT_NB_DYNESTY)
+    ap.add_argument("--kernel", default=DEFAULT_KERNEL,
+                    help="Jupyter kernel name (default: python3 from the repo .venv)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -231,6 +265,8 @@ def main():
     print(f"\n{'=' * 64}")
     print(f"  Photo-Ring sweep — case '{args.case}' — {total} runs  |  {datetime.now():%Y-%m-%d %H:%M}")
     print(f"  Samplers: {samplers} | KDE variants: {len(KDE_VARIANTS)}")
+    print(f"  Python: {sys.executable}")
+    print(f"  Results -> {case_dir(args.case).resolve() / 'results'}")
     print(f"{'=' * 64}\n")
 
     results_log = []
@@ -242,7 +278,8 @@ def main():
             print(f"  [ERROR] notebook not found: {nb_in}\n")
             results_log.append({"status": "no_notebook", "run_tag": tag})
             continue
-        res = execute_run(args.case, run["forward_model"], nb_in, tag, run["params"], args.dry_run)
+        res = execute_run(args.case, run["forward_model"], nb_in, tag, run["params"],
+                          args.dry_run, kernel=args.kernel)
         results_log.append(res)
         if res["status"] == "ok":
             print(f"  [OK]   {fmt_duration(res['duration'])}  ->  {res['log']}")

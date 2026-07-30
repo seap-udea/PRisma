@@ -20,7 +20,8 @@ kepler_51/
 └── figures/<type>/                            # ppc, corner, marginal, ring, trace, panel (created on run)
 ```
 
-`results/` and `figures/` are **gitignored** — running the pipeline regenerates them.
+`results/` (posterior `.npz` + `_meta.json`) is **versioned**; `figures/` is **gitignored** —
+running the pipeline regenerates figures, while chains stay available for tables/figures.
 
 ## Inputs in detail
 

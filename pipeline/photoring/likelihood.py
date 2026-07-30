@@ -79,5 +79,15 @@ def build_kde(ttv, observables, n_kde=5000, seed_kde=123):
         train_rows.append(vec)
         train_emp[key] = vec * scale
 
-    kde = gaussian_kde(np.vstack(train_rows))
+    train = np.vstack(train_rows)
+    finite = np.all(np.isfinite(train), axis=0)
+    if not np.any(finite):
+        raise ValueError(
+            f"No finite training rows for KDE observables {observables}")
+    if not np.all(finite):
+        train = train[:, finite]
+        idx_train = np.asarray(idx_train)[finite]
+        train_emp = {k: v[finite] for k, v in train_emp.items()}
+
+    kde = gaussian_kde(train)
     return kde, idx_train, train_emp

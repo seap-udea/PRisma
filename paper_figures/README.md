@@ -46,9 +46,9 @@ kepler_51_<planet>_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE500
 ```
 
 These are **inputs to the paper reproduction**, which is why they live here rather than under
-`pipeline/<case>/results/` — that directory is gitignored, since everything in it is
-regenerable pipeline output. To reproduce the chains themselves from scratch, run the pipeline
-with the configuration above; see [`../pipeline/README.md`](../pipeline/README.md).
+`pipeline/<case>/results/` — also versioned for the broader retrieval suite. To reproduce the
+chains themselves from scratch, run the pipeline with the configuration above; see
+[`../pipeline/README.md`](../pipeline/README.md).
 
 One caveat on reloaded runs: `samples`, `logwt` and `logl` are the real nested-sampling output,
 which is all the corner plot needs, but the full sampling history (`samples_u`, `logvol`, …)

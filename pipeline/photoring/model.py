@@ -236,9 +236,17 @@ class PhotoRingModel:
         eval_vec = []
         for key in self.observables:
             _, model_key, _, _, _ = self.OBS_MAP[key]
-            eval_vec.append(res[model_key])
-        dens = self.kde(np.array(eval_vec).reshape(-1, 1))
-        return float(np.log(max(float(dens[0]), FLOAT_TINY)))
+            val = res[model_key]
+            # Forward can return NaN (e.g. Kipping b_obs when contact geometry is
+            # undefined); that must not reach gaussian_kde.
+            if val is None or not np.isfinite(val):
+                return -np.inf
+            eval_vec.append(float(val))
+        dens = self.kde(np.asarray(eval_vec, dtype=float).reshape(-1, 1))
+        d = float(dens[0])
+        if not np.isfinite(d) or d <= 0.0:
+            return -np.inf
+        return float(np.log(max(d, FLOAT_TINY)))
 
     def log_prob(self, params):
         """Log-posterior = log-prior + log-likelihood (MCMC target)."""
