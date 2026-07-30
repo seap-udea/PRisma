@@ -34,9 +34,10 @@ copying that directory and dropping in your own data. Read
 [`pipeline/README.md`](pipeline/README.md) first — it documents the input contract, the model,
 the output structure, and how to run it end to end.
 
-Only the pipeline's **code and the minimal input data it needs to run** are versioned here — not
-the large sweep of result files/figures already produced during the thesis. Running the pipeline
-regenerates `pipeline/<case>/results/` and `figures/` locally (they are gitignored).
+The **`photoring`** analysis code, the Kepler-51 inputs, and the posterior chains under
+`pipeline/<case>/results/` (`.npz` + `_meta.json`) are versioned so anyone can rebuild
+tables and figures without re-running nested sampling. Regenerable plot scratch
+(`figures/`, `tests_outputs/`, `tests_logs/`) stays gitignored.
 
 ## Repository map
 
@@ -68,16 +69,73 @@ The notebooks default to `CASE = "kepler_51"`, reading/writing `pipeline/kepler_
 installing — the notebooks put the repo root and `pipeline/` on `sys.path` and import `exorings`,
 `geotrans` and `photoring` directly.
 
-Or run the full configuration sweep used in the thesis:
+`requirements.txt` lists dependencies without pinned versions (none were pinned in the original
+research environment); pin them once you have a working install if you need a frozen environment.
+
+## Configuration sweeps
+
+A *sweep* runs step-2 inference over many retrieval scenarios (planets × KDE observable sets ×
+which of `ρ★,true`, `b`, `τ`, `p` are free). Edit the combinatorial grid in
+[`pipeline/run_sweep.py`](pipeline/run_sweep.py) (`KDE_VARIANTS`, `FREE_PARAM_VARIANTS`,
+`TAU_FREE_VARIANTS`, `P_FREE_VARIANTS`, `PLANETS`, `NS_CONFIG_BASE`). The default grid is
+**96** dynesty runs for Kepler-51.
+
+**Prefer the parallel runner** ([`pipeline/run_sweep_parallel.py`](pipeline/run_sweep_parallel.py)):
+it calls `photoring` directly (no papermill/ipykernel), so a multiprocessing fork pool works on
+macOS. The older [`pipeline/run_sweep.sh`](pipeline/run_sweep.sh) path uses papermill and must keep
+`use_pool=False` or it deadlocks.
+
+### Prepare
 
 ```bash
 cd pipeline
-bash run_sweep.sh dynesty              # nested sampling, all configs, case kepler_51
-bash run_sweep.sh emcee --dry-run      # preview configurations
+# Observables must exist (once per case):
+jupyter nbconvert --to notebook --execute 01_observables.ipynb
+
+# Preview the run list (no sampling):
+bash run_sweep_parallel.sh --dry-run --n-procs 6
+
+# Optional: only the two manuscript reference tags (All flexible, L=δ,T14,ρ):
+bash run_sweep_parallel.sh --dry-run --validate-refs --n-procs 6
 ```
 
-`requirements.txt` lists dependencies without pinned versions (none were pinned in the original
-research environment); pin them once you have a working install if you need a frozen environment.
+### Launch
+
+```bash
+cd pipeline
+nohup bash run_sweep_parallel.sh --n-procs 6 > sweep_parallel_96.log 2>&1 &
+tail -f sweep_parallel_96.log
+```
+
+Useful flags: `--jobs 2` (two configs at once; workers are split), `--validate-refs`,
+`--skip-ppc`, `--case my_planet`. Chains are written to
+`pipeline/<case>/results/exorings/<run_tag>.npz` (+ `_meta.json`).
+
+### Stop (pause)
+
+```bash
+cd pipeline
+bash stop_sweep_parallel.sh            # SIGTERM the runner
+bash stop_sweep_parallel.sh --status   # list PIDs only
+```
+
+Completed runs already have a `.npz` on disk. The run that was in progress (no `.npz`
+yet) will restart from scratch when you resume — that is expected.
+
+### Resume
+
+Re-run the **same** launch command. Finished tags are reported as `[SKIP]`:
+
+```bash
+cd pipeline
+nohup bash run_sweep_parallel.sh --n-procs 6 > sweep_parallel_96.log 2>&1 &
+tail -f sweep_parallel_96.log
+```
+
+Configs whose prior never intersects the KDE (typical when `T14` is in the likelihood and
+`ρ★,true`/`b` are fixed) are reported as `[PLATEAU]` and are **not** saved.
+
+More detail: [`pipeline/README.md`](pipeline/README.md).
 
 ## License
 

@@ -10,6 +10,11 @@
 #   bash run_sweep_parallel.sh --validate-refs --n-procs 6   # 2 manuscript tags
 #   bash run_sweep_parallel.sh --n-procs 6                   # full 96-run grid
 #   bash run_sweep_parallel.sh --jobs 2 --n-procs 6
+#
+# Pause / resume:
+#   bash stop_sweep_parallel.sh                             # stop current sweep
+#   nohup bash run_sweep_parallel.sh --n-procs 6 \
+#       > sweep_parallel_96.log 2>&1 &                      # resume (skips .npz)
 # =============================================================================
 
 set -euo pipefail

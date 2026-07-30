@@ -244,8 +244,11 @@ class PhotoRingModel:
             eval_vec.append(float(val))
         dens = self.kde(np.asarray(eval_vec, dtype=float).reshape(-1, 1))
         d = float(dens[0])
-        if not np.isfinite(d) or d <= 0.0:
+        if not np.isfinite(d):
             return -np.inf
+        # A density underflowing to 0 keeps the finite log(FLOAT_TINY) floor:
+        # nested sampling then exits on a detectable plateau instead of stalling
+        # forever looking for live points with finite log-likelihood.
         return float(np.log(max(d, FLOAT_TINY)))
 
     def log_prob(self, params):

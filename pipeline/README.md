@@ -146,17 +146,41 @@ figures can be rebuilt without re-running nested sampling.
 
 ## Running a sweep
 
-`run_sweep.py` / `run_sweep.sh` run step 2 over many configurations via `papermill`:
+**Recommended:** [`run_sweep_parallel.py`](run_sweep_parallel.py) / [`run_sweep_parallel.sh`](run_sweep_parallel.sh)
+call `photoring` directly (no papermill), so dynesty can use a fork pool on macOS. Edit the grid
+in [`run_sweep.py`](run_sweep.py) (`KDE_VARIANTS`, `FREE_PARAM_VARIANTS`, …); both launchers share it.
 
 ```bash
-bash run_sweep.sh                    # both samplers, all configs, case kepler_51
-bash run_sweep.sh dynesty            # nested sampling only
-bash run_sweep.sh emcee --dry-run    # preview configurations
-bash run_sweep.sh both --case my_planet   # sweep a different case
+# Prepare — observables once, then preview tags
+jupyter nbconvert --to notebook --execute 01_observables.ipynb
+bash run_sweep_parallel.sh --dry-run --n-procs 6
+
+# Launch (background)
+nohup bash run_sweep_parallel.sh --n-procs 6 > sweep_parallel_96.log 2>&1 &
+tail -f sweep_parallel_96.log
+
+# Pause
+bash stop_sweep_parallel.sh
+bash stop_sweep_parallel.sh --status    # PIDs only
+
+# Resume — identical command; existing <run_tag>.npz files are SKIPPED
+nohup bash run_sweep_parallel.sh --n-procs 6 > sweep_parallel_96.log 2>&1 &
 ```
 
-Executed notebooks land in `<case>/tests_outputs/`, logs in `<case>/tests_logs/`, results in
-`<case>/results/<model>/`.
+Useful flags: `--validate-refs` (manuscript All-flexible pair), `--jobs N`, `--skip-ppc`,
+`--case CASE`. Plateau configs (prior never hits the KDE) are logged as `PLATEAU` and not saved.
+
+The older papermill launcher remains available but must keep `use_pool=False` (ipykernel + fork
+deadlocks on macOS):
+
+```bash
+bash run_sweep.sh dynesty            # nested sampling only
+bash run_sweep.sh emcee --dry-run    # preview configurations
+bash run_sweep.sh both --case my_planet
+```
+
+Executed papermill notebooks land in `<case>/tests_outputs/`, logs in `<case>/tests_logs/`,
+results in `<case>/results/<model>/`.
 
 ## The `photoring` package
 
