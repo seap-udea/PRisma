@@ -974,17 +974,24 @@ def _apply_panel_title(fig, axes, run, pnames):
         rf"${_sym('theta', r'\theta')}={ring_vals['theta']:.1f}^\circ$, "
         rf"${_sym('tau', r'\tau')}={ring_vals['tau']:.2f}$"
     )
-    text = (
-        f"{planet_label} — Posterior results\n"
-        f"{_run_title(run)}\n"
-        f"{medians}"
-    )
-    fig.text(
-        0.5, y_top + dy, text,
-        ha="center", va="bottom", fontsize=fontsize,
-        transform=fig.transFigure, clip_on=False,
-        linespacing=1.85,
-    )
+    lines = [
+        f"{planet_label} — Posterior results",
+        _run_title(run),
+        medians,
+    ]
+    # ``Text.linespacing`` is unreliable when ``text.usetex=True`` (PAPER_STYLE):
+    # TeX owns the baselineskip and ignores matplotlib's multiplier, so a
+    # multiline ``fig.text``/``suptitle`` looks cramped. Place each line with an
+    # explicit figure-fraction step instead (works for both usetex and mathtext).
+    linespacing = 1.85
+    line_step = linespacing * (fontsize / 72.0) / fig.get_figheight()
+    y0 = y_top + dy  # bottom of the title block (above the f_e axis title)
+    for i, line in enumerate(reversed(lines)):
+        fig.text(
+            0.5, y0 + i * line_step, line,
+            ha="center", va="bottom", fontsize=fontsize,
+            transform=fig.transFigure, clip_on=False,
+        )
     return 1.0
 
 
