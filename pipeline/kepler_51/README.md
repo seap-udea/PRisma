@@ -16,10 +16,12 @@ kepler_51/
 │   └── rho_true_data/
 │       ├── rho_true_samples.dat               # ρ★,true samples [kg/m³] (Berger et al. 2023)
 │       └── rho_grid_cdf.txt                   # its inverse-CDF grid (regenerable)
-└── results/<forward_model>/                   # <run_tag>.npz + _meta.json
+├── results/<forward_model>/                   # <run_tag>.npz + _meta.json
+└── tests_logs/                                # per-run dynesty logs (versioned)
 ```
 
-`results/` is **versioned**. Manuscript figures/tables come from
+`results/` and `tests_logs/` are **versioned**, as is the parallel-sweep master log
+`pipeline/sweep_parallel_*.log`. Manuscript figures/tables come from
 [`papers/kepler51/`](../../papers/kepler51/) (`make notebooks`), which reads these chains (and
 `reference_runs/`). Optional `figures/` under this case directory is gitignored diagnostic scratch
 from older plotting notebooks — not used by the paper.

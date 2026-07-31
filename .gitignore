@@ -19,14 +19,12 @@ env/
 # --- Pipeline outputs ---
 # Posterior chains (.npz + _meta.json) under results/ ARE versioned so anyone can
 # rebuild tables and figures without re-running nested sampling.
+# Per-run dynesty logs (tests_logs/) and the parallel-sweep master log
+# (pipeline/sweep_parallel_*.log) ARE also versioned for reproducibility.
 # Regenerable plotting / papermill scratch stay ignored:
 pipeline/**/figures/
 pipeline/**/tests_outputs/
-pipeline/**/tests_logs/
 **/tmp/
-pipeline/sweep*.log
-sweep*.log
-
 # --- Legacy exploratory outputs (regenerable; not versioned) ---
 legacy/photoring/dev/prdata/*.csv
 legacy/photoring/dev/prdata/figures/*.png

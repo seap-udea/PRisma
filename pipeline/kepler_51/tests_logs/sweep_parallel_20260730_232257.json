@@ -1,0 +1,692 @@
+[
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 43.581740856170654,
+    "logz": 1.966303497569947,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 45.56806492805481,
+    "logz": 1.7124933027173483,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 45.9316291809082,
+    "logz": 2.1201957730404377,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 45.592947006225586,
+    "logz": 2.2080068595864355,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 41.62704682350159,
+    "logz": 2.225224672120772,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 42.558897972106934,
+    "logz": 2.2367242646000416,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 49.42913794517517,
+    "logz": 1.901691167986528,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 44.147181034088135,
+    "logz": 2.0104681904614043,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 59.45985984802246,
+    "logz": 2.0738356330037457,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 58.836326122283936,
+    "logz": 2.0977567204523195,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 62.05853605270386,
+    "logz": 1.9051884470366858,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 61.866004943847656,
+    "logz": 2.319481822714195,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 66.20747184753418,
+    "logz": 2.096410556324889,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 61.65097689628601,
+    "logz": 2.128006863249818,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 66.80845713615417,
+    "logz": 2.547772847331123,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 62.79745626449585,
+    "logz": 1.9466029722420273,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.27995896339416504,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.23250794410705566,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.22935104370117188,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.22411870956420898,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 67.74026918411255,
+    "logz": -0.37102827347647704,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 58.176817893981934,
+    "logz": 0.4426625843627395,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.2246417999267578,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 68.20102286338806,
+    "logz": -0.08672488167285351,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.233809232711792,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 78.21029019355774,
+    "logz": 0.9369362304805886,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 92.30605006217957,
+    "logz": -0.12856032991382552,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 85.88404488563538,
+    "logz": 0.6940192464619409,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 84.33692598342896,
+    "logz": 1.617971996396825,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 84.39294004440308,
+    "logz": 0.9911106637152897,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 86.2204270362854,
+    "logz": 2.001772428497531,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 87.69978189468384,
+    "logz": 1.4009774627635936,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.2276761531829834,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.22647786140441895,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.22603917121887207,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.22277307510375977,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 0.22623610496520996,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 63.516645193099976,
+    "logz": 1.662531308850517,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.22738099098205566,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 65.5978307723999,
+    "logz": 2.103900486205911,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.2283949851989746,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 79.55717301368713,
+    "logz": 1.928950027904315,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 88.3656280040741,
+    "logz": 1.6840415030014808,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 85.88055276870728,
+    "logz": 2.2114493563305726,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 86.91231107711792,
+    "logz": 3.0529955732668648,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 84.40881681442261,
+    "logz": 2.204764488249904,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 87.98446106910706,
+    "logz": 3.59259425702102,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 88.39323592185974,
+    "logz": 2.38355820319688,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 49.15464901924133,
+    "logz": 1.8991588971413391,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 45.629109144210815,
+    "logz": 1.4806527240491347,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 45.87564206123352,
+    "logz": 2.0124335069163437,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 47.03893685340881,
+    "logz": 1.6799136314647642,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 48.0476438999176,
+    "logz": 2.0650179776431443,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 48.93632102012634,
+    "logz": 1.8379334841448687,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 48.698137044906616,
+    "logz": 2.0636528633081808,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 49.22803497314453,
+    "logz": 1.5895617433969542,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 64.33477306365967,
+    "logz": 2.2582478669909256,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 61.78201222419739,
+    "logz": 1.7996778154682005,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 66.71532893180847,
+    "logz": 2.0254662649393467,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 65.0313150882721,
+    "logz": 1.500610413627215,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 65.5577301979065,
+    "logz": 2.014956679682816,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 63.93926811218262,
+    "logz": 1.5636573755455414,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 67.67566084861755,
+    "logz": 2.2782414875150425,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 65.61352181434631,
+    "logz": 1.685110363089103,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.26270103454589844,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.25937509536743164,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 122.61411690711975,
+    "logz": -40.02398888171914,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.25144410133361816,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 67.71836280822754,
+    "logz": 1.2056413263446466,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 65.22110509872437,
+    "logz": 0.3713319935772931,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 69.37193489074707,
+    "logz": -0.7118402845336175,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 66.3775680065155,
+    "logz": 0.6379014710531027,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 90.07641005516052,
+    "logz": 1.0380198624406813,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 76.32545685768127,
+    "logz": 0.7416643318679332,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 99.35969400405884,
+    "logz": 0.7621682190763396,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 85.5103030204773,
+    "logz": 1.0028151370880178,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 83.62809324264526,
+    "logz": 2.086816171403795,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 83.32087993621826,
+    "logz": 0.9733708905077681,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 89.74412965774536,
+    "logz": 1.957812125792052,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 84.11935019493103,
+    "logz": 1.6484770110389506,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 115.12299489974976,
+    "logz": -36.820097831104746,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.2587928771972656,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 112.18550300598145,
+    "logz": -35.17813030744105,
+    "n_procs": 6
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.25821614265441895,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 67.82166886329651,
+    "logz": 1.7357639558935647,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 64.19947004318237,
+    "logz": 0.2246004605040186,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 70.95126295089722,
+    "logz": 0.6264393342376271,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 68.90059614181519,
+    "logz": 0.9741617734844006,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 89.17995500564575,
+    "logz": 1.4265712734283245,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 81.76822996139526,
+    "logz": 1.139430959527374,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 111.73200583457947,
+    "logz": 0.9545368145086486,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 92.72485780715942,
+    "logz": 1.3355410305937943,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 91.48300504684448,
+    "logz": 2.676967908544193,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 93.98719000816345,
+    "logz": 1.6220857640993505,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 101.67347288131714,
+    "logz": 2.6072241099684104,
+    "n_procs": 6
+  },
+  {
+    "status": "ok",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 97.69829082489014,
+    "logz": 1.4980109143651654,
+    "n_procs": 6
+  }
+]

@@ -197,6 +197,9 @@ Each successful retrieval writes a pair under `pipeline/<case>/results/<forward_
 | `<run_tag>.npz` | Posterior `chain`, dynesty `samples` / weights / log-likelihood, and (unless `--skip-ppc`) posterior-predictive draws `ppc` |
 | `<run_tag>_meta.json` | Run configuration, free/fixed flags, evidence (`logz`), runtime, and summary percentiles |
 
+A matching per-run log is written to `pipeline/<case>/tests_logs/<run_tag>.log`. The parallel
+launcher’s master log (`pipeline/sweep_parallel_*.log`) records the full multi-config campaign.
+Both are versioned alongside the chains.
 The run tag encodes the case, planet, sampler, KDE observable set, nested-sampling settings, and which of $\rho_{\star,\mathrm{true}}$, $b$, $\tau$, $p$ were free — e.g.
 
 ```

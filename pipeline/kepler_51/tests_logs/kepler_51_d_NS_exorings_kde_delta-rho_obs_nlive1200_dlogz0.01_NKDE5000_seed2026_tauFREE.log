@@ -1,0 +1,6 @@
+[22:31:11] START kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE  n_procs=6
+  NDIM=4  params=['fe', 'ir', 'theta', 'tau']  L_KDE=['delta', 'rho_obs']
+  lnZ=1.680±0.078  runtime=46.8s  N=13173
+  PPC draws: 2500
+  Saved -> /Users/jzuluaga/dev/PRisma/pipeline/kepler_51/results/exorings/kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.npz
+[22:31:58] OK kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE  (00h00m47s)
