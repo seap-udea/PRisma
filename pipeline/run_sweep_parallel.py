@@ -41,7 +41,8 @@ from pathlib import Path
 # ── path bootstrap (repo root + pipeline/) ──────────────────────────────────
 _PIPELINE = Path(__file__).resolve().parent
 _REPO = _PIPELINE.parent
-for _p in (str(_REPO), str(_PIPELINE)):
+# Prefer pipeline/ first so exorings / geotrans / photoring resolve from here.
+for _p in (str(_PIPELINE), str(_REPO)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
@@ -242,7 +243,7 @@ def main():
                     help="Less dynesty progress printing")
     ap.add_argument("--validate-refs", action="store_true",
                     help="Only the two manuscript reference tags "
-                         "(All flexible, L=δ,T14,ρ for planets b and d)")
+                         "(all-free, L=δ,T14,ρ for planets b and d)")
     args = ap.parse_args()
 
     if args.n_procs < 1 or args.jobs < 1:

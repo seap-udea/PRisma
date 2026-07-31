@@ -64,10 +64,10 @@ KDE_VARIANTS = [
 # yields a prior plateau (no live point hits the KDE island) — those runs are
 # expected to be rejected by the parallel runner's plateau guard.
 FREE_PARAM_VARIANTS = [
-    {"RHO_TRUE_FREE": False, "B_FREE": False},  # All fixed (nuisance)
+    {"RHO_TRUE_FREE": False, "B_FREE": False},  # all-fixed (nuisance)
     {"RHO_TRUE_FREE": True,  "B_FREE": False},  # ρ★,true free
     {"RHO_TRUE_FREE": False, "B_FREE": True},   # b free
-    {"RHO_TRUE_FREE": True,  "B_FREE": True},   # All flexible (nuisance)
+    {"RHO_TRUE_FREE": True,  "B_FREE": True},   # all-free (nuisance)
 ]
 
 TAU_FREE_VARIANTS = [False, True]

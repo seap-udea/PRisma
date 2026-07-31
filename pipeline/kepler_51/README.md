@@ -12,51 +12,36 @@ explain those anomalously low transit-inferred densities via the Photo-Ring effe
 kepler_51/
 ├── inputs/
 │   ├── ttv/<planet>/…post_equal_weights.dat   # raw TTV posteriors (MultiNest; Kipping)
-│   ├── observables/kepler_51_<planet>_observables.dat  # derived by step 1
+│   ├── observables/kepler_51_<planet>_observables.dat
 │   └── rho_true_data/
 │       ├── rho_true_samples.dat               # ρ★,true samples [kg/m³] (Berger et al. 2023)
 │       └── rho_grid_cdf.txt                   # its inverse-CDF grid (regenerable)
-├── results/<forward_model>/                   # <run_tag>.npz + _meta.json   (created on run)
-└── figures/<type>/                            # ppc, corner, marginal, ring, trace, panel (created on run)
+└── results/<forward_model>/                   # <run_tag>.npz + _meta.json
 ```
 
-`results/` (posterior `.npz` + `_meta.json`) is **versioned**; `figures/` is **gitignored** —
-running the pipeline regenerates figures, while chains stay available for tables/figures.
+`results/` is **versioned**. Manuscript figures/tables come from
+[`papers/kepler51/`](../../papers/kepler51/) (`make notebooks`), which reads these chains (and
+`reference_runs/`). Optional `figures/` under this case directory is gitignored diagnostic scratch
+from older plotting notebooks — not used by the paper.
 
 ## Inputs in detail
 
 - **`inputs/ttv/`** — TTV-fit posteriors (D. Kipping). Planet **b** has three light-curve segments
-  (`TTVplan1/2/3`); planets **c** and **d** have a single fit. Columns: `Rp/R★`, `ρ★,obs[kg/m³]`,
-  `b`, `P[days]`, `t_mid`, …, `logL` (last). `01_observables.ipynb` derives the observables from
-  these; for planet b it checks segment consistency (KS tests) and adopts the most complete segment.
-- **`inputs/observables/`** — the derived observable posteriors
-  (`p, δ, a/R★, ρ_obs[kg/m³], P[days], b, i_orb[°], T14[h], T23[h]`), the direct input to step 2.
-- **`inputs/rho_true_data/`** — `rho_true_samples.dat` are Berger et al. (2023) stellar-density
-  samples for Kepler-51 (the empirical `RHO_TRUE_FREE` prior); `rho_grid_cdf.txt` is its inverse CDF
-  (regenerate with `python -m photoring.rho_cdf inputs/rho_true_data/rho_true_samples.dat`).
+  (`TTVplan1/2/3`); planets **c** and **d** have a single fit.
+- **`inputs/observables/`** — derived observable posteriors
+  (`p, δ, a/R★, ρ_obs[kg/m³], P[days], b, i_orb[°], T14[h], T23[h]`).
+- **`inputs/rho_true_data/`** — Berger et al. (2023) stellar-density samples / inverse CDF.
 
-Planet-specific priors (impact parameter `b`, reference radius ratio `p_mean_ref`, and
-`p_prior_lo` → `p_min = p_prior_lo * p_mean_ref` at Earth bulk density) use Masuda et al. (2024)
+Planet-specific priors (`b`, `p_mean_ref`, Earth-density `p_min`) use Masuda et al. (2024)
 Table 6 **Outside 2:1** masses $M_b = M_d = 6.9\,M_\oplus$ and are set in
 `pipeline/run_sweep.py` (`PLANET_PARAMS`).
-
-## What the pipeline delivers here
-
-Running steps 1–3 (or `run_sweep.sh`) produces, per planet and per run configuration:
-a ring-geometry posterior `(fe, iR, θ, p, …)` and — with dynesty — the Bayesian evidence ln Z; a
-posterior-predictive check against all transit observables; corner/marginal plots with the
-Berger/Masuda priors overlaid; and the projected best-fit ring diagram. Comparing the evidence
-across "rings" vs "no-rings-relevant" configurations is what quantifies whether a ring system is a
-viable explanation for each planet's density anomaly.
 
 ## Reproduce
 
 ```bash
-cd ..                     # into pipeline/
-jupyter nbconvert --to notebook --execute 01_observables.ipynb        # regenerate observables
-jupyter nbconvert --to notebook --execute 02_inference_dynesty.ipynb  # infer ring geometry
-jupyter nbconvert --to notebook --execute 03_results_plotting.ipynb   # figures + tables
-```
+cd ..    # pipeline/
+bash run_sweep_parallel.sh --n-procs 6
 
-The notebooks default to `CASE = "kepler_51"`. See [`../README.md`](../README.md) for the full
-guide and for adapting the pipeline to a new target.
+cd ../papers/kepler51
+make notebooks
+```

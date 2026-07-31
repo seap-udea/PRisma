@@ -1,7 +1,7 @@
 """Sampler-friendly wrapper around the ``geotrans2`` numerically-integrated
 ring-transit model.
 
-``geotrans2_lite`` (a lightweight refactor of the original ``GeoTrans`` code) computes
+``geotrans`` (a lightweight refactor of the original ``GeoTrans`` code) computes
 the transit of a ringed planet by *numerically integrating* the projected ring+planet
 area — a more rigorous but slower alternative to the closed-form ``exorings`` model.
 
@@ -21,11 +21,11 @@ from __future__ import annotations
 
 import numpy as _np
 
-from . import geotrans2_lite as gt2
+from . import geotrans as gt2
 
 
 def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
-    """Compute transit observables for a ringed planet using ``geotrans2-lite``.
+    """Compute transit observables for a ringed planet using ``geotrans``.
 
     Parameters
     ----------

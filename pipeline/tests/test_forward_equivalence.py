@@ -8,6 +8,16 @@ convention (the dynesty notebook) and the ``mallen`` one (the emcee notebook) â€
 returning ``None`` on the exact same unphysical geometries.
 """
 
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+# Works under ``pytest`` (also via conftest.py) and ``python tests/test_â€¦.py``.
+_PIPELINE = Path(__file__).resolve().parents[1]
+if str(_PIPELINE) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE))
+
 import numpy as np
 
 from exorings.forward import forward_observables
@@ -136,3 +146,13 @@ def test_geotrans_model_runs():
     assert r is not None
     for key in ("delta", "T14", "T23", "rhoobs", "bobs", "aobs", "pobs", "logPR"):
         assert key in r and np.isfinite(r[key])
+
+
+if __name__ == "__main__":
+    test_forward_matches_inline_kipping()
+    print("OK  test_forward_matches_inline_kipping")
+    test_forward_matches_inline_mallen()
+    print("OK  test_forward_matches_inline_mallen")
+    test_geotrans_model_runs()
+    print("OK  test_geotrans_model_runs")
+    print("All forward-equivalence checks passed.")

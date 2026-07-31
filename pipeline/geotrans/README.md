@@ -1,17 +1,20 @@
 # geotrans — independent, numerically-integrated ring-transit model
 
-`geotrans2` is a refactor of J. Zuluaga's original `GeoTrans` code. Unlike the closed-form
+`geotrans` is a refactor of J. Zuluaga's original `GeoTrans` code. Unlike the closed-form
 [`exorings`](../exorings/) model, it computes a ringed-planet transit by **numerically integrating**
 the projected ring+planet area — slower, but more rigorous, especially near grazing / edge-on
 geometries.
 
-It lives in its **own top-level package**, deliberately *not* under `exorings`, because it plays
-three independent roles:
+It lives under [`pipeline/`](../) next to `photoring` and `exorings` because the inference stack
+imports it as an optional forward model and for orientation / ring diagrams.
 
-1. **Validation** — cross-check the closed-form `exorings` model (see [`tests/`](tests/)).
+## Roles
+
+1. **Validation** — cross-check the closed-form `exorings` model (see `.legacy/geotrans/tests/` for
+   exploratory notebooks; automated checks are in [`../tests/`](../tests/)).
 2. **Alternative forward model** — drop-in for the inference pipeline via
    `MODEL_CONFIG['FORWARD_MODEL'] = 'geotrans'`.
-3. **Geometry rendering** — draw the projected ring diagrams in the results notebook.
+3. **Geometry rendering** — draw projected ring diagrams (`photoring.plotting`, Contours notebook).
 
 ## API
 
@@ -24,26 +27,24 @@ obs = geotrans2_model(rhotrue_gcc=1.406, P_days=365.0, b=0.19, p=0.08,
 ```
 
 `geotrans2_model` has **exactly the same signature and return contract** as
-[`exorings.forward.forward_observables`](../exorings/forward.py), so the pipeline swaps between the
-two models transparently. The heavy lifting is in [`geotrans2_lite.py`](geotrans2_lite.py)
-(`RingedSystem`, `Figure`, `plotEllipse`, geometric primitives); it is imported as
-`geotrans.geotrans2_lite`.
+[`exorings.forward.forward_observables`](../exorings/forward.py). The heavy lifting is in
+[`geotrans.py`](geotrans.py) (`RingedSystem`, `Figure`, geometric primitives), also imported as
+`geotrans.geotrans`.
+
+```python
+import geotrans.geotrans as geo
+# geo.RingedSystem, geo.dict2obj, geo.MSUN, ...
+```
 
 ## Contents
 
 | File | Contents |
 |---|---|
 | `model.py` | `geotrans2_model(...)` — sampler-friendly wrapper (dict / `None`) |
-| `geotrans2_lite.py` | the full model: `RingedSystem`, geometry classes, area integration, plotting |
-| `geotrans2.py` | the fuller original `geotrans2` module (superset, kept for reference) |
-| `tests/` | notebooks/notes cross-checking `exorings` vs `geotrans` (see `exorings_geotrans.md`) |
+| `geotrans.py` | full model: `RingedSystem`, geometry, area integration, plotting |
 
-## Validation summary
-
-For the default parameter set the closed-form transit depth and opacity-blocking factor agree with
-`geotrans` to machine precision; contact-time/duration approximations can differ by tens of seconds
-near grazing configurations, where `geotrans` is the more rigorous reference. `geotrans` also guards
-the edge-on (`cos i_R → 0`) singularity. See [`tests/exorings_geotrans.md`](tests/exorings_geotrans.md).
+The fuller original `geotrans2.py` and Spanish exploratory notebooks live under
+[`.legacy/geotrans/`](../../.legacy/geotrans/).
 
 ## Reference
 

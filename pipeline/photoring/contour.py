@@ -57,7 +57,7 @@ def default_system(*, Rp_earth=1.9, Rstar_sun=0.87, rho_star=1.896, P_days=45.15
     inflated radius a ringless fit returns — orbiting the real Kepler-51 host at planet
     b's period.
 
-    ``geotrans2_lite`` works in normalised units (``R* = 1``), so the system is specified
+    ``geotrans`` works in normalised units (``R* = 1``), so the system is specified
     by the *true* stellar density, the period, the impact parameter and ``p = Rp/R*``;
     no absolute stellar mass or radius is needed. ``Rstar_sun`` is used only to convert
     ``Rp_earth`` into ``p``.
@@ -78,7 +78,7 @@ def default_system(*, Rp_earth=1.9, Rstar_sun=0.87, rho_star=1.896, P_days=45.15
     tau : float
         Ring normal optical depth.
     """
-    import geotrans.geotrans2_lite as gt
+    import geotrans.geotrans as gt
 
     return gt.RingedSystem(dict(
         p=planet_radius_ratio(Rp_earth, Rstar_sun),
@@ -104,7 +104,7 @@ def compute_pr_map(system, *, n_cos_ir=81, n_theta=73, cos_ir_min=0.01, cos_ir_m
         ``PR`` is in decibel-like units, ``10 log10(rho_obs/rho_true)``;
         ``DELTA_RING`` is the ring's own contribution to the transit depth.
     """
-    import geotrans.geotrans2_lite as gt
+    import geotrans.geotrans as gt
 
     ringed = gt.copyObject(system)
     ringed.noauto = True   # freeze auto-recompute while we sweep the orientation
@@ -175,7 +175,7 @@ def plot_pr_contour(COS_IR, THETA, Z, system=None, *, highlight=None, draw_zero=
     out_path : str or Path, optional
         Explicit output file. Takes precedence over ``paths``/``run_tag``.
     """
-    import geotrans.geotrans2_lite as gt
+    import geotrans.geotrans as gt
 
     vmin, vmax = float(np.nanmin(Z)), float(np.nanmax(Z))
     diverging = vmin < 0.0 < vmax

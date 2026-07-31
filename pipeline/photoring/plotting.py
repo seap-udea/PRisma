@@ -451,6 +451,9 @@ def ppc_stats_1d(emp, pred):
     """Wasserstein-1, KS (+ p-value) and Energy distance between two 1-D sample sets."""
     emp = np.asarray(emp, dtype=float); emp = emp[np.isfinite(emp)]
     pred = np.asarray(pred, dtype=float); pred = pred[np.isfinite(pred)]
+    if emp.size == 0 or pred.size == 0:
+        # e.g. b_obs undefined for all PPC draws (forward model returns NaN)
+        return dict(W1=float("nan"), KS=float("nan"), KS_p=float("nan"), E=float("nan"))
     W1 = float(wasserstein_distance(emp, pred))
     KS, KS_p = ks_2samp(emp, pred)
     E = float(energy_distance(emp, pred))
