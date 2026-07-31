@@ -24,6 +24,27 @@ The geometric PhotoRing framework itself was introduced in:
 
 > Zuluaga, J. I., Kipping, D., Sucerquia, M., & Alvarado, J. A. (2015). *A novel method for identifying exoplanetary rings*. The Astrophysical Journal Letters, 803, L14.
 
+```bibtex
+@article{Zuluaga2015,
+  author        = {{Zuluaga}, Jorge I. and {Kipping}, David M. and {Sucerquia}, Mario and {Alvarado}, Jaime A.},
+  title         = {{A Novel Method for Identifying Exoplanetary Rings}},
+  journal       = {\apjl},
+  keywords      = {methods: analytical, occultations, planets and satellites: rings, techniques: photometric, Astrophysics - Earth and Planetary Astrophysics},
+  year          = 2015,
+  month         = apr,
+  volume        = {803},
+  number        = {1},
+  eid           = {L14},
+  pages         = {L14},
+  doi           = {10.1088/2041-8205/803/1/L14},
+  archiveprefix = {arXiv},
+  eprint        = {1502.07818},
+  primaryclass  = {astro-ph.EP},
+  adsurl        = {https://ui.adsabs.harvard.edu/abs/2015ApJ...803L..14Z},
+  adsnote       = {Provided by the SAO/NASA Astrophysics Data System}
+}
+```
+
 ---
 
 ## Scientific summary
@@ -43,7 +64,7 @@ Negative PR values mean the transit underestimates the true stellar density — 
 The contour map below shows how PR varies with ring orientation ($\cos i_R$, $\theta_R$) for a Kepler-51b analogue. Icons illustrate the projected ring geometry at each location; blue (red) regions mark overestimated (underestimated) $\rho_{\star,\mathrm{obs}}$.
 
 <p align="center">
-  <img src="papers/kepler51/figures/PRContours-K51b.png" alt="PR contour map for a Kepler-51b analogue" width="640"/>
+  <img src="gallery/PRContours-K51b.png" alt="PR contour map for a Kepler-51b analogue" width="640"/>
 </p>
 
 <p align="center"><em>Figure — PhotoRing contour for a Kepler-51b analogue ($R_p = 1.9\,R_\oplus$, $f_i = 1$, $f_e = 2$). Color encodes PR; the highlighted contour marks $\mathrm{PR} = 0.865$.</em></p>
@@ -61,13 +82,13 @@ Primary products of each retrieval:
 Examples for Kepler-51 d (all-free retrieval with likelihood $\mathcal{L}_{\mathrm{KDE}}[\delta,\,T_{14},\,\rho_{\star,\mathrm{obs}}]$):
 
 <p align="center">
-  <img src="papers/kepler51/figures/final_planetd_panel_reduced.png" alt="Corner plot for Kepler-51 d" width="560"/>
+  <img src="gallery/final_planetd_panel_reduced.png" alt="Corner plot for Kepler-51 d" width="560"/>
 </p>
 
 <p align="center"><em>Figure — Joint posterior (corner plot) for Kepler-51 d, with the median ring geometry inset.</em></p>
 
 <p align="center">
-  <img src="papers/kepler51/figures/ppp_planet_d_vertical.png" alt="Posterior predictive check for Kepler-51 d" width="420"/>
+  <img src="gallery/ppp_planet_d_vertical.png" alt="Posterior predictive check for Kepler-51 d" width="420"/>
 </p>
 
 <p align="center"><em>Figure — Posterior predictive check for Kepler-51 d. Grey: photometric (TTV) observables; teal: predictions drawn from the posterior.</em></p>
@@ -78,6 +99,7 @@ Examples for Kepler-51 d (all-free retrieval with likelihood $\mathcal{L}_{\math
 
 | Path | Role |
 |---|---|
+| [`gallery/`](gallery/) | Frozen copies of the figures embedded in this README (independent of regenerable `papers/*/figures/`). |
 | [`papers/`](papers/) | Manuscript material, organized by paper. |
 | [`papers/kepler51/`](papers/kepler51/) | Kepler-51 paper: LaTeX source, `PRisma-*.ipynb` notebooks, `figures/`, `reference_runs/`, and generated tables (`tab_*.tex`). Running `make notebooks` regenerates figures and tables from the versioned chains. |
 | [`pipeline/`](pipeline/) | The PRisma algorithm: packages and scripts that implement the PR Bayesian pipeline. |

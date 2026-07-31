@@ -25,6 +25,9 @@ to ``True`` (needs a TeX installation) for full LaTeX rendering in the manuscrip
 
 from __future__ import annotations
 
+from datetime import datetime
+from pathlib import Path
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -355,8 +358,28 @@ def _style_ax(ax, xlabel="", ylabel="Density", title="", legend=True):
     if title:
         ax.set_title(title, fontsize=STYLE["title_size"])
     if legend:
-        ax.legend(fontsize=STYLE["legend_size"], framealpha=0.85,
-                  edgecolor="#cccccc", fancybox=False)
+        handles, labels = ax.get_legend_handles_labels()
+        # Split Photo/Posterior (inside axes) from GoF metrics (above), so the
+        # identity legend does not collide with the figure title on PPC panels.
+        id_h, id_l, other_h, other_l = [], [], [], []
+        for h, lab in zip(handles, labels):
+            if lab in ("Photo", "Posterior"):
+                id_h.append(h); id_l.append(lab)
+            else:
+                other_h.append(h); other_l.append(lab)
+        frame = dict(framealpha=0.85, edgecolor="#cccccc", fancybox=False)
+        if id_h:
+            leg_id = ax.legend(
+                id_h, id_l, loc="best",
+                fontsize=STYLE["legend_size"], **frame)
+            ax.add_artist(leg_id)
+            if other_h:
+                ax.legend(
+                    other_h, other_l, loc="lower center",
+                    bbox_to_anchor=(0.5, 1.02), borderaxespad=0, ncol=1,
+                    fontsize=STYLE["annot_size"], **frame)
+        elif other_h:
+            ax.legend(other_h, other_l, fontsize=STYLE["legend_size"], **frame)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     return ax
@@ -446,6 +469,27 @@ def _save(fig, name, paths=None, figure_type="", dpi=None):
     return p
 
 
+def run_version_id(files):
+    """YYYYMMDDHH stamp from the newest file mtime (campaign identifier)."""
+    files = [Path(f) for f in files if f is not None and Path(f).exists()]
+    if not files:
+        return "unknown"
+    newest = max(files, key=lambda p: p.stat().st_mtime)
+    return datetime.fromtimestamp(newest.stat().st_mtime).strftime("%Y%m%d%H")
+
+
+def add_run_version_label(fig, version, *, x=0.988, y=0.98, fontsize=12, alpha=0.4):
+    """Small vertical campaign stamp on the upper-right edge of the figure."""
+    if not version or version == "unknown":
+        return
+    fig.text(
+        x, y, str(version),
+        rotation=90, va="top", ha="right",
+        fontsize=fontsize, alpha=alpha, color="0.25",
+        transform=fig.transFigure, clip_on=False,
+    )
+
+
 # ── PPC statistics ───────────────────────────────────────────────────────────
 def ppc_stats_1d(emp, pred):
     """Wasserstein-1, KS (+ p-value) and Energy distance between two 1-D sample sets."""
@@ -462,10 +506,7 @@ def ppc_stats_1d(emp, pred):
 
 def _stats_legend_lines(stats, unit=""):
     u = f" {unit}" if unit else ""
-    p = stats["KS_p"]
-    p_str = f"{p:.1e}" if p < 0.001 else f"{p:.3f}"
     return [rf"$W_1 = {stats['W1']:.3g}${u}",
-            rf"$p_{{\rm KS}} = {p_str}$",
             rf"$E = {stats['E']:.3g}${u}"]
 
 
@@ -518,8 +559,17 @@ def _ppc_entries(run, ttv, keys):
     return entries
 
 
+# Preferred top-row observables for the 2+3 PPC layout; remaining keys go below.
+_PPC_TOP_KEYS = ("rho_obs", "delta")
+
+
 def plot_ppc(run, ttv, obs_keys=None, paths=None):
-    """Posterior-predictive check: TTV vs predicted distributions with GoF statistics."""
+    """Posterior-predictive check: Photo vs predicted distributions with GoF statistics.
+
+    Layout (when 5 observables are present):
+      row 1 — ``rho_obs``, ``delta`` (2 panels)
+      row 2 — remaining observables, e.g. ``T14``, ``T23``, ``b_obs`` (3 panels)
+    """
     planet = run["planet"]
     keys = obs_keys if obs_keys is not None else ALL_OBS_KEYS
     entries = _ppc_entries(run, ttv, keys)
@@ -528,26 +578,42 @@ def plot_ppc(run, ttv, obs_keys=None, paths=None):
         return None, {}
     all_stats = {key: ppc_stats_1d(emp, pred) for key, emp, pred, _ in entries}
 
-    n = len(entries)
+    by_key = {key: (key, emp, pred, lbl) for key, emp, pred, lbl in entries}
+    top = [by_key[k] for k in _PPC_TOP_KEYS if k in by_key]
+    bot = [e for e in entries if e[0] not in _PPC_TOP_KEYS]
+    # Fall back to a simple split if the preferred 2+3 layout is incomplete.
+    if len(top) != 2 or len(bot) != 3:
+        top, bot = entries[:2], entries[2:]
+
     W = STYLE["fig_w_ppc"]
-    fig, axes = plt.subplots(1, n, figsize=(W * n * 1.2, STYLE["fig_h_single"] * 1.2),
-                             gridspec_kw=dict(wspace=STYLE["wspace"] * 1.5), squeeze=False)
-    axes = axes[0]
+    H = STYLE["fig_h_single"]
+    # Compact 2+3 layout; extra hspace leaves room for stacked W1/E legends.
+    fig = plt.figure(figsize=(W * 3.2 * 0.6, H * 2.15))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1, 1], hspace=0.72)
+    gs_top = gs[0].subgridspec(1, max(len(top), 1), wspace=0.32)
+    gs_bot = gs[1].subgridspec(1, max(len(bot), 1), wspace=0.32)
+    axes = ([fig.add_subplot(gs_top[0, i]) for i in range(len(top))]
+            + [fig.add_subplot(gs_bot[0, i]) for i in range(len(bot))])
+    ordered = top + bot
+
     col = planet_color(planet)
-    in_like = set(run["kde_obs"])
-    for ax, (key, emp, pred, lbl) in zip(axes, entries):
+    for i, (ax, (key, emp, pred, lbl)) in enumerate(zip(axes, ordered)):
         _lim = np.percentile(np.concatenate([emp, pred]), [0.5, 99.5])
-        _hist1d(ax, emp, STYLE["c_data"], "TTV", alpha=0.55)
-        _hist1d(ax, pred, col, "Posterior", alpha=0.65)
+        # Histogram identity (Photo / Posterior) only on the first panel.
+        photo_lbl = "Photo" if i == 0 else None
+        post_lbl = "Posterior" if i == 0 else None
+        _hist1d(ax, emp, STYLE["c_data"], photo_lbl, alpha=0.55)
+        _hist1d(ax, pred, col, post_lbl, alpha=0.65)
         ax.set_xlim(_lim)
         for s in _stats_legend_lines(all_stats[key], unit=obs_meta(key)["unit"]):
             ax.plot([], [], color="none", label=s)
-        # tick = r"$\checkmark$" if key in in_like else r"$\times$"
         _style_ax(ax, xlabel=lbl, legend=True)
-    fig.suptitle(f"Posterior Predictive Check — {PLANET_LABELS.get(planet, planet)}\n{_run_title(run)}\n",
-                 fontsize=STYLE["title_size"], y=1.03)
-    fig.tight_layout()
-    _save(fig, f"{run['tag']}_ppc", paths, "ppc")
+    fig.suptitle(
+        f"Posterior Predictive Check — {PLANET_LABELS.get(planet, planet)}\n"
+        f"{_run_title(run)}",
+        fontsize=STYLE["title_size"] * 0.78, y=0.98)
+    fig.subplots_adjust(left=0.10, right=0.98, bottom=0.08, top=0.84)
+    _save(fig, f"{run['tag']}_ppc", paths, "")
     return fig, all_stats
 
 
@@ -614,22 +680,24 @@ def plot_corner(run, paths=None, ax_grid=None, title=True, save=True):
     title : bool
         Add a suptitle. Pass ``False`` when embedding the corner in a larger panel that
         carries its own title.
+
+    Returns
+    -------
+    fig, axes
+        The matplotlib figure and the ``(ndim, ndim)`` axes grid from dynesty.
     """
     if not HAS_DYNESTY:
         print("dynesty is not installed — cannot draw the corner plot.")
-        return None
+        return None, None
     if run.get("dres") is None:
         print(f"No dynesty results for {run['tag']} — cannot draw the corner plot.\n"
               "  The .npz must contain 'samples' (see photoring.io.load_run).")
-        return None
+        return None, None
 
     labels = [param_meta(n)["label"] for n in run["param_names"]]
     kwargs = dict(
         labels=labels, show_titles=True,
         title_kwargs={"fontsize": STYLE["tick_size"] + 10},
-        # span_kwargs={'labelsize': STYLE["tick_size"]},   # Tamaño de ticks en gráficos 2D
-        # hist_kwargs={'labelsize': STYLE["tick_size"]},   # Tamaño de ticks en histogramas 1D
-        # label_kwargs={'labelsize': STYLE["label_size"]},    # Tamaño de los nombres de los parámetros
         quantiles=STYLE["corner_quantiles"],
         color=planet_color(run["planet"], "corner"),
         smooth=STYLE["corner_smooth"],
@@ -639,7 +707,6 @@ def plot_corner(run, paths=None, ax_grid=None, title=True, save=True):
         kwargs["fig"] = (ax_grid[0, 0].get_figure(), ax_grid)
     fig, _axes = _dyplot.cornerplot(run["dres"], **kwargs)
 
-    # Cambiar tamaño de los ticks en todos los subgráficos
     for ax in _axes.flatten():
         if ax is not None:
             ax.tick_params(axis='both', which='major', labelsize=STYLE['label_size'] + 5)
@@ -651,28 +718,55 @@ def plot_corner(run, paths=None, ax_grid=None, title=True, save=True):
         fig.suptitle(f"Joint posteriors — {planet_label}",
                      fontsize=STYLE["title_size"] + 5, y=1.01)
     if save:
-        _save(fig, f"{run['tag']}_corner", paths, "corner")
-    return fig
+        _save(fig, f"{run['tag']}_corner", paths, "")
+    return fig, _axes
 
 
 # ══════════════════════════════════════════════════════════════════════════
-#  Ring geometry diagram
+#  Ring-diagram median values (shared with plot_ring_diagram)
 # ══════════════════════════════════════════════════════════════════════════
-def plot_ring_diagram(run, ax=None, paths=None, scale=0.2):
-    """Draw the median-posterior ring geometry projected onto the stellar disk.
+def _get_ring_diagram_values(run):
+    """Extract the median ring-diagram parameter values from a run.
 
-    Uses :mod:`geotrans` (``RingedSystem`` + ``plotEllipse``) to render the ellipses.
+    Returns a dict with keys ``fe``, ``ir``, ``theta``, ``p``, ``tau`` — the same
+    values that :func:`plot_ring_diagram` uses to draw the projected ring system.
     """
-    import geotrans as gt2
     chain = run["chain"]; pnames = run["param_names"]; meta = run["meta"]
 
     def _get(name, default):
         return chain[:, pnames.index(name)] if name in pnames else np.full(len(chain), default)
 
-    fe = float(np.median(_get("fe", meta.get("FE_MAX", 5.0) / 2)))
-    ir = float(np.median(_get("ir", 45.0)))
-    theta = float(np.median(_get("theta", 90.0)))
-    p = float(np.median(_get("p", meta.get("p_mean_ref", 0.08))))
+    return dict(
+        fe=float(np.median(_get("fe", meta.get("FE_MAX", 5.0) / 2))),
+        ir=float(np.median(_get("ir", 45.0))),
+        theta=float(np.median(_get("theta", 90.0))),
+        p=float(np.median(_get("p", meta.get("p_mean_ref", 0.08)))),
+        tau=float(np.median(_get("tau", 0.5))),
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Ring geometry diagram
+# ══════════════════════════════════════════════════════════════════════════
+def plot_ring_diagram(run, ax=None, paths=None, scale=0.2, dx=0.0):
+    """Draw the median-posterior ring geometry projected onto the stellar disk.
+
+    Uses :mod:`geotrans` (``RingedSystem`` + ``plotEllipse``) to render the ellipses.
+
+    Parameters
+    ----------
+    dx : float
+        Horizontal offset of the diagram centre in axes fraction (useful when the
+        inset sits near a figure edge).
+    """
+    import geotrans as gt2
+    meta = run["meta"]
+    ring_vals = _get_ring_diagram_values(run)
+    fe = ring_vals["fe"]
+    ir = ring_vals["ir"]
+    theta = ring_vals["theta"]
+    p = ring_vals["p"]
+    tau = ring_vals["tau"]
     fi = meta.get("FI_FIXED", 1.0)
 
     own_fig = ax is None
@@ -686,7 +780,7 @@ def plot_ring_diagram(run, ax=None, paths=None, scale=0.2):
     col = planet_color(run["planet"])
     System = gt2.RingedSystem(dict(fe=fe, ir=ir, theta=theta, p=p, fi=fi))
     fh = scale / (System.fe * System.Rp); fv = fh
-    C = np.array([0.5, 0.5])
+    C = np.array([0.5 + dx, 0.5])
     Planet = gt2.Figure(C, fh * System.Rp, fv * System.Rp, 1.0, 0.0, "Planet")
     Ringe = gt2.Figure(C, fh * System.Re, fv * System.Re * np.cos(System.ir),
                        np.cos(System.phir), np.sin(System.phir), "Ringext")
@@ -697,6 +791,10 @@ def plot_ring_diagram(run, ax=None, paths=None, scale=0.2):
                     lw=STYLE["line_lw"], transform=ax.transAxes)
     gt2.plotEllipse(ax, Ringi, zorder=9, color=col, alpha=0.30,
                     lw=STYLE["line_lw_thin"], transform=ax.transAxes)
+    # Red centre mark — same meaning as the red median markers on the corner panels.
+    ax.plot(C[0], C[1], "o", color="red", ms=8, mew=1.5, mec="darkred",
+            transform=ax.transAxes, zorder=12, clip_on=False)
+
     if own_fig:
         _save(fig, f"{run['tag']}_ring", paths, "ring")
     return fig
@@ -721,9 +819,9 @@ def plot_results_panel(run, ttv, obs_keys=None, paths=None):
     # ── ensure the corner image exists ────────────────────────────────────
     corner_png = None
     if paths is not None:
-        corner_png = paths.figures_dir("corner") / f"{run['tag']}_corner.png"
+        corner_png = paths.figures_dir() / f"{run['tag']}_corner.png"
         if not corner_png.exists():
-            fig_c = plot_corner(run, paths=paths)
+            fig_c, _ = plot_corner(run, paths=paths)
             if fig_c is not None:
                 plt.close(fig_c)
 
@@ -786,24 +884,129 @@ def plot_results_panel(run, ttv, obs_keys=None, paths=None):
 
 
 def _run_title(run):
-    r"""``L_KDE: [obs…]   \hat{theta}: [params…]`` — which data constrained which parameters."""
+    r"""``L_KDE: [obs…]   theta: [ring params…]   eta: [nuisance…]``.
+
+    Parameters appearing before ``rho_true`` in ``param_names`` are treated as the
+    ring-geometry vector ``θ``; ``rho_true`` and everything after it go into ``η``.
+    """
     kde_symbols = r" \; ".join(obs_meta(k)["symbol"].replace("$", "")
                                for k in run["kde_obs"])
-    par_symbols = r" \; ".join(param_meta(p)["symbol"].replace("$", "")
-                               for p in run["param_names"])
+    params, etas, qeta = [], [], False
+    for p in run["param_names"]:
+        if "true" in param_meta(p)["symbol"] or "$b$" in param_meta(p)["symbol"]:
+            qeta = True
+        sym = param_meta(p)["symbol"].replace("$", "")
+        if not qeta:
+            params.append(sym)
+        else:
+            etas.append(sym)
+    par_symbols = r" \; ".join(params)
+    eta_symbols = r" \; ".join(etas)
     return (rf"$\mathcal{{L}}_{{\mathrm{{KDE}}}}\text{{: }}"
             rf"\left[ {kde_symbols} \right]"
-            rf" \qquad \boldsymbol{{\hat{{\theta}}}}\text{{: }}"
-            rf"\left[ {par_symbols} \right]$")
+            rf" \qquad \boldsymbol{{{{\theta}}}}\text{{: }}"
+            rf"\left[ {par_symbols} \right]"
+            rf" \qquad \boldsymbol{{{{\eta}}}}\text{{: }}"
+            rf"\left[ {eta_symbols} \right]$")
+
+
+def _overlay_ring_medians(axes, pnames, ring_vals):
+    """Mark ring-diagram medians on a corner axes grid (1-D lines + 2-D dots)."""
+    ndim = len(pnames)
+    for col_idx in range(ndim):
+        px = pnames[col_idx]
+        if px not in ring_vals:
+            continue
+        for row_idx in range(col_idx + 1, ndim):
+            py = pnames[row_idx]
+            if py not in ring_vals:
+                continue
+            ax = axes[row_idx, col_idx]
+            if ax is not None:
+                ax.plot(ring_vals[px], ring_vals[py],
+                        "o", color="red", ms=8, mew=1.5,
+                        mec="darkred", zorder=100)
+    for idx in range(ndim):
+        pname = pnames[idx]
+        if pname not in ring_vals:
+            continue
+        ax = axes[idx, idx]
+        if ax is not None:
+            ax.axvline(ring_vals[pname], color="red", ls="-",
+                       lw=1.5, alpha=0.9, zorder=100)
+
+
+def _apply_panel_title(fig, axes, run, pnames):
+    """Title anchored above the ``f_e`` (or first) diagonal axis title.
+
+    Places a figure-level text label ``1.5 ×`` the ``f_e`` title height above that
+    label. The medians line lists ``p, f_e, i_R, θ, τ``; symbols of parameters
+    that were held fixed (absent from ``run['param_names']``) carry a dagger.
+    """
+    planet_label = PLANET_LABELS.get(run["planet"], run["planet"])
+    ring_vals = _get_ring_diagram_values(run)
+    fontsize = STYLE["title_size"] + 5
+    free = set(run["param_names"])
+
+    def _sym(name, latex):
+        return rf"{latex}^\dagger" if name not in free else latex
+
+    # Need a renderer to measure the dynesty axis-title position.
+    fig.canvas.draw()
+    idx = pnames.index("fe") if "fe" in pnames else 0
+    ax0 = axes[idx, idx]
+    title = ax0.title
+    renderer = fig.canvas.get_renderer()
+    bb = title.get_window_extent(renderer=renderer)
+    # Top centre of the f_e axis title, in figure coordinates.
+    _x_fig, y_top = fig.transFigure.inverted().transform(
+        ((bb.x0 + bb.x1) / 2.0, bb.y1))
+
+    # Offset = 1.5 × height of the f_e axis title (figure fraction).
+    fig_h_px = fig.bbox.height
+    dy = 1.5 * (bb.y1 - bb.y0) / fig_h_px
+
+    medians = (
+        rf"Medians: "
+        rf"${_sym('p', 'p')}={ring_vals['p']:.3f}$, "
+        rf"${_sym('fe', 'f_e')}={ring_vals['fe']:.2f}$, "
+        rf"${_sym('ir', 'i_R')}={ring_vals['ir']:.1f}^\circ$, "
+        rf"${_sym('theta', r'\theta')}={ring_vals['theta']:.1f}^\circ$, "
+        rf"${_sym('tau', r'\tau')}={ring_vals['tau']:.2f}$"
+    )
+    text = (
+        f"{planet_label} — Posterior results\n"
+        f"{_run_title(run)}\n"
+        f"{medians}"
+    )
+    fig.text(
+        0.5, y_top + dy, text,
+        ha="center", va="bottom", fontsize=fontsize,
+        transform=fig.transFigure, clip_on=False,
+        linespacing=1.85,
+    )
+    return 1.0
+
+
+def _ring_inset_rect(ndim, ring_frac=None, pad=0.01, top=1.0):
+    """Figure-fraction rect for the ring inset in the free upper-right triangle."""
+    frac = ring_frac if ring_frac is not None else min(0.2 + 0.025 * ndim, 0.40)
+    x0 = 1.0 - frac - pad
+    y0 = min(1.0 - frac - pad, top - frac - pad)
+    y0 = max(y0, pad)
+    return [x0, y0, frac, frac]
 
 
 def plot_results_panel_inset(run, paths=None, ring_frac=None, pad=0.01,
-                             run_tag_suffix="panel_inset", title=True):
+                             run_tag_suffix="corner", title=True):
     """Square corner plot with the inferred ring geometry inset in the upper-right.
 
     This is the per-planet summary figure: the joint posterior over ring and nuisance
     parameters, plus — drawn in the empty upper-right triangle that a corner plot always
     leaves free — a sky-plane sketch of the ring system at the posterior medians.
+
+    Red markers on the 1-D / 2-D corner panels (and the red centre of the planet disk)
+    show the same median values used by :func:`plot_ring_diagram`.
 
     Unlike :func:`plot_results_panel`, the corner is rendered **live** by
     :func:`plot_corner` rather than re-read from a saved PNG, so the result stays
@@ -816,17 +1019,20 @@ def plot_results_panel_inset(run, paths=None, ring_frac=None, pad=0.01,
         ``min(0.2 + 0.025 * ndim, 0.40)``, which keeps the sketch inside the free
         triangle as the number of parameters grows.
     """
-    ndim = len(run["param_names"])
-    fig = plot_corner(run, paths=None, title=False, save=False)
+    pnames = list(run["param_names"])
+    ndim = len(pnames)
+    fig, axes = plot_corner(run, paths=None, title=False, save=False)
     if fig is None:
         return None
+
+    ring_vals = _get_ring_diagram_values(run)
+    _overlay_ring_medians(axes, pnames, ring_vals)
 
     side = ndim * STYLE["fig_w_single"] * 1.05
     fig.set_size_inches(side, side)
     fig.set_dpi(STYLE["fig_dpi"])
 
-    frac = ring_frac if ring_frac is not None else min(0.2 + 0.025 * ndim, 0.40)
-    ax_ring = fig.add_axes([1.0 - frac - pad, 1.0 - frac - pad, frac, frac])
+    ax_ring = fig.add_axes(_ring_inset_rect(ndim, ring_frac, pad))
     ax_ring.set_axis_off()
     try:
         plot_ring_diagram(run, ax=ax_ring)
@@ -836,11 +1042,86 @@ def plot_results_panel_inset(run, paths=None, ring_frac=None, pad=0.01,
                      transform=ax_ring.transAxes)
 
     if title:
-        planet_label = PLANET_LABELS.get(run["planet"], run["planet"])
-        fig.suptitle(f"\n{planet_label} — Posterior results\n{_run_title(run)}\n",
-                     fontsize=STYLE["title_size"] + 5, y=0.98)
+        _apply_panel_title(fig, axes, run, pnames)
 
-    _save(fig, f"{run['tag']}_{run_tag_suffix}", paths, "panel")
+    _save(fig, f"{run['tag']}_{run_tag_suffix}", paths, "")
+    return fig
+
+
+def plot_corner_reduced(run, paths=None, ax_grid=None, title=True, save=True):
+    """Corner plot restricted to ring-geometry parameters (drops ``rho_*`` and ``b``).
+
+    Returns ``(fig, axes, plotted_param_names)``.
+    """
+    if not HAS_DYNESTY:
+        print("dynesty is not installed — cannot draw the corner plot.")
+        return None, None, []
+    if run.get("dres") is None:
+        print(f"No dynesty results for {run['tag']} — cannot draw the corner plot.\n"
+              "  The .npz must contain 'samples' (see photoring.io.load_run).")
+        return None, None, []
+
+    pnames = run["param_names"]
+    dims = [i for i, p in enumerate(pnames) if "rho" not in p and p != "b"]
+    plotted_pnames = [pnames[i] for i in dims]
+    labels = [param_meta(p)["label"] for p in plotted_pnames]
+    kwargs = dict(
+        labels=labels, show_titles=True,
+        title_kwargs={"fontsize": STYLE["tick_size"] + 10},
+        quantiles=STYLE["corner_quantiles"],
+        color=planet_color(run["planet"], "corner"),
+        smooth=STYLE["corner_smooth"],
+        dims=dims,
+    )
+    if ax_grid is not None:
+        kwargs["fig"] = (ax_grid[0, 0].get_figure(), ax_grid)
+    fig, axes = _dyplot.cornerplot(run["dres"], **kwargs)
+
+    for ax in axes.flatten():
+        if ax is not None:
+            ax.tick_params(axis="both", which="major", labelsize=STYLE["label_size"] + 5)
+            ax.xaxis.label.set_size(STYLE["label_size"] + 5)
+            ax.yaxis.label.set_size(STYLE["label_size"] + 5)
+
+    if title:
+        planet_label = PLANET_LABELS.get(run["planet"], run["planet"])
+        fig.suptitle(f"Joint posteriors — {planet_label}",
+                     fontsize=STYLE["title_size"] + 5, y=1.01)
+    if save:
+        _save(fig, f"{run['tag']}_corner_reduced", paths, "")
+    return fig, axes, plotted_pnames
+
+
+def plot_results_panel_reduced_inset(run, paths=None, ring_frac=None, pad=0.01,
+                                     run_tag_suffix="corner_reduced",
+                                     title=True):
+    """Like :func:`plot_results_panel_inset` but only for ring-geometry parameters."""
+    fig, axes, plotted_pnames = plot_corner_reduced(
+        run, paths=None, title=False, save=False)
+    if fig is None:
+        return None
+
+    ndim = len(plotted_pnames)
+    ring_vals = _get_ring_diagram_values(run)
+    _overlay_ring_medians(axes, plotted_pnames, ring_vals)
+
+    side = ndim * STYLE["fig_w_single"] * 1.05
+    fig.set_size_inches(side, side)
+    fig.set_dpi(STYLE["fig_dpi"])
+
+    ax_ring = fig.add_axes(_ring_inset_rect(ndim, ring_frac, pad))
+    ax_ring.set_axis_off()
+    try:
+        plot_ring_diagram(run, ax=ax_ring, dx=-0.15)
+    except Exception as e:
+        ax_ring.text(0.5, 0.5, f"Ring diagram\nunavailable\n({e})", ha="center",
+                     va="center", color="gray", fontsize=STYLE["annot_size"] + 2,
+                     transform=ax_ring.transAxes)
+
+    if title:
+        _apply_panel_title(fig, axes, run, plotted_pnames)
+
+    _save(fig, f"{run['tag']}_{run_tag_suffix}", paths, "")
     return fig
 
 

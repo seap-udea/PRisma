@@ -19,10 +19,11 @@ env/
 # --- Pipeline outputs ---
 # Posterior chains (.npz + _meta.json) under results/ ARE versioned so anyone can
 # rebuild tables and figures without re-running nested sampling.
+# Generated figures under pipeline/*/figures/ and pipeline/*/results/figures/ ARE
+# versioned alongside those runs (see generate_figures.py).
 # Per-run dynesty logs (tests_logs/) and the parallel-sweep master log
 # (pipeline/sweep_parallel_*.log) ARE also versioned for reproducibility.
-# Regenerable plotting / papermill scratch stay ignored:
-pipeline/**/figures/
+# Regenerable papermill scratch stays ignored:
 pipeline/**/tests_outputs/
 **/tmp/
 # --- Legacy exploratory outputs (regenerable; not versioned) ---
