@@ -5,7 +5,7 @@ Calls ``photoring`` directly so a ``multiprocessing`` fork pool works (the
 papermill/ipykernel path deadlocks under ``use_pool=True`` on macOS).
 
 Same 32-run grid as ``run_sweep.py`` (2 planets × 4 KDE × τ × p; ρ★,true and b fixed).
-Results land only under ``pipeline/<case>/results/`` — never under ``PaperFigures/``.
+Results land only under ``pipeline/<case>/results/`` — never under ``papers/``.
 
 Usage
 -----
@@ -146,8 +146,8 @@ def execute_one(case: str, params: dict, n_procs: int, dry_run: bool = False,
     )
 
     results_dir = _results_dir(case, forward_model)
-    if "PaperFigures" in results_dir.resolve().parts or "paper_figures" in results_dir.resolve().parts:
-        raise RuntimeError(f"Refusing to write under PaperFigures: {results_dir}")
+    if set(results_dir.resolve().parts) & {"PaperFigures", "paper_figures", "papers"}:
+        raise RuntimeError(f"Refusing to write under papers/: {results_dir}")
 
     log_dir = _PIPELINE / case / "tests_logs"
     log_dir.mkdir(parents=True, exist_ok=True)

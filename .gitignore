@@ -38,3 +38,25 @@ legacy/*.pdf
 
 # -- Contextual files --
 context/
+
+# --- LaTeX intermediates (papers/ only; keep manuscript PDFs trackable) ---
+papers/**/*.aux
+papers/**/*.bbl
+papers/**/*.blg
+papers/**/*.log
+papers/**/*.out
+papers/**/*.toc
+papers/**/*.lof
+papers/**/*.lot
+papers/**/*.fls
+papers/**/*.fdb_latexmk
+papers/**/*.synctex.gz
+papers/**/*.synctex\(busy\)
+papers/**/*.bcf
+papers/**/*.run.xml
+papers/**/*.nav
+papers/**/*.snm
+papers/**/*.vrb
+papers/**/*.notes
+papers/**/missfont.log
+papers/**/*Notes.bib

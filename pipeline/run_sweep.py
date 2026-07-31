@@ -21,13 +21,13 @@ never expressions referencing other notebook variables (e.g. ``PLANET_PARAMS[PLA
 cell must contain only literals; the model is built in a *separate*, untagged cell that runs
 after injection.
 
-Outputs land only under the case directory (never under ``PaperFigures/``):
+Outputs land only under the case directory (never under ``papers/``):
 
 - executed notebooks → ``<case>/tests_outputs/``
 - logs → ``<case>/tests_logs/``
 - chains / metadata → ``<case>/results/<forward_model>/``
 
-The manuscript figure chains in ``PaperFigures/reference_runs/`` are a separate artefact
+The manuscript figure chains in ``papers/<case>/reference_runs/`` are a separate artefact
 (``rhoFREE_bFREE_tauFREE_pFREE``) and are not part of this 32-run grid; this sweep will not
 overwrite them.
 
@@ -97,11 +97,29 @@ N_KDE = 5000
 SEED_KDE = 123
 PLANETS = ["b", "d"]
 
-# Planet-specific priors (Masuda 2024).
+# Stellar radius (Berger+2023) and R☉/R⊕ used to set p_min at Earth bulk density:
+#   p_min = (R⊕/R★) * (M_p/M⊕)^{1/3} = (M_p)^{1/3} / (R★_Rsun * Rsun_Rearth)
+R_STAR_RSUN = 0.869
+RSUN_REARTH = 109.2  # ≈ R_SUN/R_EARTH with R_SUN=6.957e8 m, R_EARTH=6.371e6 m
+
+
+def p_min_earth_density(Mp_earth, R_star_rsun=R_STAR_RSUN, Rsun_Rearth=RSUN_REARTH):
+    """Lower bound on p = R_p/R★ so bulk density ≤ ρ⊕."""
+    return float(Mp_earth) ** (1.0 / 3.0) / (float(R_star_rsun) * float(Rsun_Rearth))
+
+
+# Planet-specific priors. Masses: Masuda+2024 Table 6 **Outside 2:1** mass ratios
+# m ≈ 6.9 M⊕/M⊙ for both b and d (we adopt M_p = 6.9 M⊕ for each).
+# p_prior_lo is the fraction of p_mean_ref such that p_min = p_prior_lo * p_mean_ref.
 PLANET_PARAMS = {
-    "d": dict(B_FIXED=0.0030, B_SIGMA=2 * 0.0950, p_mean_ref=0.09857, p_prior_lo=0.23),
-    "b": dict(B_FIXED=0.0740, B_SIGMA=2 * 0.0720, p_mean_ref=0.07225, p_prior_lo=0.33),
+    "d": dict(B_FIXED=0.0030, B_SIGMA=2 * 0.0950, p_mean_ref=0.09857, Mp=6.9),
+    "b": dict(B_FIXED=0.0740, B_SIGMA=2 * 0.0720, p_mean_ref=0.07225, Mp=6.9),
 }
+for _pl, _pp in PLANET_PARAMS.items():
+    _pmin = p_min_earth_density(_pp["Mp"])
+    _pp["p_min"] = _pmin
+    _pp["p_prior_lo"] = _pmin / float(_pp["p_mean_ref"])
+del _pl, _pp, _pmin
 
 OVERRIDES = {}   # {run_index: {'NS_CONFIG': {...}}}
 
@@ -190,11 +208,11 @@ def fmt_duration(seconds):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def execute_run(case, forward_model, notebook_in, run_tag, params, dry_run, kernel=DEFAULT_KERNEL):
-    # Results / logs stay under pipeline/<case>/ — never under PaperFigures/.
+    # Results / logs stay under pipeline/<case>/ — never under papers/.
     results_root = (case_dir(case) / "results").resolve()
-    if "PaperFigures" in results_root.parts or "paper_figures" in results_root.parts:
+    if set(results_root.parts) & {"PaperFigures", "paper_figures", "papers"}:
         raise RuntimeError(
-            f"Refusing to write results under PaperFigures: {results_root}"
+            f"Refusing to write results under papers/: {results_root}"
         )
 
     out_dir = case_dir(case) / "tests_outputs"

@@ -12,7 +12,7 @@
 #   bash run_sweep.sh both --case my_planet # dynesty + emcee on another case
 #
 # Results are written only under pipeline/<case>/results/ (gitignored).
-# PaperFigures/reference_runs/ is never touched by this launcher.
+# papers/<case>/reference_runs/ is never touched by this launcher.
 # =============================================================================
 
 set -euo pipefail

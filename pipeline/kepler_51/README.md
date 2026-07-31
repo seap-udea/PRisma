@@ -35,9 +35,10 @@ running the pipeline regenerates figures, while chains stay available for tables
   samples for Kepler-51 (the empirical `RHO_TRUE_FREE` prior); `rho_grid_cdf.txt` is its inverse CDF
   (regenerate with `python -m photoring.rho_cdf inputs/rho_true_data/rho_true_samples.dat`).
 
-Planet-specific priors (impact parameter `b`, reference radius ratio `p_mean_ref`, radius-prior
-lower edge `p_prior_lo`) follow Masuda et al. (2024) and are set in the `USER CONFIGURATION` cell of
-each step-2 notebook (`PLANET_PARAMS`).
+Planet-specific priors (impact parameter `b`, reference radius ratio `p_mean_ref`, and
+`p_prior_lo` → `p_min = p_prior_lo * p_mean_ref` at Earth bulk density) use Masuda et al. (2024)
+Table 6 **Outside 2:1** masses $M_b = M_d = 6.9\,M_\oplus$ and are set in
+`pipeline/run_sweep.py` (`PLANET_PARAMS`).
 
 ## What the pipeline delivers here
 
