@@ -1,6 +1,7 @@
 {
     "title": "Kepler-51 b and d potential ring configurations",
     "path": "pipeline/kepler_51/results/figures/",
+    "start_with": null,
     "configuration":{
 	"preview": true,
 	"grid": true,
