@@ -11,7 +11,7 @@
     },
     {
 	"id": "geotrans",
-	"title": "Kepler-51 b and d potential ring configurations (fm. geotrans)",
+	"title": "Kepler-51 b and d potential ring configurations (f.m. geotrans)",
 	"path": "dev/kepler_51/results/geotrans/figures/",
 	"start_with": null,
 	"configuration": {

@@ -167,11 +167,14 @@ def _zkey_prefix(z1: float) -> str:
 
 def _fig_name(prefix: str, tag: str, kind: str, ext: str) -> str:
     """``{CASE}_{PLANET}_{ORDKEY}-{tag}_corner.png`` (and variants)."""
-    return f"{prefix}-{tag}_{_KIND_SUFFIX[kind]}.{ext}"
+    if prefix:
+        return f"{prefix}-{tag}_{_KIND_SUFFIX[kind]}.{ext}"
+    return f"{tag}_{_KIND_SUFFIX[kind]}.{ext}"
 
 
 def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
-                     index: int = 1, dry_run: bool = False) -> dict:
+                     index: int = 1, dry_run: bool = False,
+                     no_prefix: bool = False) -> dict:
     """Draw the requested figures for one ``.npz``. Returns a status dict."""
     npz_path = Path(npz_path)
     if not npz_path.exists():
@@ -194,7 +197,11 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
         # Keep generating figures even if z1 cannot be computed (missing observables, etc.)
         z1 = float("nan")
     zkey = _zkey_prefix(z1)
-    prefix = f"{case_root.name}_{planet}_{zkey}"
+    
+    if no_prefix:
+        prefix = ""
+    else:
+        prefix = f"{zkey}"
 
     if dry_run:
         preview = [_fig_name(prefix, tag, k, ext) for k in FIGURE_KINDS if k in kinds]
@@ -322,6 +329,10 @@ def main(argv: list[str] | None = None) -> int:
         help="Use full LaTeX text rendering (requires a TeX installation).",
     )
     ap.add_argument(
+        "--no-prefix", action="store_true",
+        help="Do not include the ordering prefix in figure filenames.",
+    )
+    ap.add_argument(
         "--renumber", type=Path, nargs="?", const=None, default=False,
         metavar="FIG_DIR",
         help="Only renumber existing figures in FIG_DIR "
@@ -367,7 +378,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\n[{i:03d}/{len(npz_files)}] {npz.name}")
         st = generate_for_run(
             npz, kinds=kinds, ttv_get=ttv_get_for(npz),
-            index=i, dry_run=args.dry_run,
+            index=i, dry_run=args.dry_run, no_prefix=args.no_prefix,
         )
         if st.get("dry_run"):
             z1_txt = "nan" if not np.isfinite(st.get("z1", float("nan"))) else f"{st['z1']:.3f}"
