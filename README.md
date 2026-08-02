@@ -88,10 +88,12 @@ Examples for Kepler-51 d (all-free retrieval with likelihood $\mathcal{L}_{\math
 <p align="center"><em>Figure — Joint posterior (corner plot) for Kepler-51 d, with the median ring geometry inset.</em></p>
 
 <p align="center">
-  <img src="gallery/ppp_planet_d_vertical.png" alt="Posterior predictive check for Kepler-51 d" width="420"/>
+  <img src="gallery/ppc_planet_d_vertical.png" alt="Posterior predictive check for Kepler-51 d" width="420"/>
 </p>
 
 <p align="center"><em>Figure — Posterior predictive check for Kepler-51 d. Grey: photometric (TTV) observables; teal: predictions drawn from the posterior.</em></p>
+
+> 💡 **Explore more figures and results in the [PRisma Image Gallery](https://seap-udea.github.io/gallery/?repo=PRisma).**
 
 ---
 

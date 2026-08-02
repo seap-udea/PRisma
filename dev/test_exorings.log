@@ -1,0 +1,26 @@
+
+================================================================
+  Photo-Ring PARALLEL sweep — 2026-08-02 03:22:57
+  Python: /Users/jzuluaga/dev/PRisma/.venv/bin/python
+================================================================
+
+
+================================================================
+  Photo-Ring PARALLEL sweep — case 'kepler_51' — 1 runs
+  2026-08-02 03:22:58
+  Python: /Users/jzuluaga/dev/PRisma/.venv/bin/python
+  jobs=1  n_procs/run=6  (requested --n-procs 6)
+  Results -> /Users/jzuluaga/dev/PRisma/dev/kepler_51/results
+================================================================
+
+[  1/1] kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE
+  [SKIP]
+
+
+================================================================
+  Sweep done in 00h00m00s
+  OK=0  SKIP=1  FAIL=0  PLATEAU=0  DRY=0
+================================================================
+
+  Sweep log -> /Users/jzuluaga/dev/PRisma/dev/kepler_51/tests_logs/sweep_parallel_20260802_032258.json
+

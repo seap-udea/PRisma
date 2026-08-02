@@ -1051,7 +1051,7 @@ def _bestfit_medians_line(run):
     )
 
 
-def _apply_panel_title(fig, axes, run, pnames):
+def _apply_panel_title(fig, axes, run, pnames, main_title="Joint posterior results (w/ nuisance)"):
     """Title anchored above the ``f_e`` (or first) diagonal axis title.
 
     Places a figure-level text label ``1.5 ×`` the ``f_e`` title height above that
@@ -1083,7 +1083,7 @@ def _apply_panel_title(fig, axes, run, pnames):
 
     medians = _bestfit_medians_line(run)
     lines = [
-        f"{planet_label} — Posterior results",
+        f"{planet_label} — {main_title}",
         _run_title(run),
         medians,
     ]
@@ -1234,7 +1234,7 @@ def plot_results_panel_reduced_inset(run, paths=None, ring_frac=None, pad=0.01,
                      transform=ax_ring.transAxes)
 
     if title:
-        _apply_panel_title(fig, axes, run, plotted_pnames)
+        _apply_panel_title(fig, axes, run, plotted_pnames, main_title="Joint posterior results (w/o nuisance)")
 
     _save(fig, f"{run['tag']}_{run_tag_suffix}", paths, "")
     return fig

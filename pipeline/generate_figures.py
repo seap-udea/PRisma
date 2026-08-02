@@ -175,11 +175,10 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
         return {"tag": npz_path.name, "ok": False, "error": "file not found"}
 
     case_root = _infer_case_root(npz_path)
-    case_paths = pr.CasePaths(case_root.name, pipeline_dir=case_root.parent)
-    fig_paths = _ResultsFiguresPaths(case_root)
+    case_paths = pr.CasePaths(case_root.name, pipeline_dir=_PIPELINE)
     version = plot.run_version_id([npz_path])
     ext = plot.STYLE["fig_format"]
-    out_dir = fig_paths.figures_dir()
+    out_dir = npz_path.parent / "figures"
 
     run = load_run(npz_path)
     tag = run["tag"]
@@ -348,7 +347,7 @@ def main(argv: list[str] | None = None) -> int:
     plot.apply_style(style)
 
     print(f"Generating {sorted(kinds)} for {len(npz_files)} run(s)")
-    print(f"  output: <case>/results/figures/{{case}}_{{planet}}_{{ORDKEY}}-{{tag}}_corner|_corner_reduced|_ppc")
+    print(f"  output: <npz_dir>/figures/{{case}}_{{planet}}_{{ORDKEY}}-{{tag}}_corner|_corner_reduced|_ppc")
 
     per_case_ttv: dict[str, object] = {}
 
@@ -356,7 +355,7 @@ def main(argv: list[str] | None = None) -> int:
         case_root = _infer_case_root(npz_path)
         key = str(case_root.resolve())
         if key not in per_case_ttv:
-            case_paths = pr.CasePaths(case_root.name, pipeline_dir=case_root.parent)
+            case_paths = pr.CasePaths(case_root.name, pipeline_dir=_PIPELINE)
             per_case_ttv[key] = _load_ttv_cache(case_paths, {})
         return per_case_ttv[key]
 

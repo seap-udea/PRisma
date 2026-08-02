@@ -118,10 +118,8 @@ class CasePaths:
 
     # ── Convenience ───────────────────────────────────────────────────────
     def ensure_outputs(self, forward_model: str = "exorings"):
-        """Create the results/figures output directories for a run."""
+        """Create the results output directories for a run."""
         self.results_dir(forward_model).mkdir(parents=True, exist_ok=True)
-        for ftype in FIGURE_TYPES:
-            self.figures_dir(ftype).mkdir(parents=True, exist_ok=True)
         return self
 
     def __repr__(self):

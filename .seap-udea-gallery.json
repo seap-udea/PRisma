@@ -1,9 +1,22 @@
-{
-    "title": "Kepler-51 b and d potential ring configurations",
-    "path": "pipeline/kepler_51/results/figures/",
-    "start_with": "021-kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE_corner_reduced.png",
-    "configuration": {
-        "preview": true,
-        "grid": true,
+[
+    {
+	"id": "exorings",
+	"title": "Kepler-51 b and d potential ring configurations (f.m. exorings)",
+	"path": "pipeline/kepler_51/results/exorings/figures/",
+	"start_with": "021-kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE_corner_reduced.png",
+	"configuration": {
+            "preview": true,
+            "grid": true,
+	}
+    },
+    {
+	"id": "geotrans",
+	"title": "Kepler-51 b and d potential ring configurations (fm. geotrans)",
+	"path": "dev/kepler_51/results/geotrans/figures/",
+	"start_with": null,
+	"configuration": {
+            "preview": true,
+            "grid": true,
+	}
     }
-}
+]
