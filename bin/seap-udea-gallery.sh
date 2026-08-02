@@ -59,17 +59,20 @@ resolve_config() {
 }
 
 # Prints: PATH_LINE (relative path from repo root, no trailing slash)
-read_gallery_path() {
+read_gallery_paths() {
   local config="$1"
   python3 - "$config" <<'PY'
 import json, re, sys
 raw = open(sys.argv[1], encoding="utf-8").read()
 raw = re.sub(r",\s*([}\]])", r"\1", raw)
 data = json.loads(raw)
-path = str(data.get("path") or "").strip().lstrip("./").rstrip("/")
-if not path:
-    raise SystemExit("missing required field \"path\" in gallery config")
-print(path)
+if isinstance(data, dict):
+    data = [data]
+for item in data:
+    path = str(item.get("path") or "").strip().lstrip("./").rstrip("/")
+    if not path:
+        raise SystemExit("missing required field \"path\" in gallery config")
+    print(path)
 PY
 }
 
@@ -118,14 +121,9 @@ convert_one_sips_cwebp() {
 }
 
 main() {
-  local config repo_root gallery_rel gallery_dir out_dir
+  local config repo_root
   config="$(resolve_config "${1:-}")"
   repo_root="$(cd "$(dirname "$config")" && pwd)"
-  gallery_rel="$(read_gallery_path "$config")"
-  gallery_dir="$repo_root/$gallery_rel"
-  out_dir="$gallery_dir/.gallery"
-
-  [[ -d "$gallery_dir" ]] || die "gallery path does not exist: $gallery_dir"
 
   local converter=""
   if have_pillow; then
@@ -137,73 +135,94 @@ main() {
   fi
 
   log "config:  $config"
-  log "source:  $gallery_dir"
-  log "output:  $out_dir"
   log "engine:  $converter  (max width=${MAX_WIDTH}px, quality=${QUALITY})"
 
-  mkdir -p "$out_dir"
+  local -a gallery_paths=()
+  local line
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && gallery_paths+=("$line")
+  done < <(read_gallery_paths "$config")
 
-  # Ignore previews and non-images
-  local -a images=()
-  local f name stem dst
-  while IFS= read -r -d '' f; do
-    name="$(basename "$f")"
-    # skip anything already under .gallery
-    case "$f" in
-      */.gallery/*) continue ;;
-    esac
-    images+=("$f")
-  done < <(
-    find "$gallery_dir" -maxdepth 1 -type f \
-      \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \
-         -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.bmp' \
-         -o -iname '*.tif' -o -iname '*.tiff' \) \
-      -print0 | sort -z
-  )
+  local total_made=0 total_skipped=0 total_failed=0
+  local gallery_rel gallery_dir out_dir
 
-  local total="${#images[@]}"
-  [[ "$total" -gt 0 ]] || die "no images found in $gallery_dir"
-  log "found $total image(s)"
+  for gallery_rel in "${gallery_paths[@]}"; do
+    gallery_dir="$repo_root/$gallery_rel"
+    out_dir="$gallery_dir/.gallery"
 
-  local i=0 made=0 skipped=0 failed=0
-  for f in "${images[@]}"; do
-    i=$((i + 1))
-    name="$(basename "$f")"
-    stem="${name%.*}"
-    dst="$out_dir/${stem}.webp"
+    log "processing gallery: $gallery_rel"
+    [[ -d "$gallery_dir" ]] || die "gallery path does not exist: $gallery_dir"
+    
+    log "source:  $gallery_dir"
+    log "output:  $out_dir"
 
-    if [[ "$FORCE" != "1" && -f "$dst" && "$dst" -nt "$f" ]]; then
-      skipped=$((skipped + 1))
-      printf "  [%d/%d] skip  %s\n" "$i" "$total" "$name"
+    mkdir -p "$out_dir"
+
+    # Ignore previews and non-images
+    local -a images=()
+    local f name stem dst
+    while IFS= read -r -d '' f; do
+      name="$(basename "$f")"
+      # skip anything already under .gallery
+      case "$f" in
+        */.gallery/*) continue ;;
+      esac
+      images+=("$f")
+    done < <(
+      find "$gallery_dir" -maxdepth 1 -type f \
+        \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \
+           -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.bmp' \
+           -o -iname '*.tif' -o -iname '*.tiff' \) \
+        -print0 | sort -z
+    )
+
+    local total="${#images[@]}"
+    if [[ "$total" -eq 0 ]]; then
+      log "no images found in $gallery_dir, skipping"
       continue
     fi
+    log "found $total image(s)"
 
-    printf "  [%d/%d] make  %s → .gallery/%s.webp\n" "$i" "$total" "$name" "$stem"
-    if [[ "$converter" == "pillow" ]]; then
-      if convert_one_pillow "$f" "$dst" "$MAX_WIDTH" "$QUALITY"; then
-        made=$((made + 1))
-      else
-        failed=$((failed + 1))
-        echo "         FAILED" >&2
+    local i=0
+    for f in "${images[@]}"; do
+      i=$((i + 1))
+      name="$(basename "$f")"
+      stem="${name%.*}"
+      dst="$out_dir/${stem}.webp"
+
+      if [[ "$FORCE" != "1" && -f "$dst" && "$dst" -nt "$f" ]]; then
+        total_skipped=$((total_skipped + 1))
+        printf "  [%d/%d] skip  %s\n" "$i" "$total" "$name"
+        continue
       fi
-    else
-      if convert_one_sips_cwebp "$f" "$dst" "$MAX_WIDTH" "$QUALITY"; then
-        made=$((made + 1))
+
+      printf "  [%d/%d] make  %s → .gallery/%s.webp\n" "$i" "$total" "$name" "$stem"
+      if [[ "$converter" == "pillow" ]]; then
+        if convert_one_pillow "$f" "$dst" "$MAX_WIDTH" "$QUALITY"; then
+          total_made=$((total_made + 1))
+        else
+          total_failed=$((total_failed + 1))
+          echo "         FAILED" >&2
+        fi
       else
-        failed=$((failed + 1))
-        echo "         FAILED" >&2
+        if convert_one_sips_cwebp "$f" "$dst" "$MAX_WIDTH" "$QUALITY"; then
+          total_made=$((total_made + 1))
+        else
+          total_failed=$((total_failed + 1))
+          echo "         FAILED" >&2
+        fi
       fi
+    done
+
+    # Optional: keep .gallery listed by GitHub / tooling
+    if [[ ! -f "$out_dir/.gitkeep" ]]; then
+      : >"$out_dir/.gitkeep"
     fi
   done
 
-  # Optional: keep .gallery listed by GitHub / tooling
-  if [[ ! -f "$out_dir/.gitkeep" ]]; then
-    : >"$out_dir/.gitkeep"
-  fi
-
-  log "done: made=$made skipped=$skipped failed=$failed"
-  log "commit and push $gallery_rel/.gallery/ so the site can load previews."
-  [[ "$failed" -eq 0 ]]
+  log "done: made=$total_made skipped=$total_skipped failed=$total_failed"
+  log "commit and push .gallery/ folders so the site can load previews."
+  [[ "$total_failed" -eq 0 ]]
 }
 
 main "$@"
