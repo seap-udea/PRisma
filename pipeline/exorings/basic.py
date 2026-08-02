@@ -146,8 +146,182 @@ class ExoringsBasicResult:
                 d[k] = v.item()
         return d
 
-
 def compute_exorings_basic(params: ExoringsBasicParams | Mapping[str, Any] | Any) -> ExoringsBasicResult:
+    """Compute all `exorings-basic` quantities. 
+    
+    Improved analytical formula for Numpaque et al. (2026)
+
+    Parameters
+    ----------
+    params:
+        Accepts an `ExoringsBasicParams` instance, a mapping (dict-like), or an
+        object with attributes (e.g. `dict2obj` from the legacy CLI parser).
+
+    Returns
+    -------
+    ExoringsBasicResult
+    """
+
+    par = ExoringsBasicParams.from_any(params)
+
+    # ==============================
+    # ORBITAL PROPERTIES
+    # ==============================
+    a = (GCONST * (par.rhotrue * 1e3) / (3 * np.pi) * (par.P * DAY) ** 2) ** (1.0 / 3.0)
+
+    cosiorb = par.b / a
+    siniorb = (1 - cosiorb**2) ** 0.5
+    iorb = float(np.arccos(cosiorb) * RAD)
+
+    # ==============================
+    # EXTERNAL RING PROPERTIES
+    # ==============================
+    A = par.fe * par.p
+    B = A * np.cos(par.ir * DEG)
+
+    # ==============================
+    # CHECK TRANSIT CONDITION
+    # ==============================
+    hp = max(par.p, A * np.sin(par.theta * DEG), B * np.cos(par.theta * DEG))
+
+    if par.b > 1.0 - hp:
+        bmax = 1.0 - hp
+        raise NoTransitError(b=float(par.b), bmax=float(bmax))
+
+    # ==============================
+    # TRANSIT DEPTH
+    # ==============================
+    cosir = np.cos(par.ir * DEG)
+    sinir = np.sin(par.ir * DEG)
+
+    # Guard for the edge-on limit (cosir -> 0)
+    if abs(float(cosir)) < 1e-15:
+        cosir_safe = np.copysign(1e-15, float(cosir) if float(cosir) != 0.0 else 1.0)
+    else:
+        cosir_safe = cosir
+
+    beta = 1 - np.exp(-par.tau / cosir_safe)
+
+    # Internal ring effective radius^2
+    if par.fi * cosir > 1:
+        ri2 = par.fi**2 * cosir - 1
+    else:
+        yi = np.sqrt(par.fi**2 - 1) / (par.fi * sinir)
+        ri2 = (
+            par.fi**2 * cosir * 2 / np.pi * np.arcsin(yi)
+            - 2 / np.pi * np.arcsin(yi * par.fi * cosir)
+        )
+    ri2 = beta * ri2
+
+    # External ring effective radius^2
+    if par.fe * cosir > 1:
+        re2 = par.fe**2 * cosir - 1
+    else:
+        ye = np.sqrt(par.fe**2 - 1) / (par.fe * sinir)
+        re2 = (
+            par.fe**2 * cosir * 2 / np.pi * np.arcsin(ye)
+            - 2 / np.pi * np.arcsin(ye * par.fe * cosir)
+        )
+    re2 = beta * re2
+
+    ARp = np.pi * par.p**2 + np.pi * (re2 - ri2) * par.p**2
+    delta = ARp / np.pi
+    pobs = np.sqrt(delta)
+
+    # ==============================
+    # CONTACT POSITIONS
+    # ==============================
+    xp14 = np.sqrt((1 + par.p) ** 2 - par.b**2)
+    xp1 = -xp14
+    xp4 = +xp14
+
+    xp23 = np.sqrt((1 - par.p) ** 2 - par.b**2)
+    xp2 = -xp23
+    xp3 = +xp23
+
+    # ==================================================
+    # External ring contacts (Support Function Approach)
+    # ==================================================
+    x0 = np.sqrt(1.0 - par.b**2)
+    sin_t = np.sin(par.theta * DEG)
+    cos_t = np.cos(par.theta * DEG)
+
+    # Radios efectivos direccionales del anillo
+    hR = np.sqrt(A**2 * (x0 * cos_t + par.b * sin_t)**2 + B**2 * (par.b * cos_t - x0 * sin_t)**2)
+    hL = np.sqrt(A**2 * (-x0 * cos_t + par.b * sin_t)**2 + B**2 * (par.b * cos_t + x0 * sin_t)**2)
+
+    # Posiciones de contacto del anillo usando los radios efectivos
+    xR1 = -np.sqrt((1 + hL)**2 - par.b**2)
+    xR2 = -np.sqrt(np.maximum(0, (1 - hL)**2 - par.b**2))
+    xR3 = +np.sqrt(np.maximum(0, (1 - hR)**2 - par.b**2))
+    xR4 = +np.sqrt((1 + hR)**2 - par.b**2)
+
+    # Choose final contact positions
+    x1 = min(xp1, xR1)
+    x2 = max(xp2, xR2)
+    x3 = min(xp3, xR3)
+    x4 = max(xp4, xR4)
+
+    # ==============================
+    # TRANSIT TIMES
+    # ==============================
+    T14p = (par.P * DAY) * np.arcsin((xp4 - xp1) / (a * siniorb)) / (2 * np.pi) / HOUR
+    T23p = (par.P * DAY) * np.arcsin((xp3 - xp2) / (a * siniorb)) / (2 * np.pi) / HOUR
+
+    T14 = (par.P * DAY) * np.arcsin((x4 - x1) / (a * siniorb)) / (2 * np.pi) / HOUR
+    T23 = (par.P * DAY) * np.arcsin((x3 - x2) / (a * siniorb)) / (2 * np.pi) / HOUR
+
+    # ==============================
+    # DERIVED TRANSIT PROPERTIES
+    # ==============================
+    aobs = 2 * (par.P * DAY / HOUR) / np.pi * delta**0.25 / (T14**2 - T23**2) ** 0.5
+
+    bobs = (
+        (T14**2 * (1 - np.sqrt(delta)) - T23**2 * (1 + np.sqrt(delta))) / (T14**2 - T23**2)
+    ) ** 0.5
+
+    rhoobs = (3 * np.pi / GCONST) * aobs**3 / (par.P * DAY) ** 2 / 1e3
+
+    PR = rhoobs / par.rhotrue
+    logPR = np.log10(PR)
+
+    return ExoringsBasicResult(
+        params=par,
+        a=float(a),
+        iorb=float(iorb),
+        A=float(A),
+        B=float(B),
+        hp=float(hp),
+        beta=float(beta),
+        ri2=float(ri2),
+        re2=float(re2),
+        ARp=float(ARp),
+        delta=float(delta),
+        pobs=float(pobs),
+        xp1=float(xp1),
+        xp2=float(xp2),
+        xp3=float(xp3),
+        xp4=float(xp4),
+        xR1=float(xR1),
+        xR2=float(xR2),
+        xR3=float(xR3),
+        xR4=float(xR4),
+        x1=float(x1),
+        x2=float(x2),
+        x3=float(x3),
+        x4=float(x4),
+        T14p=float(T14p),
+        T23p=float(T23p),
+        T14=float(T14),
+        T23=float(T23),
+        aobs=float(aobs),
+        bobs=float(bobs),
+        rhoobs=float(rhoobs),
+        PR=float(PR),
+        logPR=float(logPR),
+    )
+
+def compute_exorings_basic_legacy(params: ExoringsBasicParams | Mapping[str, Any] | Any) -> ExoringsBasicResult:
     """Compute all `exorings-basic` quantities.
 
     Parameters
