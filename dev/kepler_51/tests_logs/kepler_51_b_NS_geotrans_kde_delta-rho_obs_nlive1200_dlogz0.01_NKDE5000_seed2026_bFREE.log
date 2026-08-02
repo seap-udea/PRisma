@@ -1,0 +1,2 @@
+[04:10:07] START kepler_51_b_NS_geotrans_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE  n_procs=6
+  NDIM=4  params=['fe', 'ir', 'theta', 'b']  L_KDE=['delta', 'rho_obs']
