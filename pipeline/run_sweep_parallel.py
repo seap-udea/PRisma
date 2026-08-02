@@ -244,7 +244,12 @@ def main():
     ap.add_argument("--validate-refs", action="store_true",
                     help="Only the two manuscript reference tags "
                          "(all-free, L=δ,T14,ρ for planets b and d)")
+    ap.add_argument("--forward-models", nargs="+", default=["exorings"],
+                    help="Forward model(s) to run (default: exorings). Examples: exorings exorings_legacy")
     args = ap.parse_args()
+
+    if args.forward_models:
+        sweep.FORWARD_MODEL_VARIANTS = args.forward_models
 
     if args.n_procs < 1 or args.jobs < 1:
         ap.error("--n-procs and --jobs must be >= 1")

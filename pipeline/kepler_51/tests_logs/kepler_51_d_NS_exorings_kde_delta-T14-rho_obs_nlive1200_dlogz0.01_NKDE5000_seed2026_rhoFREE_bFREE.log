@@ -4,3 +4,13 @@
   PPC draws: 2500
   Saved -> /Users/jzuluaga/dev/PRisma/pipeline/kepler_51/results/exorings/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE.npz
 [22:59:04] OK kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE  (00h01m23s)
+[14:47:07] START kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE  n_procs=6
+  NDIM=5  params=['fe', 'ir', 'theta', 'rho_true', 'b']  L_KDE=['delta', 'T14', 'rho_obs']
+[14:48:29] START kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE  n_procs=6
+  NDIM=5  params=['fe', 'ir', 'theta', 'rho_true', 'b']  L_KDE=['delta', 'T14', 'rho_obs']
+  lnZ=1.343±0.095  runtime=134.0s  N=15733
+  PPC draws: 2500
+  Saved -> /Users/jzuluaga/dev/PRisma/pipeline/kepler_51/results/exorings/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE.npz
+[14:49:22] OK kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE  (00h02m14s)
+  lnZ=1.343±0.095  runtime=222.3s  N=15733
+  PPC draws: 2500

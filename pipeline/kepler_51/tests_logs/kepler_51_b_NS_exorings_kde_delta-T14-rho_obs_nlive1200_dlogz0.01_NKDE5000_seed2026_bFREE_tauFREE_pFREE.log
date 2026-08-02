@@ -4,3 +4,11 @@
   PPC draws: 2500
   Saved -> /Users/jzuluaga/dev/PRisma/pipeline/kepler_51/results/exorings/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE.npz
 [22:09:29] OK kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE  (00h01m32s)
+[13:42:55] START kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE  n_procs=6
+  NDIM=6  params=['fe', 'ir', 'theta', 'p', 'tau', 'b']  L_KDE=['delta', 'T14', 'rho_obs']
+  lnZ=-708.399±0.004  runtime=0.1s  N=1201
+  PLATEAU: prior never left log(FLOAT_TINY) — not saving.
+[13:44:55] START kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE  n_procs=6
+  NDIM=6  params=['fe', 'ir', 'theta', 'p', 'tau', 'b']  L_KDE=['delta', 'T14', 'rho_obs']
+  lnZ=-708.399±0.004  runtime=0.1s  N=1201
+  PLATEAU: prior never left log(FLOAT_TINY) — not saving.

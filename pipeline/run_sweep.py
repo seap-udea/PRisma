@@ -270,7 +270,13 @@ def main():
     ap.add_argument("--kernel", default=DEFAULT_KERNEL,
                     help="Jupyter kernel name (default: python3 from the repo .venv)")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--forward-models", nargs="+", default=["exorings"],
+                    help="Forward model(s) to run (default: exorings). Examples: exorings exorings_legacy")
     args = ap.parse_args()
+
+    if args.forward_models:
+        global FORWARD_MODEL_VARIANTS
+        FORWARD_MODEL_VARIANTS = args.forward_models
 
     samplers = ["emcee", "dynesty"] if args.sampler == "both" else [args.sampler]
     nb_map = {"emcee": args.notebook_emcee, "dynesty": args.notebook_dynesty}

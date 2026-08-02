@@ -73,6 +73,7 @@ Useful flags:
 - `--validate-refs`: only manuscript reference tags
 - `--skip-ppc`: skip posterior predictive draws
 - `--case NAME`: case folder under `pipeline/` (default `kepler_51`)
+- `--forward-models MODELS`: forward model(s) to run (default: `exorings`). Can accept multiple models, e.g. `--forward-models exorings exorings_legacy`.
 
 ### Stop and resume
 

@@ -45,8 +45,8 @@ except Exception:  # pragma: no cover - fallback if constants module unavailable
     HOUR = 3600.0
     GCONST = 6.67428e-11
 
-def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,
-                        theta_deg, ir_deg, bobs_method="kipping"):
+def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg, bobs_method="kipping"):
+# def forward_observables_new(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg, bobs_method="kipping"):
     """Compute transit observables for a ringed planet with improved analytical 
     formula (Numpaque, Zuluaga et al. 2026).
 
@@ -155,8 +155,8 @@ def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,
                 aobs=aobs, pobs=pobs, beta=beta, a=a,
                 logPR=np.log10(rhoobs / rhotrue_gcc))
 
-def forward_observables_legacy(rhotrue_gcc, P_days, b, p, fi, fe, tau,
-                        theta_deg, ir_deg, bobs_method="kipping"):
+def forward_observables_legacy(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg, bobs_method="kipping"):
+#def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg, bobs_method="kipping"):
     """Compute transit observables for a ringed planet (Zuluaga+2015).
 
     Parameters

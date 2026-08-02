@@ -23,7 +23,7 @@ import numpy as np
 from scipy.stats import truncnorm as _truncnorm
 from scipy.stats import gaussian_kde
 
-from exorings.forward import forward_observables
+from exorings.forward import forward_observables, forward_observables_legacy
 from geotrans.model import geotrans2_model
 
 from .likelihood import OBS_MAP, build_kde, validate_observables
@@ -104,8 +104,8 @@ class PhotoRingModel:
         self.P_FIXED_VALUE = float(self.p_min)  # used only when P_FREE is False
 
         self.FORWARD_MODEL = str(model_config.get("FORWARD_MODEL", "exorings")).lower()
-        assert self.FORWARD_MODEL in ("exorings", "geotrans"), \
-            f"FORWARD_MODEL must be 'exorings' or 'geotrans', got '{self.FORWARD_MODEL}'"
+        assert self.FORWARD_MODEL in ("exorings", "exorings_legacy", "geotrans"), \
+            f"FORWARD_MODEL must be 'exorings', 'exorings_legacy' or 'geotrans', got '{self.FORWARD_MODEL}'"
         self.bobs_method = str(model_config.get("BOBS_METHOD", "kipping")).lower()
 
         # ── parameter space ───────────────────────────────────────────────
@@ -153,6 +153,8 @@ class PhotoRingModel:
         )
         if self.FORWARD_MODEL == "geotrans":
             return geotrans2_model(**kwargs)
+        elif self.FORWARD_MODEL == "exorings_legacy":
+            return forward_observables_legacy(bobs_method=self.bobs_method, **kwargs)
         return forward_observables(bobs_method=self.bobs_method, **kwargs)
 
     def unpack(self, params):
