@@ -13,8 +13,13 @@ It returns a plain ``dict`` of transit observables, or ``None`` when the geometr
 unphysical / the contact times cannot be computed — the contract nested sampling and
 MCMC need to reject a proposal (map it to ``-inf`` log-likelihood).
 
-Ported verbatim from the inline ``geotrans2_model`` that used to live in the pipeline
-notebooks; only the module import was made explicit (no ``importlib`` path hack).
+``theta_deg``/``ir_deg`` are the *apparent* (sky-projected) ring tilt/inclination -- the
+same convention ``exorings`` uses. ``geotrans``'s own free parameters ``phir``/``ir`` are
+*intrinsic* (defined relative to the orbital plane) and only coincide with the apparent
+ones for an edge-on orbit. This wrapper converts apparent -> intrinsic (via
+:func:`geotrans.geotrans.apparent_to_intrinsic`) before building the ``RingedSystem``;
+an earlier version of this function skipped that conversion, which silently biased every
+ring-dependent observable except for edge-on orbits.
 """
 
 from __future__ import annotations
@@ -42,9 +47,11 @@ def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
     tau : float
         Normal opacity.
     theta_deg : float
-        Ring roll angle [deg]; maps to ``S.phir`` in geotrans2.
+        Apparent (sky-projected) ring roll/tilt angle [deg] -- same convention as
+        :func:`exorings.forward.forward_observables`.
     ir_deg : float
-        Ring inclination [deg]; maps to ``S.ir`` in geotrans2.
+        Apparent (sky-projected) ring inclination [deg] -- same convention as
+        :func:`exorings.forward.forward_observables`.
 
     Returns
     -------
@@ -52,6 +59,15 @@ def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
         ``dict`` with keys ``delta, T14, T23, rhoobs, bobs, aobs, pobs, logPR``.
         ``None`` if the geometry is unphysical or contact times cannot be computed.
     """
+    # ── Apparent (exorings) -> intrinsic (geotrans) ring angles ────────────
+    iorb = gt2.orbital_inclination(float(rhotrue_gcc), float(P_days), float(b))
+    if iorb is None:
+        return None
+    sol = gt2.apparent_to_intrinsic(float(ir_deg), float(theta_deg), iorb)
+    if sol is None:
+        return None
+    ir_rad, phir_rad = sol
+
     # ── Build geotrans2 system configuration ──────────────────────────────
     cfg = dict(
         rhotrue=float(rhotrue_gcc),   # g/cm^3  -> gt2 converts to kg/m^3 internally
@@ -62,8 +78,8 @@ def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
         fi=float(fi),                 # Rp units
         fe=float(fe),                 # Rp units
         tau=float(tau),
-        ir=float(ir_deg) * gt2.DEG,       # rad
-        phir=float(theta_deg) * gt2.DEG,  # rad  (theta -> roll angle)
+        ir=float(ir_rad),             # rad, intrinsic (converted from ir_deg above)
+        phir=float(phir_rad),         # rad, intrinsic (converted from theta_deg above)
         ep=0.0,                       # circular orbit
         wp=0.0,
     )

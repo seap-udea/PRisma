@@ -376,10 +376,13 @@ def _style_ax(ax, xlabel="", ylabel="Density", title="", legend=True):
             if other_h:
                 ax.legend(
                     other_h, other_l, loc="lower center",
-                    bbox_to_anchor=(0.5, 1.02), borderaxespad=0, ncol=1,
+                    bbox_to_anchor=(0.5, 1.04), borderaxespad=0, ncol=1,
                     fontsize=STYLE["annot_size"], **frame)
         elif other_h:
-            ax.legend(other_h, other_l, fontsize=STYLE["legend_size"], **frame)
+            ax.legend(
+                other_h, other_l, loc="lower center",
+                bbox_to_anchor=(0.5, 1.04), borderaxespad=0, ncol=1,
+                fontsize=STYLE["annot_size"], **frame)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     return ax
@@ -510,6 +513,12 @@ def _stats_legend_lines(stats, unit=""):
             rf"$E = {stats['E']:.3g}${u}"]
 
 
+def _stats_legend_line(stats, unit=""):
+    """Compact single-line metrics label for panel legends."""
+    u = f" {unit}" if unit else ""
+    return f"W1 = {stats['W1']:.3g}{u}   E = {stats['E']:.3g}{u}"
+
+
 # ══════════════════════════════════════════════════════════════════════════
 #  KDE self-consistency check
 # ══════════════════════════════════════════════════════════════════════════
@@ -578,6 +587,25 @@ def plot_ppc(run, ttv, obs_keys=None, paths=None):
         return None, {}
     all_stats = {key: ppc_stats_1d(emp, pred) for key, emp, pred, _ in entries}
 
+    # Quality score for ranking runs by PPC agreement:
+    #   w1_i = W1_i / mean(emp_i),  <w1> = mean_i(w1_i),  z1 = -log10(<w1>)
+    # where emp_i is the observed posterior sample of observable i.
+    w1_vals = []
+    for key, emp, _pred, _lbl in entries:
+        mu = float(np.mean(emp))
+        if not np.isfinite(mu) or abs(mu) < 1e-12:
+            continue
+        w1 = float(all_stats[key]["W1"]) / abs(mu)
+        if np.isfinite(w1) and w1 > 0:
+            w1_vals.append(w1)
+    w1_mean = float(np.mean(w1_vals)) if w1_vals else float("nan")
+    z1 = float(-np.log10(w1_mean)) if np.isfinite(w1_mean) and w1_mean > 0 else float("nan")
+    all_stats["_summary"] = {
+        "w1_mean": w1_mean,
+        "z1": z1,
+        "n_obs": len(w1_vals),
+    }
+
     by_key = {key: (key, emp, pred, lbl) for key, emp, pred, lbl in entries}
     top = [by_key[k] for k in _PPC_TOP_KEYS if k in by_key]
     bot = [e for e in entries if e[0] not in _PPC_TOP_KEYS]
@@ -587,9 +615,9 @@ def plot_ppc(run, ttv, obs_keys=None, paths=None):
 
     W = STYLE["fig_w_ppc"]
     H = STYLE["fig_h_single"]
-    # Compact 2+3 layout; extra hspace leaves room for stacked W1/E legends.
+    # Compact 2+3 layout with tighter vertical spacing between rows.
     fig = plt.figure(figsize=(W * 3.2 * 0.6, H * 2.15))
-    gs = fig.add_gridspec(2, 1, height_ratios=[1, 1], hspace=0.72)
+    gs = fig.add_gridspec(2, 1, height_ratios=[1, 1], hspace=0.52)
     gs_top = gs[0].subgridspec(1, max(len(top), 1), wspace=0.32)
     gs_bot = gs[1].subgridspec(1, max(len(bot), 1), wspace=0.32)
     axes = ([fig.add_subplot(gs_top[0, i]) for i in range(len(top))]
@@ -605,13 +633,24 @@ def plot_ppc(run, ttv, obs_keys=None, paths=None):
         _hist1d(ax, emp, STYLE["c_data"], photo_lbl, alpha=0.55)
         _hist1d(ax, pred, col, post_lbl, alpha=0.65)
         ax.set_xlim(_lim)
-        for s in _stats_legend_lines(all_stats[key], unit=obs_meta(key)["unit"]):
-            ax.plot([], [], color="none", label=s)
+        ax.plot([], [], color="none",
+                label=_stats_legend_line(all_stats[key], unit=obs_meta(key)["unit"]))
         _style_ax(ax, xlabel=lbl, legend=True)
-    fig.suptitle(
-        f"Posterior Predictive Check — {PLANET_LABELS.get(planet, planet)}\n"
-        f"{_run_title(run)}",
-        fontsize=STYLE["title_size"] * 0.78, y=0.98)
+
+    # Draw title lines explicitly so line spacing is consistent with/without usetex.
+    title_fs = STYLE["title_size"] * 0.74
+    title_lines = [
+        f"Posterior Predictive Check — {PLANET_LABELS.get(planet, planet)}",
+        _run_title(run, z1=z1),
+        _bestfit_medians_line(run),
+    ]
+    line_step = 1.45 * (title_fs / 72.0) / fig.get_figheight()
+    y_top = 0.985
+    for i, line in enumerate(title_lines):
+        fig.text(0.5, y_top - i * line_step, line,
+                 ha="center", va="top", fontsize=title_fs,
+                 transform=fig.transFigure)
+
     fig.subplots_adjust(left=0.10, right=0.98, bottom=0.08, top=0.84)
     _save(fig, f"{run['tag']}_ppc", paths, "")
     return fig, all_stats
@@ -736,12 +775,18 @@ def _get_ring_diagram_values(run):
     def _get(name, default):
         return chain[:, pnames.index(name)] if name in pnames else np.full(len(chain), default)
 
+    # If a parameter is fixed, it is absent from ``param_names``/``chain``.
+    # Use the explicit fixed values saved in metadata so annotations/ring inset
+    # reflect the actual run configuration.
+    p_fixed = meta.get("P_FIXED_VALUE", meta.get("p_min", meta.get("p_mean_ref", 0.08)))
+    tau_fixed = meta.get("TAU_FIXED", 0.5)
+
     return dict(
         fe=float(np.median(_get("fe", meta.get("FE_MAX", 5.0) / 2))),
         ir=float(np.median(_get("ir", 45.0))),
         theta=float(np.median(_get("theta", 90.0))),
-        p=float(np.median(_get("p", meta.get("p_mean_ref", 0.08)))),
-        tau=float(np.median(_get("tau", 0.5))),
+        p=float(np.median(_get("p", p_fixed))),
+        tau=float(np.median(_get("tau", tau_fixed))),
     )
 
 
@@ -751,7 +796,9 @@ def _get_ring_diagram_values(run):
 def plot_ring_diagram(run, ax=None, paths=None, scale=0.2, dx=0.0):
     """Draw the median-posterior ring geometry projected onto the stellar disk.
 
-    Uses :mod:`geotrans` (``RingedSystem`` + ``plotEllipse``) to render the ellipses.
+    Uses the same projected-geometry convention as the ``exorings`` forward model:
+    ``i_R`` and ``theta`` are in degrees, with projected ring axes
+    ``A = f_e p`` and ``B = A cos(i_R)``.
 
     Parameters
     ----------
@@ -759,7 +806,6 @@ def plot_ring_diagram(run, ax=None, paths=None, scale=0.2, dx=0.0):
         Horizontal offset of the diagram centre in axes fraction (useful when the
         inset sits near a figure edge).
     """
-    import geotrans as gt2
     meta = run["meta"]
     ring_vals = _get_ring_diagram_values(run)
     fe = ring_vals["fe"]
@@ -778,19 +824,66 @@ def plot_ring_diagram(run, ax=None, paths=None, scale=0.2, dx=0.0):
     ax.set_aspect("equal", adjustable="box")
 
     col = planet_color(run["planet"])
-    System = gt2.RingedSystem(dict(fe=fe, ir=ir, theta=theta, p=p, fi=fi))
-    fh = scale / (System.fe * System.Rp); fv = fh
+
+    # Geometric scales in stellar-radius units: Rp/R* = p, Re/R* = fe*p, Ri/R* = fi*p.
+    Rp = float(p)
+    Re = float(fe) * Rp
+    Ri = float(fi) * Rp
+    if Re <= 0 or Rp <= 0:
+        raise ValueError(f"Invalid ring geometry (Rp={Rp}, Re={Re})")
+
+    # Projected ring ellipse (exorings convention): B = A * cos(i_R), angle = theta.
+    cos_ir = float(np.cos(np.deg2rad(ir)))
+    Aout, Bout = Re, Re * cos_ir
+    Ain, Bin = Ri, Ri * cos_ir
+
+    # Ring attenuation factor (exorings/geotrans convention):
+    #   beta = 1 - exp(-tau / cos(i_R)).
+    # Use |cos(i_R)| for numerical safety and clamp to [0, 1] for alpha mapping.
+    mu = max(abs(cos_ir), 1e-6)
+    tau_eff = max(float(tau), 0.0)
+    beta = float(np.clip(1.0 - np.exp(-tau_eff / mu), 0.0, 1.0))
+
+    # Keep visibility for very transparent rings while still encoding beta.
+    ring_fill_alpha = 0.08 + 0.62 * beta
+    ring_edge_alpha = 0.35 + 0.60 * beta
+    ring_inner_edge_alpha = 0.25 + 0.45 * beta
+
+    fh = scale / Aout
+    fv = fh
     C = np.array([0.5 + dx, 0.5])
-    Planet = gt2.Figure(C, fh * System.Rp, fv * System.Rp, 1.0, 0.0, "Planet")
-    Ringe = gt2.Figure(C, fh * System.Re, fv * System.Re * np.cos(System.ir),
-                       np.cos(System.phir), np.sin(System.phir), "Ringext")
-    Ringi = gt2.Figure(C, fh * System.Ri, fv * System.Ri * np.cos(System.ir),
-                       np.cos(System.phir), np.sin(System.phir), "Ringint")
-    gt2.plotEllipse(ax, Planet, patch=True, zorder=10, color="k", transform=ax.transAxes)
-    gt2.plotEllipse(ax, Ringe, zorder=9, color=col, alpha=0.85,
-                    lw=STYLE["line_lw"], transform=ax.transAxes)
-    gt2.plotEllipse(ax, Ringi, zorder=9, color=col, alpha=0.30,
-                    lw=STYLE["line_lw_thin"], transform=ax.transAxes)
+
+    # Outer ring body and inner cutout to show an annulus, not a solid disk.
+    ring_body = mpl.patches.Ellipse(
+        xy=C, width=2 * fh * Aout, height=2 * fv * Bout, angle=float(theta),
+        facecolor=col, edgecolor=col, alpha=ring_fill_alpha, lw=STYLE["line_lw"],
+        transform=ax.transAxes, zorder=8,
+    )
+    ring_hole = mpl.patches.Ellipse(
+        xy=C, width=2 * fh * Ain, height=2 * fv * Bin, angle=float(theta),
+        facecolor="white", edgecolor="none", alpha=1.0,
+        transform=ax.transAxes, zorder=9,
+    )
+    ring_edge_out = mpl.patches.Ellipse(
+        xy=C, width=2 * fh * Aout, height=2 * fv * Bout, angle=float(theta),
+        fill=False, edgecolor=col, alpha=ring_edge_alpha, lw=STYLE["line_lw"],
+        transform=ax.transAxes, zorder=10,
+    )
+    ring_edge_in = mpl.patches.Ellipse(
+        xy=C, width=2 * fh * Ain, height=2 * fv * Bin, angle=float(theta),
+        fill=False, edgecolor=col, alpha=ring_inner_edge_alpha, lw=STYLE["line_lw_thin"],
+        transform=ax.transAxes, zorder=10,
+    )
+    planet = mpl.patches.Circle(
+        xy=C, radius=fh * Rp, facecolor="k", edgecolor="k", lw=0.0,
+        transform=ax.transAxes, zorder=11,
+    )
+
+    ax.add_patch(ring_body)
+    ax.add_patch(ring_hole)
+    ax.add_patch(ring_edge_out)
+    ax.add_patch(ring_edge_in)
+    ax.add_patch(planet)
     # Red centre mark — same meaning as the red median markers on the corner panels.
     ax.plot(C[0], C[1], "o", color="red", ms=8, mew=1.5, mec="darkred",
             transform=ax.transAxes, zorder=12, clip_on=False)
@@ -883,7 +976,7 @@ def plot_results_panel(run, ttv, obs_keys=None, paths=None):
     return fig
 
 
-def _run_title(run):
+def _run_title(run, z1=None):
     r"""``L_KDE: [obs…]   theta: [ring params…]   eta: [nuisance…]``.
 
     Parameters appearing before ``rho_true`` in ``param_names`` are treated as the
@@ -902,8 +995,12 @@ def _run_title(run):
             etas.append(sym)
     par_symbols = r" \; ".join(params)
     eta_symbols = r" \; ".join(etas)
+    z1_suffix = ""
+    if z1 is not None and np.isfinite(z1):
+        z1_suffix = rf"\; (\langle z_1 \rangle = {z1:.2f})"
+
     return (rf"$\mathcal{{L}}_{{\mathrm{{KDE}}}}\text{{: }}"
-            rf"\left[ {kde_symbols} \right]"
+            rf"\left[ {kde_symbols} \right]{z1_suffix}"
             rf" \qquad \boldsymbol{{{{\theta}}}}\text{{: }}"
             rf"\left[ {par_symbols} \right]"
             rf" \qquad \boldsymbol{{{{\eta}}}}\text{{: }}"
@@ -936,6 +1033,24 @@ def _overlay_ring_medians(axes, pnames, ring_vals):
                        lw=1.5, alpha=0.9, zorder=100)
 
 
+def _bestfit_medians_line(run):
+    """Return the medians line used in panel titles (shared by corner + PPC)."""
+    ring_vals = _get_ring_diagram_values(run)
+    free = set(run["param_names"])
+
+    def _sym(name, latex):
+        return rf"{latex}^\dagger" if name not in free else latex
+
+    return (
+        rf"Medians: "
+        rf"${_sym('p', 'p')}={ring_vals['p']:.3f}$, "
+        rf"${_sym('fe', 'f_e')}={ring_vals['fe']:.2f}$, "
+        rf"${_sym('ir', 'i_R')}={ring_vals['ir']:.1f}^\circ$, "
+        rf"${_sym('theta', r'\theta')}={ring_vals['theta']:.1f}^\circ$, "
+        rf"${_sym('tau', r'\tau')}={ring_vals['tau']:.2f}$"
+    )
+
+
 def _apply_panel_title(fig, axes, run, pnames):
     """Title anchored above the ``f_e`` (or first) diagonal axis title.
 
@@ -966,14 +1081,7 @@ def _apply_panel_title(fig, axes, run, pnames):
     fig_h_px = fig.bbox.height
     dy = 1.5 * (bb.y1 - bb.y0) / fig_h_px
 
-    medians = (
-        rf"Medians: "
-        rf"${_sym('p', 'p')}={ring_vals['p']:.3f}$, "
-        rf"${_sym('fe', 'f_e')}={ring_vals['fe']:.2f}$, "
-        rf"${_sym('ir', 'i_R')}={ring_vals['ir']:.1f}^\circ$, "
-        rf"${_sym('theta', r'\theta')}={ring_vals['theta']:.1f}^\circ$, "
-        rf"${_sym('tau', r'\tau')}={ring_vals['tau']:.2f}$"
-    )
+    medians = _bestfit_medians_line(run)
     lines = [
         f"{planet_label} — Posterior results",
         _run_title(run),

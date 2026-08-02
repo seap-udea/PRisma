@@ -4,12 +4,12 @@
 Reads one or more ``.npz`` posterior files (from ``run_sweep`` / nested sampling)
 and writes publication-style figures under ``<case>/results/figures/`` as::
 
-    {NNN}-{tag}_corner.png
-    {NNN}-{tag}_corner_reduced.png
-    {NNN}-{tag}_ppc.png
+    {CASE}_{PLANET}_{ORDKEY}-{tag}_corner.png
+    {CASE}_{PLANET}_{ORDKEY}-{tag}_corner_reduced.png
+    {CASE}_{PLANET}_{ORDKEY}-{tag}_ppc.png
 
-``NNN`` is a zero-padded index in generation order (001, 002, …), so the three
-figures of each configuration stay together when the directory is sorted.
+``ORDKEY`` is a sortable key derived from ``z1`` (larger ``z1`` -> smaller key), so
+alphabetical file ordering places the best PPC agreement first.
 
 Usage
 -----
@@ -33,6 +33,7 @@ import sys
 import traceback
 import warnings
 from pathlib import Path
+import numpy as np
 
 import matplotlib
 
@@ -110,9 +111,60 @@ def _load_ttv_cache(case_paths: pr.CasePaths, cache: dict) -> dict:
     return get
 
 
-def _fig_name(index: int, tag: str, kind: str, ext: str) -> str:
-    """``001-{tag}_corner.png`` (and ``_corner_reduced`` / ``_ppc``)."""
-    return f"{index:03d}-{tag}_{_KIND_SUFFIX[kind]}.{ext}"
+def _compute_z1(run: dict, ttv: dict, obs_keys: list[str]) -> float:
+    """Compute z1 from PPC stats: z1 = -log10(mean_i(W1_i / mean(emp_i)))."""
+    ppc = run.get("ppc")
+    if ppc is None or not hasattr(ppc, "shape") or ppc.ndim != 2:
+        return float("nan")
+
+    w1_vals = []
+    for key in obs_keys:
+        meta = plot.obs_meta(key)
+        col = meta.get("ppc_col")
+        if col is None or col >= ppc.shape[1]:
+            continue
+        scale = float(meta.get("scale", 1.0))
+        emp = np.asarray(ttv.get(meta["df_col"], []), dtype=float).ravel() * scale
+        pred = np.asarray(ppc[:, col], dtype=float).ravel() * scale
+        emp = emp[np.isfinite(emp)]
+        pred = pred[np.isfinite(pred)]
+        if emp.size == 0 or pred.size == 0:
+            continue
+        mu = float(np.mean(emp))
+        if not np.isfinite(mu) or abs(mu) < 1e-12:
+            continue
+        stats = plot.ppc_stats_1d(emp, pred)
+        w1 = float(stats["W1"]) / abs(mu)
+        if np.isfinite(w1) and w1 > 0:
+            w1_vals.append(w1)
+
+    if not w1_vals:
+        return float("nan")
+    return float(-np.log10(float(np.mean(w1_vals))))
+
+
+def _zkey_prefix(z1: float) -> str:
+    """Readable sortable key so alphabetical order is descending in z1.
+
+    Output format:
+        ordXXXXX-z1_YY.YY
+
+    where ``ordXXXXX`` is an inverted numeric bucket (smaller = better score)
+    and ``z1_YY.YY`` is the human-readable score.
+    """
+    if not np.isfinite(z1):
+        return "ord99999-z1_nan"
+
+    # Invert z1 into an integer bucket; larger z1 -> smaller bucket -> earlier filename.
+    # 100.0 is a safe ceiling for our score range.
+    inv = int(round((100.0 - float(z1)) * 1000.0))
+    inv = max(0, min(99999, inv))
+    return f"ord{inv:05d}-z1_{z1:05.2f}"
+
+
+def _fig_name(prefix: str, tag: str, kind: str, ext: str) -> str:
+    """``{CASE}_{PLANET}_{ORDKEY}-{tag}_corner.png`` (and variants)."""
+    return f"{prefix}-{tag}_{_KIND_SUFFIX[kind]}.{ext}"
 
 
 def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
@@ -129,10 +181,23 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
     ext = plot.STYLE["fig_format"]
     out_dir = fig_paths.figures_dir()
 
+    run = load_run(npz_path)
+    tag = run["tag"]
+    planet = run["planet"]
+    z1 = float("nan")
+    try:
+        ttv = ttv_get(planet)
+        z1 = _compute_z1(run, ttv, PPC_OBSERVABLES)
+    except Exception:
+        # Keep generating figures even if z1 cannot be computed (missing observables, etc.)
+        z1 = float("nan")
+    zkey = _zkey_prefix(z1)
+    prefix = f"{case_root.name}_{planet}_{zkey}"
+
     if dry_run:
-        preview = [_fig_name(index, npz_path.stem, k, ext) for k in FIGURE_KINDS if k in kinds]
+        preview = [_fig_name(prefix, tag, k, ext) for k in FIGURE_KINDS if k in kinds]
         return {
-            "tag": npz_path.stem,
+            "tag": tag,
             "ok": True,
             "dry_run": True,
             "case": case_root.name,
@@ -140,13 +205,12 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
             "index": index,
             "out": str(out_dir),
             "preview": preview,
+            "z1": z1,
+            "zkey": zkey,
         }
-
-    run = load_run(npz_path)
-    tag = run["tag"]
-    planet = run["planet"]
     status = {
         "tag": tag, "planet": planet, "ok": True, "index": index,
+        "z1": z1, "zkey": zkey,
         "made": [], "skipped": [], "error": None,
     }
 
@@ -159,7 +223,7 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
                 status["skipped"].append("corner")
             else:
                 plot.add_run_version_label(fig, version)
-                out = out_dir / _fig_name(index, tag, "corner", ext)
+                out = out_dir / _fig_name(prefix, tag, "corner", ext)
                 fig.savefig(out, dpi=plot.STYLE["fig_dpi"], bbox_inches="tight")
                 print(f"  Saved -> {out}")
                 status["made"].append(str(out))
@@ -171,7 +235,7 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
                 status["skipped"].append("reduced")
             else:
                 plot.add_run_version_label(fig, version)
-                out = out_dir / _fig_name(index, tag, "reduced", ext)
+                out = out_dir / _fig_name(prefix, tag, "reduced", ext)
                 fig.savefig(out, dpi=plot.STYLE["fig_dpi"], bbox_inches="tight")
                 print(f"  Saved -> {out}")
                 status["made"].append(str(out))
@@ -187,7 +251,7 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
                     status["skipped"].append("ppc")
                 else:
                     plot.add_run_version_label(fig, version)
-                    out = out_dir / _fig_name(index, tag, "ppc", ext)
+                    out = out_dir / _fig_name(prefix, tag, "ppc", ext)
                     fig.savefig(out, dpi=plot.STYLE["fig_dpi"], bbox_inches="tight")
                     print(f"  Saved -> {out}")
                     status["made"].append(str(out))
@@ -284,7 +348,7 @@ def main(argv: list[str] | None = None) -> int:
     plot.apply_style(style)
 
     print(f"Generating {sorted(kinds)} for {len(npz_files)} run(s)")
-    print(f"  output: <case>/results/figures/{{NNN}}-{{tag}}_corner|_corner_reduced|_ppc")
+    print(f"  output: <case>/results/figures/{{case}}_{{planet}}_{{ORDKEY}}-{{tag}}_corner|_corner_reduced|_ppc")
 
     per_case_ttv: dict[str, object] = {}
 
@@ -304,7 +368,8 @@ def main(argv: list[str] | None = None) -> int:
             index=i, dry_run=args.dry_run,
         )
         if st.get("dry_run"):
-            print(f"  dry-run  case={st['case']}  index={st['index']:03d}")
+            z1_txt = "nan" if not np.isfinite(st.get("z1", float("nan"))) else f"{st['z1']:.3f}"
+            print(f"  dry-run  case={st['case']}  index={st['index']:03d}  z1={z1_txt}  ordkey={st.get('zkey')}")
             for name in st["preview"]:
                 print(f"    → {name}")
             n_ok += 1

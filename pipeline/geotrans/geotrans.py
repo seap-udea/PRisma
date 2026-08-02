@@ -313,6 +313,69 @@ def rotTrans(r,cost,sint,b):
     rp=dot(M,r)+b
     return rp
 
+def orbital_inclination(rhotrue_gcc,P_days,b):
+    """
+    Orbital inclination iorb [rad] from the stellar density, period and impact
+    parameter, using the same normalized-units (R*=1) Kepler's-third-law relation as
+    ``RingedSystem.derivedSystemProperties``: aRs = [G*rho_true/(3*pi)*P^2]^(1/3),
+    iorb = arccos(b/aRs).
+
+    Returns None if the configuration does not lead to a transit (b > aRs).
+    """
+    rho_true=rhotrue_gcc*1E3   # g/cm^3 -> kg/m^3
+    aRs=(GCONST*rho_true/(3*pi)*(P_days*DAY)**2)**(1./3)
+    cosiorb=b/aRs
+    if abs(cosiorb)>1:
+        return None
+    return arccos(cosiorb)
+
+def apparent_from_intrinsic(ir,phir,iorb):
+    """
+    Forward map: intrinsic ring angles ``(ir, phir)`` [rad], defined relative to the
+    orbital plane, plus the orbital inclination ``iorb`` [rad], to the apparent
+    (sky-projected) ring inclination/roll ``(ieff, teff)`` [rad] -- i.e. the same
+    rotation composition (``Mi . Mpr . Mir`` acting on the ring's normal vector) that
+    ``RingedSystem.updatePlanetRings`` uses internally to derive ``S.ieff``/``S.teff``
+    from ``S.ir``/``S.phir``.
+    """
+    Mi=rotMat([1,0,0],-iorb)
+    Mpr=rotMat([0,0,1],phir)
+    Mir=rotMat([1,0,0],-ir)
+    Mrs=dot(Mi,dot(Mpr,Mir))
+    rz=dot(Mrs,[0.0,0.0,1.0])
+    ieff=arccos(abs(rz[2]))
+    teff=-sign(rz[0])*ARCTAN(abs(rz[0]),abs(rz[1]))
+    return ieff,teff
+
+def apparent_to_intrinsic(ir_deg,theta_deg,iorb):
+    """
+    Numerically invert :func:`apparent_from_intrinsic`: given the *apparent*
+    (sky-projected) ring inclination/tilt ``ir_deg``/``theta_deg`` [deg] -- the
+    convention used by ``exorings.forward.forward_observables`` -- and the orbital
+    inclination ``iorb`` [rad], solve for geotrans's *intrinsic* ``(ir, phir)`` [rad].
+
+    ``exorings`` and ``geotrans`` name their ring-orientation parameters the same
+    (``ir``/``theta`` vs. ``ir``/``phir``) but define them differently: ``exorings``'s
+    are apparent/sky-projected, while ``geotrans``'s are intrinsic/orbit-plane-relative.
+    They only coincide for an edge-on orbit (``iorb = 90 deg``); in general this
+    conversion is required before feeding one model's angles to the other.
+
+    Returns
+    -------
+    (ir_rad, phir_rad) or None
+        ``None`` if the nonlinear solve does not converge.
+    """
+    ieff_t,teff_t=ir_deg*DEG,theta_deg*DEG
+
+    def _residual(x):
+        ieff,teff=apparent_from_intrinsic(x[0],x[1],iorb)
+        return [ieff-ieff_t,teff-teff_t]
+
+    sol,info,ier,msg=fsolve(_residual,x0=[ieff_t,teff_t],full_output=True)
+    if ier!=1:
+        return None
+    return sol[0],sol[1]
+
 def realArray(zs):
     """
     Get real parts of zs if they are mostly (IMAGTOL) real
@@ -2695,7 +2758,9 @@ def softArraySG(y,frac=5,nP=7,deriv=0, rate=1):
 
 def rhoObserved_Seager(p,tT,tF,P):
     """
-    p: Observed planetary radius in star units (Rp_obs/R*)
+    p: Transit depth, delta = (Rp_obs/R*)^2 (an area ratio -- always called with
+       ringedPlanetArea(S)/pi, despite Rp_obs/R* being what "p" usually denotes elsewhere
+       in this module).
     tT: Total transit duration (in hours)
     tF: Duration of full transit (in hours)
     P: Orbital Period (in hours)
@@ -2703,9 +2768,16 @@ def rhoObserved_Seager(p,tT,tF,P):
     Approximate formula by Seager & Mallen-Ornellas (2003).
     Rstar not needed: rho_obs = (3*pi/G) * (a/R*)^3 / P^2
     and a/R* is derived purely from transit durations and depths.
+
+    NOTE: the impact-parameter formula needs the planet-to-star radius ratio
+    pobs = sqrt(p) in squared (1 -+ pobs)**2 terms (compare rhoObserved_Kipping below,
+    which correctly computes Rp = sqrt(p) first) -- using the raw depth p (as an earlier
+    version of this function did) in linear (1 -+ p) terms is a distinct, unrelated
+    quantity and gives a biased b_obs.
     """
+    pobs=np.sqrt(p)
     a=2*(P*HOUR)/pi*p**0.25/((tT*HOUR)**2-(tF*HOUR)**2)**0.5
-    b=np.sqrt(max((tT**2 * (1 - p) - tF**2 * (1 + p)) / (tT**2 - tF**2), 0.0))
+    b=np.sqrt(max((tT**2 * (1 - pobs)**2 - tF**2 * (1 + pobs)**2) / (tT**2 - tF**2), 0.0))
     rho=3*pi*a**3/(GCONST*(P*HOUR)**2)
     return rho, a, b
 
