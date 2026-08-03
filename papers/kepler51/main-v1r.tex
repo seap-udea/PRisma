@@ -200,21 +200,23 @@ Given these inputs, our forward model computes two classes of observables.  Firs
 \delta^\mathrm{geo}=\frac{A_{\rm eff}}{\pi R_\star^2}.
 \end{equation}
 
-In practice, $A_{\rm eff}$ is written as the area of the planetary disk plus the effective projected area of the annulus. The latter is computed using closed-form expressions for the effective projected areas of the outer and inner ring edges as functions of $(f_i,f_e, i_R, \tau)$, including the edge-on limit where only a fraction of the annulus projects outside the planetary disk (Eq. 2 in \citetalias{Zuluaga2015}). Second, it determines the locations of the contact points along the transit chord. For an illustration of the transit geometry, as well as the exact definitions of the contact positions and transit durations, see Figure 1 in \citetalias{Zuluaga2015}.
+In practice, $A_{\rm eff}$ is written as the area of the planetary disk plus the effective projected area of the annulus. The latter is computed using closed-form expressions for the effective projected areas of the outer and inner ring edges as functions of $(f_i,f_e, i_R, \tau)$, including the edge-on limit where only a fraction of the annulus projects outside the planetary disk (Eq. 2 in \citetalias{Zuluaga2015}). Second, it determines the locations of the contact points along the transit chord. For an illustration of the transit geometry, as well as the exact definitions of the contact positions and transit durations, see \autoref{fig:analytical_model}.
 
 The planet-only contacts $x_{p,1\ldots4}$ are obtained from the intersection of the planetary disk with the stellar limb at impact parameter $b$. For the ring contacts $x_{R,1\ldots4}$, rather than relying on the approximate analytical intersection from \citetalias{Zuluaga2015} which breaks down at certain high inclinations, we employ a robust, exact-like analytical solution based on the Support Function of a convex body (derived in detail in \autoref{sec:appendix_support_function}). The four contact positions along the transit chord are given by:
 
 \begin{eqnarray}
     x_{R,1} &=& -\sqrt{(1 + h_L)^2 - b^2} \nonumber \\
-    x_{R,2} &=& -\sqrt{\max(0, (1 - h_L)^2 - b^2)} \label{eq:contact_x} \\
-    x_{R,3} &=& +\sqrt{\max(0, (1 - h_R)^2 - b^2)} \nonumber \\
+    x_{R,2} &=& -\sqrt{\max(0, [1 - h_L]^2 - b^2)} \label{eq:contact_x} \\
+    x_{R,3} &=& +\sqrt{\max(0, [1 - h_R]^2 - b^2)} \nonumber \\
     x_{R,4} &=& +\sqrt{(1 + h_R)^2 - b^2} \nonumber
 \end{eqnarray}
 
 where $h_L$ and $h_R$ are the effective directional radii of the projected ring ellipse during ingress and egress, respectively:
 \begin{eqnarray}
-    h_L &=& \sqrt{A^2 (-x_0 \cos\theta_R + b \sin\theta_R)^2 + B^2 (b \cos\theta_R + x_0 \sin\theta_R)^2} \nonumber \\
-    h_R &=& \sqrt{A^2 (x_0 \cos\theta_R + b \sin\theta_R)^2 + B^2 (b \cos\theta_R - x_0 \sin\theta_R)^2} \nonumber
+    h_L^2 &=& A^2 (-x_0 \cos\theta_R + b \sin\theta_R)^2 \nonumber \\
+          & & +\, B^2 (b \cos\theta_R + x_0 \sin\theta_R)^2 \nonumber \\
+    h_R^2 &=& A^2 (x_0 \cos\theta_R + b \sin\theta_R)^2 \nonumber \\
+          & & +\, B^2 (b \cos\theta_R - x_0 \sin\theta_R)^2 \nonumber
 \end{eqnarray}
 (see Equations \ref{eq:h_L} and \ref{eq:h_R} in the Appendix). This formula is the “star” of our implementation of the method used here: because it is fully analytical, we can employ it in computationally intensive evaluation procedures, such as nested sampling, without incurring prohibitively long computation times.
 
@@ -770,7 +772,7 @@ To illustrate this, \autoref{fig:pr_contour_comparison} compares the \PhotoRing\
     \includegraphics[width=0.48\textwidth]{figures/PRContour-K51b-exorings_legacy.png}
     %\includegraphics[width=0.48\textwidth]{figures/PRContour-K51b-exorings_updated.png}
     \includegraphics[width=0.48\textwidth]{figures/PRContours-K51b-geotrans.png}
-    \caption{Comparison of the \PhotoRing\ effect contours for \exoplanet{Kepler-51}{b} using the original \texttt{exorings} analytical approximation from \citet{Zuluaga2015} (left) and the precise semi-analytical model \texttt{geotrans} (right). The original model exhibits geometrical artifacts at certain high projected tilts and inclinations.}
+    \caption{Comparison of the \PhotoRing\ effect contours for \exoplanet{Kepler-51}{b} using the original \texttt{exorings} analytical approximation from \citet{Zuluaga2015} (left) and the precise semi-analytical model \texttt{geotrans} (right). The original model exhibits geometrical artifacts at certain high projected tilts and inclinations. You can compare the panel on the right with \autoref{fig:photoring_contour}, which was obtained using the refined analytical model presented in this appendix.}
     \label{fig:pr_contour_comparison}
 \end{figure*}
 
@@ -778,16 +780,25 @@ To provide a robust, exact-like analytical solution suitable for computationally
 
 \subsection{Theoretical Framework: The Support Function}
 
-Geometrically, the contact between the stellar disk (a circle of radius $R_* = 1$) and the projected ring (an ellipse with semi-axes $A, B$ rotated by $\theta_R$) occurs when the distance between their centers equals the sum of their effective radii in the direction of contact.
+Geometrically, the contact between the stellar disk (a circle of radius $R_* = 1$) and the projected ring (an ellipse with semi-axes $A, B$ rotated by $\theta_R$) occurs when the distance between their centers equals the sum of their effective radii in the direction of contact. 
 
 For a convex shape, the distance from its center to a tangent line perpendicular to a given normal vector $\vec{n}$ is defined by its Support Function, $h(\vec{n})$. For an ellipse aligned with the coordinate axes, the support function is:
 \begin{equation}
     h(\vec{n}) = \sqrt{A^2 n_x^2 + B^2 n_y^2}
 \end{equation}
 
+A graphical representation of these geometric quantities and the contact positions used in this derivation is provided in \autoref{fig:analytical_model}.
+
+\begin{figure*}[ht!]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/PRisma-analytical-model.png}
+\caption{Illustration of the quantities involved in the analytical model for two configurations: one where the rings are oriented coinciding with the coordinate system (left/top), and another where the rings are oriented with an inclination and projected tilt (right/bottom).}
+\label{fig:analytical_model}
+\end{figure*}
+
 When the ellipse is rotated by an angle $\theta_R$ (the projected ring tilt), the normal vector must be rotated into the ellipse's local frame. The unit vectors defining the major and minor axes are:
 \begin{equation}
-    \hat{u}_A = (\cos\theta_R, \sin\theta_R), \quad \hat{u}_B = (-\sin\theta_R, \cos\theta_R)
+    \hat{u}_A = (\cos\theta_R, \sin\theta_R), \quad \hat{u}_B = (-\sin\theta_R, \cos\theta_R) \nonumber
 \end{equation}
 
 The directional effective radius of the rotated ring is then:
@@ -809,25 +820,27 @@ Let $x_0 = \sqrt{1-b^2}$. We can now evaluate the Support Function of the ring i
 
 Projecting $\vec{n}_R$ onto the ellipse axes yields the egress effective radius:
 \begin{eqnarray}
-    \vec{n}_R \cdot \hat{u}_A &=& x_0 \cos\theta_R + b \sin\theta_R \\
-    \vec{n}_R \cdot \hat{u}_B &=& -x_0 \sin\theta_R + b \cos\theta_R
+    \vec{n}_R \cdot \hat{u}_A &=& x_0 \cos\theta_R + b \sin\theta_R \nonumber \\
+    \vec{n}_R \cdot \hat{u}_B &=& -x_0 \sin\theta_R + b \cos\theta_R \nonumber
 \end{eqnarray}
 Squaring and substituting into the support function gives:
-\begin{equation}
+\begin{eqnarray}
 \label{eq:h_R}
-    h_R = \sqrt{A^2 (x_0 \cos\theta_R + b \sin\theta_R)^2 + B^2 (b \cos\theta_R - x_0 \sin\theta_R)^2}
-\end{equation}
+    h_R^2 &=& A^2 (x_0 \cos\theta_R + b \sin\theta_R)^2 \nonumber \\
+          & & +\, B^2 (b \cos\theta_R - x_0 \sin\theta_R)^2
+\end{eqnarray}
 
 Similarly, for the ingress effective radius ($h_L$):
 \begin{eqnarray}
-    \vec{n}_L \cdot \hat{u}_A &=& -x_0 \cos\theta_R + b \sin\theta_R \\
-    \vec{n}_L \cdot \hat{u}_B &=& x_0 \sin\theta_R + b \cos\theta_R
+    \vec{n}_L \cdot \hat{u}_A &=& -x_0 \cos\theta_R + b \sin\theta_R \nonumber \\
+    \vec{n}_L \cdot \hat{u}_B &=& x_0 \sin\theta_R + b \cos\theta_R \nonumber
 \end{eqnarray}
 Yielding:
-\begin{equation}
+\begin{eqnarray}
 \label{eq:h_L}
-    h_L = \sqrt{A^2 (-x_0 \cos\theta_R + b \sin\theta_R)^2 + B^2 (b \cos\theta_R + x_0 \sin\theta_R)^2}
-\end{equation}
+    h_L^2 &=& A^2 (-x_0 \cos\theta_R + b \sin\theta_R)^2 \nonumber \\
+          & & +\, B^2 (b \cos\theta_R + x_0 \sin\theta_R)^2
+\end{eqnarray}
 
 \subsection{Final Contact Equations}
 
@@ -836,12 +849,12 @@ With the effective geometrical radii $h_R$ and $h_L$ defined, the complex ring b
 \noindent \textbf{Ingress Contacts (Left):}
 \begin{eqnarray}
     x_{R,1} &=& -\sqrt{(1 + h_L)^2 - b^2} \quad \text{(First contact, external)} \\
-    x_{R,2} &=& -\sqrt{\max(0, (1 - h_L)^2 - b^2)} \quad \text{(Second contact, internal)}
+    x_{R,2} &=& -\sqrt{\max(0, [1 - h_L]^2 - b^2)} \quad \text{(Second contact, internal)}
 \end{eqnarray}
 
 \noindent \textbf{Egress Contacts (Right):}
 \begin{eqnarray}
-    x_{R,3} &=& +\sqrt{\max(0, (1 - h_R)^2 - b^2)} \quad \text{(Third contact, internal)} \\
+    x_{R,3} &=& +\sqrt{\max(0, [1 - h_R]^2 - b^2)} \quad \text{(Third contact, internal)} \\
     x_{R,4} &=& +\sqrt{(1 + h_R)^2 - b^2} \quad \text{(Fourth contact, external)}
 \end{eqnarray}
 
