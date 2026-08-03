@@ -12,6 +12,7 @@
 	{
 		"id": "geotrans",
 		"title": "Kepler-51 b and d potential ring configurations (f.m. geotrans)",
+		"path": "pipeline/kepler_51/results/geotrans/figures/",
 	        "start_with": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE_corner_reduced.png",
 		"configuration": {
 			"preview": true,
