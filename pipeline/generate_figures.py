@@ -198,7 +198,7 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
     if no_prefix:
         prefix = ""
     else:
-        prefix = f"{zkey}"
+        prefix = f"{planet}_{zkey}"
 
     if dry_run:
         preview = [_fig_name(prefix, tag, k, ext) for k in FIGURE_KINDS if k in kinds]
