@@ -174,6 +174,52 @@ If `z1` cannot be computed (for example missing PPC array), the script uses:
 
 so those files go to the end.
 
+## Multi-Metric Retrieval Classification
+
+While `z1` is useful for comparing predictive checks, we provide a more comprehensive **Decision Tree Classification** system to determine the physical quality of a retrieval. This system assigns a mutually exclusive category to each retrieval by checking its properties sequentially. Within each category, retrievals are ranked by their PPC score ($Z_1$).
+
+The categories are evaluated in this strict order:
+
+1. **Rule 1: Good Fit (PPC)**:
+   Measures the agreement between the posterior predictive checks (PPC) and the empirical observables using the $z_1$ metric.
+   - **Condition**: $z_1 \ge 1.2$
+   - **If it fails**: `[Rejected] Poor Fit`
+
+2. **Rule 2: Physical Density (Nuisance Constraint)**:
+   Evaluates how well the marginal posteriors of the observables $b$ and $\rho_{true}$ match their empirical distributions.
+   - **Condition**: Mean normalized Wasserstein-1 distance ($W_1$) must be $\le 0.10$.
+   - **If it fails**: `[Rejected] Unphysical Nuisance`
+
+3. **Rule 3: Confirmed Ring ($f_e$)**:
+   Ensures the retrieval converges to a ringed model ($f_e > 1$). 
+   - **Condition**: The 16th percentile of the $f_e$ marginal posterior ($f_{e,p16}$) must be $\ge 1.0$.
+   - **If it fails**: `[Degenerate] Ringless`
+
+4. **Rule 4: Stable Period ($p$)**:
+   Evaluates the stability of the planetary period.
+   - **Condition**: If $p$ is free, its marginal posterior must not be multimodal ($\le 1$ KDE peaks). Fixed periods automatically pass.
+   - **If it fails**: `[Suboptimal] Unstable Period`
+
+5. **Rule 5: Stable Angles ($i_r, \theta$)**:
+   Evaluates multimodality in ring orientation.
+   - **Condition**: Both angles should ideally be unimodal. Average KDE peaks $\le 1.5$.
+   - **If it fails**: `[Acceptable] Multimodal Angles`
+   - **If it passes**: `[Excellent] Golden Sample`
+
+### Usage
+
+To evaluate all retrievals in a results folder and generate a ranked JSON table (`scoring.json`):
+
+```bash
+python score_retrievals.py kepler_51/results/exorings
+```
+
+To generate a Markdown visual report (`scoring.md`) that ranks the results from best to worst and embeds their corresponding figures:
+
+```bash
+python generate_figures_sorting.py kepler_51/results/exorings
+```
+
 ## Why case+planet is in the prefix
 
 The filename prefix starts with `{case}_{planet}_...` so files naturally group by planet in file browsers. Within each planet group, `ORDKEY` keeps best PPC files first.
