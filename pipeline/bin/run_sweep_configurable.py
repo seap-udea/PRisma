@@ -45,6 +45,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # SWEEP CONFIGURATION  <- edit here
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -69,12 +71,12 @@ _spec.loader.exec_module(cfg)
 DEFAULT_CASE = getattr(cfg, "DEFAULT_CASE", "kepler_51")
 KDE_VARIANTS = getattr(cfg, "KDE_VARIANTS", [])
 FREE_PARAM_VARIANTS = getattr(cfg, "FREE_PARAM_VARIANTS", [])
-TAU_FREE_VARIANTS = getattr(cfg, "TAU_FREE_VARIANTS", [])
+ALPHA_FREE_VARIANTS = getattr(cfg, "ALPHA_FREE_VARIANTS", [])
 P_FREE_VARIANTS = getattr(cfg, "P_FREE_VARIANTS", [])
 FORWARD_MODEL_VARIANTS = getattr(cfg, "FORWARD_MODEL_VARIANTS", ["exorings"])
 PLANETS = getattr(cfg, "PLANETS", ["b", "d"])
 P_FIXED_RUNS = getattr(cfg, "P_FIXED_RUNS", [])
-TAU_FIXED_RUNS = getattr(cfg, "TAU_FIXED_RUNS", [])
+ALPHA_FIXED_RUNS = getattr(cfg, "ALPHA_FIXED_RUNS", [])
 
 MCMC_CONFIG_BASE = {
     "nwalkers": 64, "nsteps": 10000, "burnin": 2000, "thin": 50,
@@ -86,7 +88,8 @@ NS_CONFIG_BASE = {
 }
 MODEL_CONFIG_BASE = {
     "RHO_TRUE_FIXED": None, "FI_FIXED": 1.0, "FE_MAX": 10.0,
-    "TAU_FIXED": 1.0, "TAU_FREE": False, "TAU_PRIOR_LO": 0.1, "TAU_PRIOR_HI": 10.0,
+    "ALPHA_FIXED": float(np.exp(-1.0)), "ALPHA_FREE": False,
+    "ALPHA_PRIOR_LO": 0.0, "ALPHA_PRIOR_HI": 1.0,
     "p_prior_hi": 1.0,
 }
 
@@ -124,25 +127,25 @@ DEFAULT_KERNEL = "python3"  # repo .venv registers itself as the ``python3`` ker
 # HELPERS
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def free_tag(rho_free, b_free, tau_free=False, p_free=True):
-    """Suffix matching PhotoRingModel.free_tag() (order: rho, b, tau, p)."""
+def free_tag(rho_free, b_free, alpha_free=False, p_free=True):
+    """Suffix matching PhotoRingModel.free_tag() (order: rho, b, alpha, p)."""
     parts = ""
     if rho_free:
         parts += "_rhoFREE"
     if b_free:
         parts += "_bFREE"
-    if tau_free:
-        parts += "_tauFREE"
+    if alpha_free:
+        parts += "_alphaFREE"
     if p_free:
         parts += "_pFREE"
     return parts
 
 
-def build_run_tag(sampler, case, planet, observables, rho_free, b_free, tau_free, cfg,
+def build_run_tag(sampler, case, planet, observables, rho_free, b_free, alpha_free, cfg,
                   p_free=True, forward_model="exorings", run_label=None):
     """Reproduce the notebooks' RUN_TAG exactly."""
     kt = "-".join(observables)
-    ft = free_tag(rho_free, b_free, tau_free, p_free)
+    ft = free_tag(rho_free, b_free, alpha_free, p_free)
     fm = forward_model.lower()
     if sampler == "emcee":
         c = cfg["MCMC_CONFIG"]
@@ -164,21 +167,21 @@ def build_run_tag(sampler, case, planet, observables, rho_free, b_free, tau_free
             f"_NKDE{N_KDE}_seed{c['seed']}{ft}")
 
 
-def build_params(sampler, case, planet, observables, rho_free, b_free, tau_free, overrides,
-                 p_free=True, forward_model="exorings", p_fixed_value=None, tau_fixed_value=None):
+def build_params(sampler, case, planet, observables, rho_free, b_free, alpha_free, overrides,
+                 p_free=True, forward_model="exorings", p_fixed_value=None, alpha_fixed_value=None):
     """Build the fully-resolved papermill parameter dict (literals only)."""
     pp = PLANET_PARAMS[planet]
     model_cfg = {
         **MODEL_CONFIG_BASE,
         "B_FREE": bool(b_free), "B_FIXED": float(pp["B_FIXED"]), "B_SIGMA": float(pp["B_SIGMA"]),
-        "RHO_TRUE_FREE": bool(rho_free), "TAU_FREE": bool(tau_free),
+        "RHO_TRUE_FREE": bool(rho_free), "ALPHA_FREE": bool(alpha_free),
         "P_FREE": bool(p_free), "FORWARD_MODEL": str(forward_model).lower(),
         "p_mean_ref": float(pp["p_mean_ref"]), "p_prior_lo": float(pp["p_prior_lo"]),
     }
     if p_fixed_value is not None:
         model_cfg["P_FIXED_VALUE"] = float(p_fixed_value)
-    if tau_fixed_value is not None:
-        model_cfg["TAU_FIXED"] = float(tau_fixed_value)
+    if alpha_fixed_value is not None:
+        model_cfg["ALPHA_FIXED"] = float(alpha_fixed_value)
         
     model_cfg = {**model_cfg, **overrides.get("MODEL_CONFIG", {})}
     kde_cfg = {"observables": list(observables), "N_KDE": int(N_KDE), "seed_kde": int(SEED_KDE)}
@@ -250,8 +253,8 @@ def execute_run(case, forward_model, notebook_in, run_tag, params, dry_run, kern
 def build_run_list(sampler, case):
     runs = []
     combos = itertools.product(PLANETS, KDE_VARIANTS, FREE_PARAM_VARIANTS,
-                               TAU_FREE_VARIANTS, P_FREE_VARIANTS, FORWARD_MODEL_VARIANTS)
-    for idx, (planet, obs, free, tau_free, p_free, fm) in enumerate(combos):
+                               ALPHA_FREE_VARIANTS, P_FREE_VARIANTS, FORWARD_MODEL_VARIANTS)
+    for idx, (planet, obs, free, alpha_free, p_free, fm) in enumerate(combos):
         ov = OVERRIDES.get(idx, {})
         rho_free, b_free = free["RHO_TRUE_FREE"], free["B_FREE"]
         
@@ -268,31 +271,31 @@ def build_run_list(sampler, case):
                     "p_val": p_min + frac * (p_max - p_min)
                 })
 
-        # Prepare permutations for tau
-        tau_perms = [{"label": "", "tau_val": None}]
-        if not tau_free and TAU_FIXED_RUNS:
-            tau_perms = []
-            for fixed_run in TAU_FIXED_RUNS:
-                tau_perms.append({
+        # Prepare permutations for alpha (fixed values when alpha is not free)
+        alpha_perms = [{"label": "", "alpha_val": None}]
+        if not alpha_free and ALPHA_FIXED_RUNS:
+            alpha_perms = []
+            for fixed_run in ALPHA_FIXED_RUNS:
+                alpha_perms.append({
                     "label": fixed_run.get("label", ""),
-                    "tau_val": fixed_run.get("value")
+                    "alpha_val": fixed_run.get("value")
                 })
         
-        # Cartesian product of p and tau permutations
+        # Cartesian product of p and alpha permutations
         for p_perm in p_perms:
-            for tau_perm in tau_perms:
-                # combine labels (e.g. "P1_T2")
-                labels = [l for l in [p_perm["label"], tau_perm["label"]] if l]
+            for alpha_perm in alpha_perms:
+                # combine labels (e.g. "P1_A2")
+                labels = [l for l in [p_perm["label"], alpha_perm["label"]] if l]
                 run_label = "_".join(labels) if labels else None
                 
                 params = build_params(
-                    sampler, case, planet, obs, rho_free, b_free, tau_free, ov,
+                    sampler, case, planet, obs, rho_free, b_free, alpha_free, ov,
                     p_free=p_free, forward_model=fm,
                     p_fixed_value=p_perm["p_val"],
-                    tau_fixed_value=tau_perm["tau_val"]
+                    alpha_fixed_value=alpha_perm["alpha_val"]
                 )
                 tag = build_run_tag(
-                    sampler, case, planet, obs, rho_free, b_free, tau_free, params,
+                    sampler, case, planet, obs, rho_free, b_free, alpha_free, params,
                     p_free=p_free, forward_model=fm, run_label=run_label
                 )
                 # Keep run_label in params so run_sweep_parallel_configurable can extract it later

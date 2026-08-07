@@ -45,9 +45,8 @@ except Exception:  # pragma: no cover - fallback if constants module unavailable
     HOUR = 3600.0
     GCONST = 6.67428e-11
 
-def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg, bobs_method="kipping"):
-# def forward_observables_new(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg, bobs_method="kipping"):
-    """Compute transit observables for a ringed planet with improved analytical 
+def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, alpha, theta_deg, ir_deg, bobs_method="kipping"):
+    """Compute transit observables for a ringed planet with improved analytical
     formula (Numpaque, Zuluaga et al. 2026).
 
     Parameters
@@ -62,8 +61,10 @@ def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg
         Planet radius ratio Rp/R*.
     fi, fe : float
         Inner / outer ring radii [Rp].
-    tau : float
-        Normal opacity.
+    alpha : float
+        Opacity attenuation factor alpha = exp(-tau), in the range (0, 1].
+        alpha=1 means a transparent ring (tau=0); alpha->0 means an opaque ring (tau->inf).
+        Internally converted to tau = -log(alpha) before computing the blocking factor.
     theta_deg : float
         Projected tilt [deg]; 90 = perpendicular to orbit.
     ir_deg : float
@@ -77,6 +78,12 @@ def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg
         ``dict`` with keys ``delta, T14, T23, rhoobs, bobs, aobs, pobs, beta, a, logPR``.
         ``None`` if the geometry is unphysical.
     """
+    # --- reparametrization: alpha = exp(-tau)  =>  tau = -log(alpha) ---
+    # The blocking factor becomes: beta = 1 - exp(-tau/cosir) = 1 - alpha^(1/cosir)
+    if alpha <= 0.0 or alpha > 1.0:
+        return None
+    tau = -np.log(alpha)
+    # -------------------------------------------------------------------
     rhotrue_SI = rhotrue_gcc * 1e3
     P_s = P_days * DAY
     a = (GCONST * rhotrue_SI / (3 * np.pi) * P_s**2) ** (1 / 3)
@@ -93,7 +100,7 @@ def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg
 
     cosir = np.cos(ir_deg * DEG)
     sinir = np.sin(ir_deg * DEG)
-    beta = 1 - np.exp(-tau / cosir)
+    beta = 1 - np.exp(-tau / cosir)  # equivalent to 1 - alpha**(1/cosir)
 
     def _ring_r2(f):
         if f * cosir > 1:
@@ -155,9 +162,8 @@ def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau,theta_deg, ir_deg
                 aobs=aobs, pobs=pobs, beta=beta, a=a,
                 logPR=np.log10(rhoobs / rhotrue_gcc))
 
-def forward_observables_legacy(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg, bobs_method="kipping"):
-#def forward_observables(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg, bobs_method="kipping"):
-    """Compute transit observables for a ringed planet (Zuluaga+2015).
+def forward_observables_legacy(rhotrue_gcc, P_days, b, p, fi, fe, alpha, theta_deg, ir_deg, bobs_method="kipping"):
+    """Compute transit observables for a ringed planet (Zuluaga+2015) — legacy contact formula.
 
     Parameters
     ----------
@@ -171,8 +177,10 @@ def forward_observables_legacy(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg
         Planet radius ratio Rp/R*.
     fi, fe : float
         Inner / outer ring radii [Rp].
-    tau : float
-        Normal opacity.
+    alpha : float
+        Opacity attenuation factor alpha = exp(-tau), in the range (0, 1].
+        alpha=1 means a transparent ring (tau=0); alpha->0 means an opaque ring (tau->inf).
+        Internally converted to tau = -log(alpha) before computing the blocking factor.
     theta_deg : float
         Projected tilt [deg]; 90 = perpendicular to orbit.
     ir_deg : float
@@ -186,6 +194,12 @@ def forward_observables_legacy(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg
         ``dict`` with keys ``delta, T14, T23, rhoobs, bobs, aobs, pobs, beta, a, logPR``.
         ``None`` if the geometry is unphysical.
     """
+    # --- reparametrization: alpha = exp(-tau)  =>  tau = -log(alpha) ---
+    # The blocking factor becomes: beta = 1 - exp(-tau/cosir) = 1 - alpha^(1/cosir)
+    if alpha <= 0.0 or alpha > 1.0:
+        return None
+    tau = -np.log(alpha)
+    # -------------------------------------------------------------------
     rhotrue_SI = rhotrue_gcc * 1e3
     P_s = P_days * DAY
     a = (GCONST * rhotrue_SI / (3 * np.pi) * P_s**2) ** (1 / 3)
@@ -202,7 +216,7 @@ def forward_observables_legacy(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg
 
     cosir = np.cos(ir_deg * DEG)
     sinir = np.sin(ir_deg * DEG)
-    beta = 1 - np.exp(-tau / cosir)
+    beta = 1 - np.exp(-tau / cosir)  # equivalent to 1 - alpha**(1/cosir)
 
     def _ring_r2(f):
         if f * cosir > 1:

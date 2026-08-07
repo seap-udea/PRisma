@@ -85,13 +85,13 @@ class PhotoRingModel:
         self.rho_grid = None if rho_grid is None else np.asarray(rho_grid, dtype=float)
         self.rho_cdf = None if rho_cdf is None else np.asarray(rho_cdf, dtype=float)
 
-        # ── tau prior (optional, log-uniform) ─────────────────────────────
-        self.TAU_FIXED = float(model_config["TAU_FIXED"])
-        self.TAU_FREE = bool(model_config.get("TAU_FREE", False))
-        self.TAU_LO = float(model_config.get("TAU_PRIOR_LO", 0.1))
-        self.TAU_HI = float(model_config.get("TAU_PRIOR_HI", 10.0))
-        if self.TAU_FREE:
-            assert self.TAU_HI > self.TAU_LO > 0.0
+        # ── alpha prior (optional, uniform on (0, 1]) ────────────────────────
+        self.ALPHA_FIXED = float(model_config.get("ALPHA_FIXED", np.exp(-1.0)))  # equiv. tau=1
+        self.ALPHA_FREE = bool(model_config.get("ALPHA_FREE", False))
+        self.ALPHA_LO = float(model_config.get("ALPHA_PRIOR_LO", 0.0))  # excluded (alpha>0)
+        self.ALPHA_HI = float(model_config.get("ALPHA_PRIOR_HI", 1.0))  # included
+        if self.ALPHA_FREE:
+            assert 0.0 <= self.ALPHA_LO < self.ALPHA_HI <= 1.0
 
         # ── other fixed / derived ─────────────────────────────────────────
         self.FI_FIXED = float(model_config["FI_FIXED"])
@@ -126,18 +126,18 @@ class PhotoRingModel:
             parts += "_rhoFREE"
         if self.B_FREE:
             parts += "_bFREE"
-        if self.TAU_FREE:
-            parts += "_tauFREE"
+        if self.ALPHA_FREE:
+            parts += "_alphaFREE"
         if self.P_FREE:
             parts += "_pFREE"
         return parts
 
     # ── forward model dispatch ─────────────────────────────────────────────
     def forward(self, params_dict):
-        """Evaluate the selected forward model, resolving fixed b / rho_true / tau / p."""
+        """Evaluate the selected forward model, resolving fixed b / rho_true / alpha / p."""
         rho_val = params_dict.get("rho_true", self.RHO_TRUE_FIXED)
         b_val = params_dict.get("b", self.B_FIXED)
-        tau_val = params_dict.get("tau", self.TAU_FIXED)
+        alpha_val = params_dict.get("alpha", self.ALPHA_FIXED)
         p_val = params_dict["p"] if self.P_FREE else self.P_FIXED_VALUE
 
         kwargs = dict(
@@ -147,7 +147,7 @@ class PhotoRingModel:
             p=float(p_val),
             fi=self.FI_FIXED,
             fe=float(params_dict["fe"]),
-            tau=float(tau_val),
+            alpha=float(alpha_val),
             theta_deg=float(params_dict["theta"]),
             ir_deg=float(params_dict["ir"]),
         )
@@ -174,9 +174,11 @@ class PhotoRingModel:
             p = self.p_min + u[i] * (self.p_max - self.p_min); i += 1
             out.append(p)
 
-        if self.TAU_FREE:
-            tau = float(self.TAU_LO * np.exp(u[i] * np.log(self.TAU_HI / self.TAU_LO))); i += 1
-            out.append(tau)
+        if self.ALPHA_FREE:
+            # alpha ~ Uniform(ALPHA_LO, ALPHA_HI)  (default: Uniform(0, 1))
+            # We use a half-open interval: alpha in (ALPHA_LO, ALPHA_HI]
+            alpha = self.ALPHA_LO + u[i] * (self.ALPHA_HI - self.ALPHA_LO); i += 1
+            out.append(alpha)
 
         if self.RHO_TRUE_FREE:
             if self.rho_grid is None or self.rho_cdf is None:
@@ -210,11 +212,12 @@ class PhotoRingModel:
 
         log_p = float(np.log(np.sin(ir_deg * np.pi / 180) + 1e-12))  # isotropic prior on iR
 
-        if self.TAU_FREE:
-            tau = float(d["tau"])
-            if tau < self.TAU_LO or tau > self.TAU_HI or tau <= 0.0:
+        if self.ALPHA_FREE:
+            alpha = float(d["alpha"])
+            if alpha <= self.ALPHA_LO or alpha > self.ALPHA_HI:
                 return -np.inf
-            log_p += -np.log(tau) - np.log(np.log(self.TAU_HI / self.TAU_LO))
+            # Uniform prior on (ALPHA_LO, ALPHA_HI]: flat contribution, no term needed
+            # (the log-prior contribution is -log(ALPHA_HI - ALPHA_LO), a constant)
 
         if self.RHO_TRUE_FREE:
             rho = d["rho_true"]

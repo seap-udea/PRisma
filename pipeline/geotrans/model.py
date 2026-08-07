@@ -29,7 +29,7 @@ import numpy as _np
 from . import geotrans as gt2
 
 
-def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
+def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, alpha, theta_deg, ir_deg):
     """Compute transit observables for a ringed planet using ``geotrans``.
 
     Parameters
@@ -44,8 +44,10 @@ def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
         Planet radius ratio Rp/R*.
     fi, fe : float
         Inner / outer ring radii [Rp].
-    tau : float
-        Normal opacity.
+    alpha : float
+        Opacity attenuation factor alpha = exp(-tau), in the range (0, 1].
+        alpha=1 means a transparent ring (tau=0); alpha->0 means an opaque ring (tau->inf).
+        Internally converted to tau = -log(alpha) before passing to geotrans.
     theta_deg : float
         Apparent (sky-projected) ring roll/tilt angle [deg] -- same convention as
         :func:`exorings.forward.forward_observables`.
@@ -59,7 +61,12 @@ def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
         ``dict`` with keys ``delta, T14, T23, rhoobs, bobs, aobs, pobs, logPR``.
         ``None`` if the geometry is unphysical or contact times cannot be computed.
     """
-    # ── Apparent (exorings) -> intrinsic (geotrans) ring angles ────────────
+    # --- reparametrization: alpha = exp(-tau)  =>  tau = -log(alpha) ---
+    if alpha <= 0.0 or alpha > 1.0:
+        return None
+    tau = -_np.log(alpha)
+    # -------------------------------------------------------------------
+    # ── Apparent (exorings) -> intrinsic (geotrans) ring angles ───────────
     iorb = gt2.orbital_inclination(float(rhotrue_gcc), float(P_days), float(b))
     if iorb is None:
         return None
@@ -77,7 +84,7 @@ def geotrans2_model(rhotrue_gcc, P_days, b, p, fi, fe, tau, theta_deg, ir_deg):
         fp=0.0,                       # no oblateness
         fi=float(fi),                 # Rp units
         fe=float(fe),                 # Rp units
-        tau=float(tau),
+        tau=float(tau),               # converted from alpha
         ir=float(ir_rad),             # rad, intrinsic (converted from ir_deg above)
         phir=float(phir_rad),         # rad, intrinsic (converted from theta_deg above)
         ep=0.0,                       # circular orbit

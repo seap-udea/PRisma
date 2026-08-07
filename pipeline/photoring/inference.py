@@ -113,8 +113,9 @@ def init_walkers(model, nwalkers, rng):
         _th = rng.uniform(0.0, 90.0)
         _p = rng.uniform(model.p_min, model.p_max)
         vals = [_fe, _ir, _th, _p]
-        if model.TAU_FREE:
-            vals.append(float(model.TAU_LO * np.exp(rng.uniform() * np.log(model.TAU_HI / model.TAU_LO))))
+        if model.ALPHA_FREE:
+            # alpha ~ Uniform(ALPHA_LO, ALPHA_HI); default (0, 1]
+            vals.append(float(rng.uniform(max(model.ALPHA_LO, 1e-6), model.ALPHA_HI)))
         if model.RHO_TRUE_FREE:
             vals.append(float(np.clip(
                 model.RHO_TRUE_MEAN + rng.normal(0.0, 0.2 * model.RHO_TRUE_STD),
