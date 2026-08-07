@@ -311,24 +311,24 @@ def build_run_list(cfg_mod, ns_cfg):
                         alpha_fixed_value=a_perm["alpha_val"],
                         rho_fixed_value=r_perm["rho_val"],
                     )
-                kde_cfg = {
-                    "observables": list(obs),
-                    "N_KDE":       N_KDE,
-                    "seed_kde":    SEED_KDE,
-                }
-                tag = _build_run_tag(
-                    getattr(cfg_mod, "DEFAULT_CASE", "kepler_51"),
-                    planet, obs, rho_free, b_free, alpha_free, p_free, fm,
-                    ns_cfg, run_label,
-                )
-                runs.append(dict(
-                    case=getattr(cfg_mod, "DEFAULT_CASE", "kepler_51"),
-                    planet=planet,
-                    model_cfg=model_cfg,
-                    kde_cfg=kde_cfg,
-                    forward_model=fm,
-                    run_tag=tag,
-                ))
+                    kde_cfg = {
+                        "observables": list(obs),
+                        "N_KDE":       N_KDE,
+                        "seed_kde":    SEED_KDE,
+                    }
+                    tag = _build_run_tag(
+                        getattr(cfg_mod, "DEFAULT_CASE", "kepler_51"),
+                        planet, obs, rho_free, b_free, alpha_free, p_free, fm,
+                        ns_cfg, run_label,
+                    )
+                    runs.append(dict(
+                        case=getattr(cfg_mod, "DEFAULT_CASE", "kepler_51"),
+                        planet=planet,
+                        model_cfg=model_cfg,
+                        kde_cfg=kde_cfg,
+                        forward_model=fm,
+                        run_tag=tag,
+                    ))
     return runs
 
 
