@@ -1,0 +1,551 @@
+[
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.5334949493408203,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.23988604545593262,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.24201393127441406,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.24041008949279785,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.24880123138427734,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 0.26834797859191895,
+    "logz": -708.3985012583673,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 0.258882999420166,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.25200605392456055,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.26615405082702637,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.25185418128967285,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.2572977542877197,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 0.2506570816040039,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.26920175552368164,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 0.27607083320617676,
+    "logz": -708.3985012583673,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 0.25647997856140137,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.3232760429382324,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.31836891174316406,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.28501391410827637,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.27733874320983887,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE",
+    "duration": 0.28578686714172363,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026",
+    "duration": 0.27304792404174805,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE",
+    "duration": 0.27516603469848633,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE_pFREE.log"
+  },
+  {
+    "status": "plateau",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE",
+    "duration": 0.32367515563964844,
+    "logz": -708.3976682720634,
+    "n_procs": 6,
+    "log": "/Users/jzuluaga/dev/PRisma/pipeline/kepler_51/tests_logs/kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE.log"
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_bFREE_tauFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE_pFREE",
+    "duration": 0.0
+  },
+  {
+    "status": "skipped",
+    "run_tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_tauFREE",
+    "duration": 0.0
+  }
+]
