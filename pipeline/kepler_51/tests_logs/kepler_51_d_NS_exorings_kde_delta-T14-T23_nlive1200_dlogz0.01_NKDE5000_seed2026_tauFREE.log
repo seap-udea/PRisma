@@ -10,3 +10,7 @@
   NDIM=4  params=['fe', 'ir', 'theta', 'tau']  L_KDE=['delta', 'T14', 'T23']
   lnZ=-708.398±0.003  runtime=0.1s  N=1200
   PLATEAU: prior never left log(FLOAT_TINY) — not saving.
+[10:38:31] START kepler_51_d_NS_exorings_kde_delta-T14-T23_nlive1200_dlogz0.01_NKDE5000_seed2026_tauFREE  n_procs=6
+  NDIM=4  params=['fe', 'ir', 'theta', 'tau']  L_KDE=['delta', 'T14', 'T23']
+  lnZ=-708.398±0.003  runtime=0.1s  N=1200
+  PLATEAU: prior never left log(FLOAT_TINY) — not saving.

@@ -1,6 +1,0 @@
-[04:47:36] START kepler_51_b_NS_geotrans_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE  n_procs=6
-  NDIM=4  params=['fe', 'ir', 'theta', 'rho_true']  L_KDE=['delta', 'T14', 'rho_obs']
-  lnZ=-0.097±0.106  runtime=271.3s  N=19151
-  PPC draws: 2500
-  Saved -> /Users/jzuluaga/dev/PRisma/dev/kepler_51/results/geotrans/kepler_51_b_NS_geotrans_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE.npz
-[04:52:11] OK kepler_51_b_NS_geotrans_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE  (00h04m34s)

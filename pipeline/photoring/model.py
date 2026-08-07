@@ -101,7 +101,7 @@ class PhotoRingModel:
         self.p_max = float(model_config["p_prior_hi"]) * self.p_mean_ref
 
         self.P_FREE = bool(model_config.get("P_FREE", True))
-        self.P_FIXED_VALUE = float(self.p_min)  # used only when P_FREE is False
+        self.P_FIXED_VALUE = float(model_config.get("P_FIXED_VALUE", self.p_min))  # used only when P_FREE is False
 
         self.FORWARD_MODEL = str(model_config.get("FORWARD_MODEL", "exorings")).lower()
         assert self.FORWARD_MODEL in ("exorings", "exorings_legacy", "geotrans"), \

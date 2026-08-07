@@ -642,7 +642,7 @@ def plot_ppc(run, ttv, obs_keys=None, paths=None):
     title_lines = [
         f"Posterior Predictive Check — {PLANET_LABELS.get(planet, planet)}",
         _run_title(run, z1=z1),
-        _bestfit_medians_line(run),
+        _bestfit_medians_line(run, include_metrics=False),
     ]
     line_step = 1.45 * (title_fs / 72.0) / fig.get_figheight()
     y_top = 0.985
@@ -1033,13 +1033,17 @@ def _overlay_ring_medians(axes, pnames, ring_vals):
                        lw=1.5, alpha=0.9, zorder=100)
 
 
-def _bestfit_medians_line(run):
+def _bestfit_medians_line(run, include_metrics=True):
     """Return the medians line used in panel titles (shared by corner + PPC)."""
     ring_vals = _get_ring_diagram_values(run)
     free = set(run["param_names"])
 
     def _sym(name, latex):
         return rf"{latex}^\dagger" if name not in free else latex
+
+    logz_str = ""
+    if include_metrics and run.get("logz") is not None and np.isfinite(run["logz"]):
+        logz_str = rf" ($\ln \mathcal{{Z}} = {run['logz']:.3f}$)"
 
     return (
         rf"Medians: "
@@ -1048,6 +1052,7 @@ def _bestfit_medians_line(run):
         rf"${_sym('ir', 'i_R')}={ring_vals['ir']:.1f}^\circ$, "
         rf"${_sym('theta', r'\theta')}={ring_vals['theta']:.1f}^\circ$, "
         rf"${_sym('tau', r'\tau')}={ring_vals['tau']:.2f}$"
+        + logz_str
     )
 
 
