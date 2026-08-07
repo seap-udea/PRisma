@@ -201,7 +201,10 @@ class dict2obj(object):
     Class that allows the conversion from dictionary to class-like
     objects
     """
-    def __init__(self,dic={}):self.__dict__.update(dic)
+    def __init__(self,dic={}):
+        self.__dict__.update(dic)
+        if hasattr(self, 'alpha') and not hasattr(self, 'tau'):
+            self.tau = -log(self.alpha) if self.alpha > 0 else inf
     def __add__(self,other):
         self.__dict__.update(other.__dict__)
         return self
