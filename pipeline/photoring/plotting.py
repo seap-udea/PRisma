@@ -234,6 +234,7 @@ PARAM_META = {
     "theta":    dict(label=r"$\theta\,$[deg]", desc="Ring projected tilt", symbol=r"$\theta$"),
     "p":        dict(label=r"$p=R_p/R_\star$", desc="Planet radius ratio", symbol=r"$p$"),
     "tau":      dict(label=r"$\tau$", desc="Ring opacity", symbol=r"$\tau$"),
+    "alpha":    dict(label=r"$\alpha$", desc="Opacity factor", symbol=r"$\alpha$"),
     "rho_true": dict(label=r"$\rho_{\star,\rm true}\,$[g/cm$^3$]",
                      desc="True stellar density", symbol=r"$\rho_{\star,\rm true}$"),
     "b":        dict(label=r"$b$", desc="Impact parameter", symbol=r"$b$"),
@@ -836,15 +837,20 @@ def _get_ring_diagram_values(run):
     # Use the explicit fixed values saved in metadata so annotations/ring inset
     # reflect the actual run configuration.
     p_fixed = meta.get("P_FIXED_VALUE", meta.get("p_min", meta.get("p_mean_ref", 0.08)))
+    alpha_fixed = meta.get("ALPHA_FIXED")
     tau_fixed = meta.get("TAU_FIXED", 0.5)
 
-    return dict(
+    vals = dict(
         fe=float(np.median(_get("fe", meta.get("FE_MAX", 5.0) / 2))),
         ir=float(np.median(_get("ir", 45.0))),
         theta=float(np.median(_get("theta", 90.0))),
         p=float(np.median(_get("p", p_fixed))),
-        tau=float(np.median(_get("tau", tau_fixed))),
     )
+    if "alpha" in pnames or alpha_fixed is not None:
+        vals["alpha"] = float(np.median(_get("alpha", alpha_fixed if alpha_fixed is not None else 0.367879)))
+    else:
+        vals["tau"] = float(np.median(_get("tau", tau_fixed)))
+    return vals
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -869,7 +875,10 @@ def plot_ring_diagram(run, ax=None, paths=None, scale=0.2, dx=0.0):
     ir = ring_vals["ir"]
     theta = ring_vals["theta"]
     p = ring_vals["p"]
-    tau = ring_vals["tau"]
+    if "alpha" in ring_vals:
+        tau = -float(np.log(ring_vals["alpha"])) if ring_vals["alpha"] > 0 else np.inf
+    else:
+        tau = ring_vals["tau"]
     fi = meta.get("FI_FIXED", 1.0)
 
     own_fig = ax is None
@@ -1108,13 +1117,18 @@ def _bestfit_medians_line(run, include_metrics=True):
             logz_str += rf", \mathrm{{AIC}} = {aic:.1f}"
         logz_str += "$)"
 
+    if "alpha" in ring_vals:
+        opacity_str = rf"${_sym('alpha', r'\alpha')}={ring_vals['alpha']:.2f}$"
+    else:
+        opacity_str = rf"${_sym('tau', r'\tau')}={ring_vals['tau']:.2f}$"
+
     return (
         rf"Medians: "
         rf"${_sym('p', 'p')}={ring_vals['p']:.3f}$, "
         rf"${_sym('fe', 'f_e')}={ring_vals['fe']:.2f}$, "
         rf"${_sym('ir', 'i_R')}={ring_vals['ir']:.1f}^\circ$, "
         rf"${_sym('theta', r'\theta')}={ring_vals['theta']:.1f}^\circ$, "
-        rf"${_sym('tau', r'\tau')}={ring_vals['tau']:.2f}$"
+        + opacity_str
         + logz_str
     )
 
