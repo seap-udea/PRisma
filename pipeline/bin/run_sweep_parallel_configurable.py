@@ -103,8 +103,8 @@ def _build_meta(model, result, case, planet, run_tag, kde_config, ns_config):
         RHO_TRUE_FIXED=float(model.RHO_TRUE_FIXED),
         RHO_TRUE_MIN=float(model.RHO_TRUE_MIN),
         RHO_TRUE_MAX=float(model.RHO_TRUE_MAX),
-        TAU_FREE=bool(model.TAU_FREE), TAU_FIXED=float(model.TAU_FIXED),
-        TAU_PRIOR_LO=float(model.TAU_LO), TAU_PRIOR_HI=float(model.TAU_HI),
+        ALPHA_FREE=bool(model.ALPHA_FREE), ALPHA_FIXED=float(model.ALPHA_FIXED),
+        ALPHA_PRIOR_LO=float(model.ALPHA_LO), ALPHA_PRIOR_HI=float(model.ALPHA_HI),
         P_FREE=bool(model.P_FREE), P_FIXED_VALUE=float(model.P_FIXED_VALUE),
         FI_FIXED=float(model.FI_FIXED), FE_MAX=float(model.FE_MAX),
         p_min=float(model.p_min), p_max=float(model.p_max),
@@ -145,7 +145,7 @@ def execute_one(case: str, params: dict, n_procs: int, dry_run: bool = False,
         run_tag = sweep.build_run_tag(
             "dynesty", case, planet, kde_config["observables"],
             model_config["RHO_TRUE_FREE"], model_config["B_FREE"],
-            model_config["TAU_FREE"], tag_params,
+            model_config["ALPHA_FREE"], tag_params,
             p_free=model_config["P_FREE"], forward_model=forward_model,
             run_label=params.get("run_label")
         )
@@ -277,7 +277,7 @@ def main():
             f"{args.case}_{pl}_NS_exorings_kde_delta-T14-rho_obs"
             f"_nlive{sweep.NS_CONFIG_BASE['nlive']}_dlogz{sweep.NS_CONFIG_BASE['dlogz']}"
             f"_NKDE{sweep.N_KDE}_seed{sweep.NS_CONFIG_BASE['seed']}"
-            f"_rhoFREE_bFREE_tauFREE_pFREE"
+            f"_rhoFREE_bFREE_alphaFREE_pFREE"
             for pl in ("b", "d")
         }
         runs = [r for r in runs if r["run_tag"] in want]
