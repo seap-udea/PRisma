@@ -1,0 +1,42 @@
+\usepackage{amsmath}
+\usepackage{multirow,booktabs,amssymb,xcolor,siunitx,makecell,rotating,xspace}
+
+\newcommand{\abc}[3]{$#1/#2/#3$}
+\newcommand{\vdag}{(v)^\dagger}
+\newcommand\aastex{AAS\TeX}
+\newcommand\latex{La\TeX}
+\newcommand{\PRisma}{\texttt{PRisma}}
+\graphicspath{{figures/}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MACROS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\defcitealias{Zuluaga2015}{ZKSA2015}
+\defcitealias{Kipping2014}{K2014}
+\defcitealias{Seager2003}{SMO2003}
+
+\newcommand{\PhotoRing}{\texttt{PhotoRing}}
+\newcommand{\photofit}{PhotoFIT\xspace}
+
+\newcommand{\fullparameters}{p, f_i, f_e, i_R, \theta_R, \tau}
+\newcommand{\parameters}{f_e, i_R, \theta_R, p, \tau}
+\newcommand{\fullnuisance}{P, \rho_{\star,\mathrm{true}}, b}
+\newcommand{\nuisance}{\rho_{\star,\mathrm{true}}, b}
+\newcommand{\fullkdeobservables}{\rho_{\star,\mathrm{obs}}, \delta, T_{14}, T_{23}}
+\newcommand{\observables}{\rho_{\star,\mathrm{obs}}, \delta, T_{14}, T_{23}, b_{\mathrm{obs}}, (a/R_{\star})_{\rm obs}}
+\newcommand{\predictables}{\rho_{\star,\mathrm{obs}}, \delta^\mathrm{geo}, T_{14}^\mathrm{geo}, T_{23}^\mathrm{geo}, b_{\mathrm{obs}}}
+
+\newcommand{\exoplanet}[2]{#1#2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% COLORS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{jamm}{rgb}{0.018, 0.388, 0.878}
+\newcommand{\JAAM}[1]{\textcolor{jamm}{#1}}%
+
+\definecolor{numpaque}{rgb}{0.018, 0.388, 0.378} % 
+\newcommand{\Numpaque}[1]{\textcolor{numpaque}{#1}}%
+
+%\definecolor{attention}{rgb}{1,0,0} % 
+\definecolor{attention}{rgb}{0,0,0} % 
+\newcommand{\attention}[1]{\textcolor{attention}{#1}}%
