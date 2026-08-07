@@ -116,7 +116,8 @@ def _build_run_tag(case, planet, observables, rho_free, b_free, alpha_free,
 
 
 def _build_model_cfg(planet, rho_free, b_free, alpha_free, p_free,
-                     forward_model, p_fixed_value=None, alpha_fixed_value=None):
+                     forward_model, p_fixed_value=None, alpha_fixed_value=None,
+                     rho_fixed_value=None):
     pp = PLANET_PARAMS[planet]
     cfg = {
         **MODEL_CONFIG_BASE,
@@ -134,6 +135,8 @@ def _build_model_cfg(planet, rho_free, b_free, alpha_free, p_free,
         cfg["P_FIXED_VALUE"] = float(p_fixed_value)
     if alpha_fixed_value is not None:
         cfg["ALPHA_FIXED"] = float(alpha_fixed_value)
+    if rho_fixed_value is not None:
+        cfg["RHO_TRUE_FIXED"] = float(rho_fixed_value)
     return cfg
 
 
@@ -264,6 +267,7 @@ def build_run_list(cfg_mod, ns_cfg):
     fm_variants       = getattr(cfg_mod, "FORWARD_MODEL_VARIANTS", ["exorings"])
     p_fixed_runs      = getattr(cfg_mod, "P_FIXED_RUNS",        [])
     alpha_fixed_runs  = getattr(cfg_mod, "ALPHA_FIXED_RUNS",    [])
+    rho_fixed_runs    = getattr(cfg_mod, "RHO_FIXED_RUNS",      [])
 
     runs = []
     combos = itertools.product(planets, kde_variants, free_variants,
@@ -272,6 +276,12 @@ def build_run_list(cfg_mod, ns_cfg):
     for planet, obs, free, alpha_free, p_free, fm in combos:
         rho_free = free["RHO_TRUE_FREE"]
         b_free   = free["B_FREE"]
+
+        # --- rho permutations ---
+        rho_perms = [{"label": "", "rho_val": None}]
+        if not rho_free and rho_fixed_runs:
+            rho_perms = [{"label": r.get("label", ""), "rho_val": r.get("value")}
+                         for r in rho_fixed_runs]
 
         # --- p permutations ---
         p_perms = [{"label": "", "p_val": None}]
@@ -289,16 +299,18 @@ def build_run_list(cfg_mod, ns_cfg):
             alpha_perms = [{"label": r.get("label", ""), "alpha_val": r.get("value")}
                            for r in alpha_fixed_runs]
 
-        for p_perm in p_perms:
-            for a_perm in alpha_perms:
-                labels = [l for l in [p_perm["label"], a_perm["label"]] if l]
-                run_label = "_".join(labels) if labels else None
+        for r_perm in rho_perms:
+            for p_perm in p_perms:
+                for a_perm in alpha_perms:
+                    labels = [l for l in [r_perm["label"], p_perm["label"], a_perm["label"]] if l]
+                    run_label = "_".join(labels) if labels else None
 
-                model_cfg = _build_model_cfg(
-                    planet, rho_free, b_free, alpha_free, p_free, fm,
-                    p_fixed_value=p_perm["p_val"],
-                    alpha_fixed_value=a_perm["alpha_val"],
-                )
+                    model_cfg = _build_model_cfg(
+                        planet, rho_free, b_free, alpha_free, p_free, fm,
+                        p_fixed_value=p_perm["p_val"],
+                        alpha_fixed_value=a_perm["alpha_val"],
+                        rho_fixed_value=r_perm["rho_val"],
+                    )
                 kde_cfg = {
                     "observables": list(obs),
                     "N_KDE":       N_KDE,
