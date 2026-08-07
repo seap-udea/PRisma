@@ -121,26 +121,24 @@ This paper is organized as follows: In \autoref{sec:geom_model}, we introduce th
 
 Our inference scheme relies on a deterministic, geometry-based forward model that connects a specified ring configuration to the associated effective transit observables. While we follow that relationship via the open-source \texttt{Python} package \texttt{exorings}\footnote{The original version is available at \url{https://github.com/facom/exorings}, and an updated release is maintained in this work's repository at \url{https://github.com/seap-udea/aPRe}.} \citepalias{Zuluaga2015}, this work represents an improved and expanded version of such analytical model on planetary ring transits.
 
-In the particular forward-model implementation adopted here, three key input parameters are the orbital period $P$, the impact parameter $b$, and the true stellar density $\rho_{\star,\mathrm{true}}$. 
-
-From these quantities, the geometric scaled semi-major axis is obtained via Kepler’s third law (\citealt{Seager2003}, hereafter \citetalias{Seager2003}):
+The orbital period $P$, the impact parameter $b$, and the true stellar density $\rho_{\star,\mathrm{true}}$ are three key input parameters in the particular forward-model implementation adopted in this work. From these quantities, the geometric scaled semi-major axis is obtained via Kepler’s third law (\citealt{Seager2003}, hereafter \citetalias{Seager2003}):
 
 \begin{equation}
 \left(\frac{a}{R_\star}\right)_\mathrm{geo} = \left(\frac{G\,\rho_{\star,\mathrm{true}}}{3\pi}P^2\right)^{1/3}
 \label{eq:aRstar_true}
 \end{equation}
-where $G$ is the gravitational constant. Assuming a circular orbit ($e=0$), the orbital inclination is then given by
+where $G$ is the gravitational constant. For a circular orbit ($e=0$), the orbital inclination is then given by 
 
 \begin{equation}
 \cos i_{\rm orb}=\frac{b}{(a/R_\star)_\mathrm{geo}}  
 \label{eq:iorb}
 \end{equation}
 
-Two remarks are worth highlighting. First, by using the stellar density $\rho_{\star,\mathrm{true}}$ as an input parameter instead of the stellar mass $M_\star$ and radius $R_\star$, we avoid needing prior knowledge of those star’s basic properties for the analysis itself. Second, although we explicitly include $R_\star$ when referring to the scaled semi-major axis, all spatial scales are actually expressed in units of the stellar radius. As a result, the absolute value of $R_\star$ is not strictly required for the analysis. Of course, in the final step—when we want to interpret the inferred properties or express them in SI units—we must adopt values for both stellar parameters (or at least for one of them, given that the stellar density is taken to be known).
+Two remarks are worth highlighting. First, by using the stellar density $\rho_{\star,\mathrm{true}}$ as an input parameter instead of the stellar mass $M_\star$ and radius $R_\star$, we avoid needing prior knowledge of those basic stellar properties for the analysis itself. Second, although we explicitly include $R_\star$ when referring to the scaled semi-major axis, all spatial scales are actually expressed in units of the stellar radius. As a result, the absolute value of $R_\star$ is not strictly required for the analysis. Still, to interpret the final inferred properties or express them in SI units, we must adopt values for both stellar parameters (or at least for one of them, given that the stellar density is taken to be known).
 
 The ring system is modeled as a geometrically thin annulus extending from an inner radius $R_{\rm in}=f_i p$ to an outer radius $R_{\rm out}=f_e p$, where $p\equiv R_p/R_\star$ corresponds to the scaled planetary radius and $f_i, f_e$ are dimensionless radii in units of $p$. 
 
-The orientation of the ring relative to the observer is described by two angles defined with respect to the plane of the sky. These angles determine the geometry of the ring’s sky-projected shape, which is modeled as a perfect ellipse with semimajor axis $A = f_e p$ and semiminor axis $B = A \cos i_R$. The orientation angles are $i_R$, the projected ring inclination (the dihedral angle between the ring plane and the sky plane, where $i_R = 90^\circ$ represents an edge-on view of the ring), and $\theta_R$, the projected \textit{tilt} angle (the angle between the projected major axis of the ring and the orbital direction, where $\theta_R = 90^\circ$ indicates that the projected major axis is perpendicular to the transit chord). For clarity and to prevent confusion, \autoref{tab:symbols} lists the definitions of all quantities used throughout this study.
+The orientation of the ring relative to the observer is described by two angles defined with respect to the plane of the sky. These angles determine the geometry of the ring’s sky-projected shape, which is modeled as a perfect ellipse with semimajor axis $A = f_e p$ and semiminor axis $B = A \cos i_R$. The orientation angles are $i_R$, the projected ring inclination (i.e., the dihedral angle between the ring plane and the sky plane, where $i_R = 90^\circ$ represents an edge-on view of the ring), and $\theta_R$, the projected \textit{tilt} angle (the angle between the projected major axis of the ring and the orbital direction, where $\theta_R = 90^\circ$ indicates that the projected major axis is perpendicular to the transit chord). For clarity, \autoref{tab:symbols} lists the definitions of all quantities used throughout this study.
 
 \begin{table}[t]
 \centering
@@ -179,7 +177,7 @@ $T_{23}^\mathrm{geo}$ & Geometric full transit duration [hours] \\
 \multicolumn{2}{l}{\textit{Transit (photometric) observables}} \\
 $\delta$ & Transit depth [ppm] \\
 $T_{14}$ & Total transit duration [hours] \\
-$T_{23}$ & Full transit duration [hours] \\
+$T_{23}$ & Full-transit duration [hours] \\
 $p_\mathrm{obs}$ & Ringless-model scaled planetary radius [--] \\
 \hline
 \multicolumn{2}{l}{\it Asterodensity profiling derived properties} \\
@@ -209,25 +207,24 @@ Given these inputs, our forward model computes two classes of observables.  Firs
 \delta^\mathrm{geo}=\frac{A_{\rm eff}}{\pi R_\star^2}.
 \end{equation}
 
-In practice, $A_{\rm eff}$ is written as the area of the planetary disk plus the effective projected area of the annulus. The latter is computed using closed-form expressions for the effective projected areas of the outer and inner ring edges as functions of $(f_i,f_e, i_R, \tau)$, including the edge-on limit where only a fraction of the annulus projects outside the planetary disk (Eq. 2 in \citetalias{Zuluaga2015}). Second, it determines the locations of the contact points along the transit chord. For an illustration of the transit geometry, as well as the exact definitions of the contact positions and transit durations, see \autoref{fig:analytical_model}.
+In practice, $A_{\rm eff}$ is written as the area of the planetary disk plus the effective projected area of the annulus. The latter is computed using closed-form expressions for the effective projected areas of the outer and inner ring edges as functions of $(f_i,f_e, i_R, \tau)$, including the edge-on limit where only a fraction of the annulus projects outside the planetary disk (Eq. 2 in \citetalias{Zuluaga2015}). Second, it determines the locations of the contact points along the transit chord. To illustrate the transit geometry with the exact definitions of the contact positions and transit durations, please refer to \autoref{fig:analytical_model}.
 
-The planet-only contacts $x_{p,1\ldots4}$ are obtained from the intersection of the planetary disk with the stellar limb at impact parameter $b$. For the ring contacts $x_{R,1\ldots4}$, rather than relying on the approximate analytical intersection from \citetalias{Zuluaga2015} which breaks down at certain high inclinations, we employ a robust, exact-like analytical solution based on the Support Function of a convex body (derived in detail in \autoref{sec:appendix_support_function}). The four contact positions along the transit chord are given by:
+The planet-only contacts $x_{p,1\ldots4}$ are obtained from the intersection of the planetary disk with the stellar limb at impact parameter $b$. For the ring contacts $x_{R,1\ldots4}$, rather than adopting the approximate analytical intersection from \citetalias{Zuluaga2015} that breaks down at certain high inclinations, we employ a robust, exact-like analytical solution based on the Support Function of a convex body (see \autoref{sec:appendix_support_function}). The four ring-contact positions along the transit chord are given by:
 
 \begin{eqnarray}
     x_{R,1} &\approx& -\sqrt{(1 + h_L)^2 - b^2} \nonumber \\
     x_{R,2} &\approx& -\sqrt{\max(0, [1 - h_L]^2 - b^2)} \label{eq:contact_x} \\
     x_{R,3} &\approx& +\sqrt{\max(0, [1 - h_R]^2 - b^2)} \nonumber \\
-    x_{R,4} &\approx& +\sqrt{(1 + h_R)^2 - b^2} \nonumber
+    x_{R,4} &\approx& +\sqrt{(1 + h_R)^2 - b^2}, \nonumber
 \end{eqnarray}
-
-where $h_L$ and $h_R$ are the effective directional radii of the projected ring ellipse during ingress and egress, respectively:
+where $h_L$ and $h_R$ are the effective directional radii of the projected ring ellipse at ingress and egress, respectively:
 \begin{eqnarray}
     h_L^2 &=& A^2 (-x_0 \cos\theta_R + b \sin\theta_R)^2 \nonumber \\
-          & & +\, B^2 (b \cos\theta_R + x_0 \sin\theta_R)^2 \nonumber \\
+          & & +\, B^2 (b \cos\theta_R + x_0 \sin\theta_R)^2 \\
     h_R^2 &=& A^2 (x_0 \cos\theta_R + b \sin\theta_R)^2 \nonumber \\
           & & +\, B^2 (b \cos\theta_R - x_0 \sin\theta_R)^2 \nonumber
 \end{eqnarray}
-(see Equations \ref{eq:h_L} and \ref{eq:h_R} in the Appendix). This formula is the “star” of our implementation of the method used here: because it is fully analytical, we can employ it in computationally intensive evaluation procedures, such as nested sampling, without incurring prohibitively long computation times.
+(see equations \ref{eq:h_L} and \ref{eq:h_R} in the Appendix). These formulae are key to the methodological implementation used here: as they are fully analytical, we can perform computationally intensive numerical procedures without incurring prohibitively long computation times.
 
 The final contact positions are then taken as $x_i=\min[x_{p,i},x_{R,i}]$, and converted into the ringed transit durations via
 \begin{equation}
@@ -244,35 +241,33 @@ This mathematical procedure specifies the forward mapping from the ringed-planet
 \section{Asterodensity Profiling}
 \label{sec:asterodensity_profiling}
 
-Under the assumptions of a spherical, opaque planet with negligible mass relative to the stellar mass $M_\star$, moving on a circular orbit and transiting a spherical, unblended star of radius $R_\star$ with negligible limb darkening at the maximum transit depth position, \citetalias{Seager2003} showed a mean stellar density, $\rho_{\star,\mathrm{obs}}$, can be inferred from the transit observables by inverting \autoref{eq:aRstar_true}:
+Assuming a spherical, opaque planet with a mass $M_\mathrm{ p}\ll M_\star$, in a circular orbit and transiting a spherical, unblended star of radius $R_\star$ with negligible limb darkening at the maximum transit depth position, \citetalias{Seager2003} showed a mean stellar density, $\rho_{\star,\mathrm{obs}}$, can be inferred from the transit observables by inverting~\autoref{eq:aRstar_true}:
 
 \begin{equation}
-\rho_{\star,\mathrm{obs}} = \frac{3\pi}{GP^2} \left(\frac{a}{R_\star}\right)^3_{\mathrm{obs}},
+\rho_{\star,\mathrm{obs}} = \frac{3\pi}{GP^2} \left(\frac{a}{R_\star}\right)^3_{\mathrm{obs}}.
 \label{eq:rho_obs}
 \end{equation}
 
-Here, the observed scaled semi-major axis $(a/R_\star)_\mathrm{obs}$ should not be mistaken for $(a/R_\star)_\mathrm{geo}$, which is computed in the forward model from the orbital period and the true stellar density (\autoref{eq:aRstar_true}). Rather, \citetalias{Seager2003} demonstrated that $(a/R_\star)_\mathrm{obs}$ can be expressed in terms of the total $T_{14}$ and full-transit duration $T_{23}$, via their Equation 8:
-
-We distinguish between the {\em measured} transit parameters $T_{14}$ and $T_{23}$ and the {\em calculated} values $T_{14}^\mathrm{geo}$ and $T_{23}^\mathrm{geo}$ produced by the forward model:
+The observed scaled semi-major axis $(a/R_\star)_\mathrm{obs}$ should not be mistaken for $(a/R_\star)_\mathrm{geo}$ that is computed in the forward model from the orbital period and the true stellar density (\autoref{eq:aRstar_true}). \citetalias{Seager2003} demonstrated that $(a/R_\star)_\mathrm{obs}$ can be expressed in terms of the total $T_{14}$ and full-transit duration $T_{23}$, via their Equation 8\footnote{We distinguish here between the {\em measured} transit parameters $T_{14}$ and $T_{23}$ and the {\em calculated} values $T_{14}^\mathrm{geo}$ and $T_{23}^\mathrm{geo}$ produced by the forward model}:
 
 \begin{equation}
-\left(\frac{a}{R_\star}\right)^2_{\mathrm{obs}} = \frac{F_{(+)}^2 - b_{\mathrm{obs}}^2 \left[1 - \sin^2\left(\pi T_{14}/P\right)\right]}{\sin^2\left(\pi T_{14}/P\right)}
+\left(\frac{a}{R_\star}\right)^2_{\mathrm{obs}} = \frac{F_{(+)}^2 - b_{\mathrm{obs}}^2 \left[1 - \sin^2\left(\pi T_{14}/P\right)\right]}{\sin^2\left(\pi T_{14}/P\right)},
 \label{eq:aRstar}
 \end{equation}
 where $F_{(\pm)}\equiv (1 \pm \sqrt{\delta})$ is an auxiliary variable. 
 
-This formula assumes non-grazing transits ($1<b<1-p$), a planet that is much smaller than its host star ($p \ll 1$), and transit durations that are much shorter than the orbital period ($T_{14}/P \ll 1$). These conditions are typically met in most transiting exoplanet systems \citepalias{Seager2003, Kipping2014}, and they are also fulfilled by the Kepler-51 planets.
+This formula assumes non-grazing transits ($1<b<1-p$), a planet that is much smaller than its host star ($p \ll 1$), and transit durations that are much shorter than the orbital period ($T_{14}/P \ll 1$). These conditions are typically met in most transiting exoplanet systems \citepalias{Seager2003, Kipping2014}, including the Kepler-51 planets.
 
-On the other hand, under the same assumptions, the impact parameter $b_{\mathrm{obs}}$ is obtained from the transit shape via Equation 9 in \citetalias{Seager2003}:
+Under the same assumptions, the observed impact parameter $b_{\mathrm{obs}}$ is obtained from the transit shape via Equation 9 in \citetalias{Seager2003}:
 
 \begin{equation}
 b_{\mathrm{obs}}^2 = \frac{F_{(-)}^2 - \sin^2\left(\pi T_{23}/P\right) / \sin^2\left(\pi T_{14}/P\right)F_{(+)}^2}{1 - \sin^2\left(\pi T_{23}/P\right) / \sin^2\left(\pi T_{14}/P\right)}.
 \label{eq:b_obs}
 \end{equation}
 
-It is important to note that \autoref{eq:aRstar} and \autoref{eq:b_obs}, and therefore \autoref{eq:rho_obs}, are equally valid when using the geometrically computed durations $T_{14}^\mathrm{geo}$ and $T_{23}^\mathrm{geo}$ from the forward model, obtained via \autoref{eq:T14_geo} and \autoref{eq:T23_geo}. The specific context in which the formulas are employed determines which set of quantities should be used. For example, when deriving the observed semi-major axis in the photometric analysis (see \autoref{sec:derived_observables}), the time and period values are those inferred from the photometric data, namely $\delta$, $T_{14}$, and $T_{23}$. In contrast, during the inference stage (see \autoref{sec:bayes_inference}), we employ the geometric quantities $\delta^\mathrm{geo}$, $T_{14}^\mathrm{geo}$, and $T_{23}^\mathrm{geo}$.
+It is worth noting that equations (\ref{eq:aRstar}) and (\ref{eq:b_obs}), and thus \autoref{eq:rho_obs}, are equally valid when using the geometrically computed durations $T_{14}^\mathrm{geo}$ and $T_{23}^\mathrm{geo}$ from the forward model, obtained via \autoref{eq:T14_geo} and \autoref{eq:T23_geo}. The specific context in which the formulae are employed determines which set of quantities should be used. For example, when deriving the observed semi-major axis in the photometric analysis (see \autoref{sec:derived_observables}), the time and period values are those inferred from the photometric data, namely $\delta$, $T_{14}$, and $T_{23}$. In contrast, during the inference stage we employ instead the geometric quantities $\delta^\mathrm{geo}$, $T_{14}^\mathrm{geo}$, and $T_{23}^\mathrm{geo}$ (see \autoref{sec:bayes_inference}).
 
-The concept of asterodensity profiling \citepalias{Kipping2014} is based on the comparison between the photometrically inferred stellar density $\rho_{\star,\mathrm{obs}}$ and an independent estimate of the true stellar density $\rho_{\star,\mathrm{true}}$ obtained through methods such as spectroscopic analysis, asteroseismology, or stellar evolution modeling. If all assumptions of the simple transit model are satisfied, the two density estimates should agree within observational uncertainties.
+The concept of asterodensity profiling \citepalias{Kipping2014} is based on the comparison between the photometrically inferred stellar density, $\rho_{\star,\mathrm{obs}}$, and an independent estimate of the true stellar density, $\rho_{\star,\mathrm{true}}$, obtained through methods such as spectroscopic analysis, asteroseismology, or stellar evolution modeling. If all assumptions of the simple transit model are satisfied, both density estimates should agree within observational uncertainties.
 
 Asterodensity profiling also explores various astrophysical mechanisms for diagnosing violations of the idealized transit assumptions through statistically significant deviations between $\rho_{\star,\mathrm{obs}}$ and $\rho_{\star,\mathrm{true}}$ One well-known example is the photoeccentric effect, which arises when a planet on an eccentric orbit is incorrectly modeled as circular \citepalias{Kipping2014}. Other mechanisms include contamination by blended companions (photoblend), unocculted stellar activity (photospot), and additional transit-shape distortions such as those induced by planetary rings (photoring, \citetalias{Zuluaga2015}).
 
@@ -280,20 +275,24 @@ Asterodensity profiling also explores various astrophysical mechanisms for diagn
 \subsection{The \PhotoRing\ Effect}
 \label{sec:photoring_effect}
 
-Planetary rings introduce geometric effects that are not captured by the standard spherical-planet transit model. As shown by \citetalias{Zuluaga2015}, the projected area of a ring system can substantially increase the observed transit depth $\delta_{\mathrm{obs}}$. When rings are not included in the transit model, this larger depth $\delta_{\mathrm{obs}}$ is interpreted as being produced by a larger planetary disk, which leads to an overestimation of the planetary radius $R_p$. At the same time, rings also modifies the transit contact times. Because the ring system extends beyond the planetary limb, the first contact occurs earlier and the fourth contact occurs later than in the case of a bare planet. As a result, the total transit duration $T_{14}$ increases, while the full-transit duration $T_{23}$ becomes shorter. Since these three quantities constitute the fundamental transit observables, these geometric distortions propagate through the transit fitting procedure, biasing the inferred values of the scaled semi-major axis $(a/R_\star)_{\mathrm{obs}}$ and the impact parameter $b_{\mathrm{obs}}$ (\autoref{eq:aRstar} and \autoref{eq:b_obs} respectively). Consequently, the stellar density derived from the transit, $\rho_{\star,\mathrm{obs}}$, can be significantly mis- or overestimated. the resulting systematic offset in the stellar density inferred from transits due to an unaccounted-for ring system was first characterized by \citetalias{Zuluaga2015} and is known as the \emph{\PhotoRing\ effect}  (PR).
+Planetary rings introduce geometric effects that are not captured by the standard spherical-planet transit model. As shown by \citetalias{Zuluaga2015}, the projected area of a ring system can substantially increase the observed transit depth $\delta_{\mathrm{obs}}$. When rings are not included in the transit model, this larger depth $\delta_{\mathrm{obs}}$ is interpreted as being produced by a larger planetary disk, which leads to an overestimation of the planetary radius $R_p$.
+
+Rings also modify the contact times of a transit. Because the ring system extends beyond the planetary limb, the first contact occurs earlier and the fourth contact occurs later than in the case of a ringless planet. As a result, the total transit duration $T_{14}$ increases, while the full-transit duration $T_{23}$ becomes shorter. Since these three quantities constitute the fundamental transit observables, these geometric distortions propagate through the transit fitting procedure and bias the inferred values of $(a/R_\star)_{\mathrm{obs}}$ and $b_{\mathrm{obs}}$ (i.e., equations \ref{eq:aRstar} and \ref{eq:b_obs}, respectively). Consequently, the stellar density derived from the transit, $\rho_{\star,\mathrm{obs}}$, can be significantly under or overestimated. The resulting systematic offset in the stellar density inferred from transits due to an unaccounted-for ring system was first characterized by \citetalias{Zuluaga2015} and is known as the \PhotoRing\ (PR) effect.
 
 By introducing the stellar anomaly ratio, following \citet{kipping2012novel}, as
 
-$$\Psi \equiv \left(\frac{\rho_{\star,\mathrm{obs}}}{\rho_{\star,\mathrm{true}}}\right),$$
-the PR effect can be recast on a logarithmic scale that employs the same notation:
+\begin{equation}
+\Psi \equiv \left(\frac{\rho_{\star,\mathrm{obs}}}{\rho_{\star,\mathrm{true}}}\right),
+\label{eq:PR_Kipping}
+\end{equation}
+the PR effect is expressed using a logarithmic scale that employs the same notation:
 
 \begin{equation}
-\mathrm{PR} \equiv 10\,\log_{10}\!\Psi
+\mathrm{PR} \equiv 10\,\log_{10}\!\Psi.
 \label{eq:PR_def}
 \end{equation}
 
-
-In \autoref{fig:photoring_contour}, we reproduce a key figure from \citetalias{Zuluaga2015} (the top panel of their Figure 3), which presents contours of the PR value across a wide range of ring orientations. Unlike the original figure in \citetalias{Zuluaga2015}, for this plot we adopt planetary and stellar parameters akin to those of \exoplanet{Kepler-51}{b}, along with tentative assumptions for the ring properties. As shown, the \PhotoRing\ effect typically causes the stellar density to be underestimated, i.e., $\rho_{\star,\mathrm{obs}} < \rho_{\star,\mathrm{true}}$ or $\mathrm{PR}<0$, with only a relatively small domain where $\rho_{\star,\mathrm{obs}} > \rho_{\star,\mathrm{true}}$. Nonetheless, it is striking that, for systems hosting ringed planets—at least with the planetary and ring characteristics assumed here—the inferred stellar mean density can be underestimated by as much as a factor of $\approx 2.5$ ($\mathrm{PR}\approx -4$) or overestimated by up to a factor of $\approx 1.6$ ($\mathrm{PR}\approx +2$). Interestingly 
+In \autoref{fig:photoring_contour}, we present contours of the PR-effect metric across a wide range of ring orientations. We adopt planetary and stellar parameters akin to those of \exoplanet{Kepler-51}{b}, along with tentative properties for the ring system. As shown, PR effect typically causes the stellar density to be underestimated; that is, $\rho_{\star,\mathrm{obs}} < \rho_{\star,\mathrm{true}}$ or $\mathrm{PR}<0$, with only a relatively small domain where $\rho_{\star,\mathrm{obs}} > \rho_{\star,\mathrm{true}}$. Interestingly, for systems hosting ringed planets—with similar properties to those assumed here—the inferred stellar mean density can be underestimated by as much as a factor of $\approx 2.5$ ($\mathrm{PR}\approx -4$) or overestimated by up to a factor of $\approx 1.6$ ($\mathrm{PR}\approx +2$).
 
 \begin{figure*}[t]
 \centering
@@ -307,16 +306,18 @@ In \autoref{fig:photoring_contour}, we reproduce a key figure from \citetalias{Z
 \section{Observational Data Analysis}
 \label{sec:data_analysis}
 
-\attention{The observational and data foundation of this work rests on posterior distributions of the asterodensity profiling observables ($\delta, \rho_{\star,\mathrm{obs}},  b_{\rm obs}$) for \exoplanet{Kepler-51}{b} and \exoplanet{Kepler-51}{d}, the innermost and outermost previously known planets in the Kepler-51 system, obtained from a dedicated light-curve fit of the available \textit{Kepler} photometry (for details see \autoref{sec:data_analysis_ttv} below). These posteriors are not derived from a direct ring-transit model; rather, they represent the inferences made under the standard assumption of a spherical, ringless planet, and therefore they encode the effective transit observables that any ringed configuration must reproduce. In this section we describe the origin of these posteriors, and how they are incorporated into our ring-retrieval framework. Although more recent observations of the system have been obtained with JWST, HST, and TESS facilites \citep{Masuda2024, Lammers2024, Libby-Roberts2025}, the present analysis relies exclusively on constraints derived from the original \textit{Kepler} photometry and does not incorporate those additional datasets.}
+The observational and data foundation of this work rests on posterior distributions of the asterodensity profiling observables ($\delta, \rho_{\star,\mathrm{obs}},  b_{\rm obs}$) for \exoplanet{Kepler-51}{b} and \exoplanet{Kepler-51}{d}, the innermost and outermost planets of Kepler-51, obtained from a dedicated light-curve fit of the available \textit{Kepler} photometry (see \autoref{sec:data_analysis_ttv}). These posteriors are not derived from a direct ring-transit model, they rather represent the inferences made under the standard assumption of a spherical, ringless planet, thus encoding the effective transit observables that must result from any ringed-planet configuration.
+
+In this section, we describe the origin of these posteriors and how they are incorporated into our ring-retrieval framework. Although more recent observations of the system have been obtained with JWST, HST, and TESS facilities \citep{Masuda2024, Lammers2024, Libby-Roberts2025}, the present analysis exclusively relies on constraints derived from the original \textit{Kepler} photometry, without including the aforementioned new datasets.
 
 \subsection{Transit and \photofit Modeling}
 \label{sec:data_analysis_ttv}
 
-To robustly infer the transit parameters in the presence of Transit Timing Variations (TTVs), without resorting to a full dynamical analysis, we employed a so-called {\em photometric fit with independent transit times} (hereafter \photofit).Enforcing a strict linear ephemeris on systems with significant TTVs can artificially smear the transit shape. In our \photofit approach, the central transit time ($T_c$) for each epoch is treated as an independent free parameter during the light curve fitting process. This decouples the photometric shape of the transit from the underlying orbital dynamics, allowing us to accurately measure the geometric transit parameters while simultaneously extracting the individual transit epochs.
+For a robust inference of the transit parameters in the presence of TTVs, without resorting to a full dynamical analysis, we employed a so-called {\em photometric fit with independent transit times} (hereafter \photofit). Enforcing a strict linear ephemeris on systems with significant TTVs can artificially smear the transit shape. In our \photofit approach, the central transit time ($T_c$) for each epoch is treated as an independent free parameter during the light curve fitting process. This decouples the transit's photometric shape from the underlying orbital dynamics, allowing us to accurately measure the geometric transit parameters while also extracting the individual transit epochs.
 
-\attention{For each of the Kepler-51 planets, excluding the recently discovered fourth planet, Kepler-51 e, and \exoplanet{Kepler-51}{c} due to its grazing transit geometry \citep{Masuda2024}, the asterodensity profiling posterior distributions were sampled using the nested sampling algorithm \texttt{MultiNest} \citep{Feroz2009, Feroz2019} applied to the \textit{Kepler} photometric time series. The analysis fits each transit simultaneously with our \photofit model, extracting individual mid-transit times for each observed epoch, and allowing the estimation of the AP parameters from the full ensemble of transits.}
+For \exoplanet{Kepler-51}{b} and \exoplanet{Kepler-51}{d}, the asterodensity profiling posterior distributions were sampled using the nested sampling algorithm \texttt{MultiNest} \citep{Feroz2009, Feroz2019} applied to the \textit{Kepler} photometric time series\footnote{We exclude the recently discovered fourth planet, Kepler-51 e, and \exoplanet{Kepler-51}{c} due to its grazing transit geometry \citep{Masuda2024}}. The analysis fits each transit simultaneously with our \photofit model, extracting individual mid-transit times for each observed epoch while allowing to estimate the AP parameters from the full ensemble of transits.
 
-\attention{For \exoplanet{Kepler-51}{d}, the number of observed transits and the corresponding parameter space were manageable to allow a single nested-sampling run, yielding one posterior distribution per parameter. For \exoplanet{Kepler-51}{b}, however, the large number of observed epochs translates into a high-dimensional parameter space---since each epoch contributes an individual mid-transit time as a free parameter---making a single nested-sampling run computationally intractable. To handle this high dimensionality, its full photometric time series was divided into three independent temporal segments, each covering a distinct subset of observed transits. A separate run was performed on each segment, producing its corresponding posterior distributions for AP parameters. To combine those resulting distributions into a single posterior, we run a short Markov Chain Monte Carlo sampler that simultaneously draws from the three posteriors, treating them as statistically independent constraints on the transit parameters. The resulting chain defines the final posterior of \exoplanet{Kepler-51}{b} used throughout this work.}
+\attention{For \exoplanet{Kepler-51}{d}, the small number of observed transits and the corresponding parameter space allowed a single nested-sampling run, yielding one posterior distribution per parameter. For \exoplanet{Kepler-51}{b}, however, the large number of observed epochs translates into a high-dimensional parameter space---since each epoch contributes an individual mid-transit time as a free parameter---making a single nested-sampling run computationally intractable. To handle this high dimensionality, the full photometric time series was divided into three independent temporal segments, each covering a distinct subset of observed transits. A separate run was performed on each segment, producing its corresponding posterior distributions for AP parameters. We then  combine the resulting distributions into a single posterior by running a short Markov Chain Monte Carlo sampler that simultaneously draws from the three posterior distributions, treating them as statistically independent constraints on the transit parameters. The resulting chain defines the final posterior of \exoplanet{Kepler-51}{b} used throughout this work.}
 
 \subsection{Derived Observables}
 \label{sec:derived_observables}
@@ -834,7 +835,7 @@ In the original formulation of the \PhotoRing\ effect by \citet{Zuluaga2015}, ca
 
 To illustrate this, \autoref{fig:pr_contour_comparison} compares the \PhotoRing\ effect contours generated by the precise semi-analytical model \texttt{geotrans} with those produced by the original \texttt{exorings} analytical approximation from \citet{Zuluaga2015}. As shown, the original formulation breaks down in certain inclination ranges, creating unphysical artifacts.
 
-\begin{figure*}[ht!]
+\begin{figure*}[h!]
     \centering
     \includegraphics[width=0.48\textwidth]{figures/PRContour-K51b-exorings_legacy.png}
     %\includegraphics[width=0.48\textwidth]{figures/PRContour-K51b-exorings_updated.png}

@@ -43,6 +43,7 @@ def compute_z1(run, ttv_data):
 
     w1_vals = []
     lc_w1_vals = []
+    crit_w1_vals = []
     for key in PPC_OBSERVABLES:
         meta = plot.obs_meta(key)
         col = meta.get("ppc_col")
@@ -64,27 +65,37 @@ def compute_z1(run, ttv_data):
             w1_vals.append(w1)
             if key in ["delta", "T14", "T23"]:
                 lc_w1_vals.append(w1)
+            if key in ["delta", "rho_obs_gcc", "rho_obs_kgm3", "rho_obs"]:
+                crit_w1_vals.append(w1)
 
     if not w1_vals:
-        return float("nan"), float("nan")
+        return float("nan"), float("nan"), float("nan")
     z1 = float(-np.log10(float(np.mean(w1_vals))))
     if lc_w1_vals:
         z1_min = float(-np.log10(float(np.max(lc_w1_vals))))
     else:
         z1_min = float("nan")
-    return z1, z1_min
+        
+    if crit_w1_vals:
+        z_crit = float(-np.log10(float(np.max(crit_w1_vals))))
+    else:
+        z_crit = float("nan")
+        
+    return z1, z1_min, z_crit
 
-def get_decision_tree_category(z1, z1_min, err_rho_true, fe_p16, angle_peaks, logz):
+def get_decision_tree_category(z1, z1_min, z_crit, err_rho_true, fe_p16, angle_peaks, logz):
     """
     Evaluates the retrieval through a strict decision tree.
     Returns a string category.
     """
     if z1 is None or not np.isfinite(z1):
         return "[Rejected] Missing PPC"
-    if z1 < 1.2:
+    if z1 < 1.3:
         return "[Rejected] Poor Fit"
-    if z1_min is not None and z1_min < 1.0:
+    if z1_min is not None and z1_min < 1.2:
         return "[Rejected] Poor Individual Fit"
+    if z_crit is not None and z_crit < 1.75:
+        return "[Rejected] Poor Critical Fit"
     if err_rho_true is not None and err_rho_true > 0.25:
         return "[Rejected] Unphysical Nuisance"
     if fe_p16 is not None and fe_p16 < 1.0:
@@ -126,11 +137,12 @@ def score_retrieval(npz_path: Path, ttv_cache_dict: dict):
     ttv = {}
     try:
         ttv = ttv_get(planet)
-        z1, z1_min = compute_z1(run, ttv)
+        z1, z1_min, z_crit = compute_z1(run, ttv)
     except Exception as e:
         print(f"Error computing z1 for {npz_path.name}: {e}")
         z1 = float("nan")
         z1_min = float("nan")
+        z_crit = float("nan")
 
     # Get equal-weight samples
     samples = run.get('samples')
@@ -149,6 +161,22 @@ def score_retrieval(npz_path: Path, ttv_cache_dict: dict):
     eq_samples = samples[idx]
     
     param_names = meta.get('param_names', [])
+    k = len(param_names)
+    
+    max_logl = None
+    aic = None
+    logl = run.get('logl')
+    if logl is None:
+        try:
+            with np.load(npz_path) as f:
+                if 'logl' in f:
+                    logl = f['logl']
+        except Exception:
+            pass
+
+    if logl is not None and len(logl) > 0:
+        max_logl = float(np.max(logl))
+        aic = 2 * k - 2 * max_logl
     
     # 1. Ring Degeneracy (fe)
     fe_p16 = meta.get('stat_fe_p16')
@@ -176,8 +204,9 @@ def score_retrieval(npz_path: Path, ttv_cache_dict: dict):
     
     raw_z1 = float(z1) if np.isfinite(z1) else None
     raw_z1_min = float(z1_min) if np.isfinite(z1_min) else None
+    raw_z_crit = float(z_crit) if np.isfinite(z_crit) else None
     
-    category = get_decision_tree_category(raw_z1, raw_z1_min, err_rho_true, fe_p16, angle_peaks, meta.get('logz'))
+    category = get_decision_tree_category(raw_z1, raw_z1_min, raw_z_crit, err_rho_true, fe_p16, angle_peaks, meta.get('logz'))
     
     return {
         'file': npz_path.name,
@@ -186,10 +215,13 @@ def score_retrieval(npz_path: Path, ttv_cache_dict: dict):
         'tag': run.get('tag', meta.get('run_tag')),
         'raw_z1': raw_z1,
         'z1_min': raw_z1_min,
+        'z_crit': raw_z_crit,
         'fe_p16': fe_p16,
         'angle_peaks': angle_peaks,
         'err_rho_true': err_rho_true,
         'logz': meta.get('logz'),
+        'max_logl': max_logl,
+        'aic': aic,
         'category': category
     }
 
@@ -251,25 +283,30 @@ def generate_markdown(results_dir: Path, case: str, planet: str, results: list):
         lines.append(f"### Category: {cat}")
         lines.append("")
         
-        lines.append("| Rank | Tag | PPC (z1) | ln Z | PPC (z1 min) | Ring fe (16%) | err(rho_true) | Angle Peaks |")
-        lines.append("|---|---|---|---|---|---|---|---|")
+        lines.append("| Rank | Tag | PPC (z1) | PPC (z_crit) | ln Z | max ln L | AIC | Ring fe (16%) | err(rho_true) | Angle Peaks |")
+        lines.append("|---|---|---|---|---|---|---|---|---|---|")
         
         for r in group:
             z1_str = format_val(r.get('raw_z1'), "{:.2f}")
+            z_crit_str = format_val(r.get('z_crit'), "{:.2f}")
             logz_str = format_val(r.get('logz'), "{:.2f}")
-            z1_min_str = format_val(r.get('z1_min'), "{:.2f}")
+            maxlogl_str = format_val(r.get('max_logl'), "{:.2f}")
+            aic_str = format_val(r.get('aic'), "{:.2f}")
             fe_str = format_val(r.get('fe_p16'), "{:.2f}")
             rho_err_str = format_val(r.get('err_rho_true'), "{:.4f}")
             ang_str = format_val(r.get('angle_peaks'), "{:.1f}")
             
-            lines.append(f"| {rank} | `{r['tag']}` | **{z1_str}** | {logz_str} | {z1_min_str} | {fe_str} | {rho_err_str} | {ang_str} |")
+            lines.append(f"| {rank} | `{r['tag']}` | **{z1_str}** | **{z_crit_str}** | {logz_str} | {maxlogl_str} | {aic_str} | {fe_str} | {rho_err_str} | {ang_str} |")
             rank += 1
         lines.append("")
         
         for r in group:
             lines.append(f"#### {r['tag']}")
             lines.append(f"- **PPC (z1)**: {format_val(r.get('raw_z1'))}")
+            lines.append(f"- **PPC (z_crit)**: {format_val(r.get('z_crit'))}")
             lines.append(f"- **ln Z (Evidence)**: {format_val(r.get('logz'), '{:.3f}')}")
+            lines.append(f"- **max ln L**: {format_val(r.get('max_logl'), '{:.3f}')}")
+            lines.append(f"- **AIC**: {format_val(r.get('aic'), '{:.3f}')}")
             lines.append(f"- **PPC (z1 min)**: {format_val(r.get('z1_min'))}")
             lines.append(f"- **Ring fe (16th)**: {format_val(r.get('fe_p16'))}")
             lines.append(f"- **err(rho_true)**: {format_val(r.get('err_rho_true'), '{:.4f}')}")

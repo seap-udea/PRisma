@@ -659,7 +659,7 @@ def plot_ppc(run, ttv, obs_keys=None, paths=None):
 # ══════════════════════════════════════════════════════════════════════════
 #  Marginal posteriors
 # ══════════════════════════════════════════════════════════════════════════
-def plot_marginals(run, berger_rho=None, paths=None):
+def plot_marginals(run, rho_true_dist=None, b_obs_dist=None, paths=None):
     """1-D marginal posteriors with median/68% lines and prior overlays for rho_true, b."""
     planet = run["planet"]; chain = run["chain"]; pnames = run["param_names"]; meta = run["meta"]
     ndim = len(pnames)
@@ -677,17 +677,23 @@ def plot_marginals(run, berger_rho=None, paths=None):
         _vline(ax, p16, STYLE["c_interval"], ls="--", alpha=0.6)
         _vline(ax, p84, STYLE["c_interval"], ls="--", alpha=0.6)
         _annotate_stats(ax, v, "k", xpos="left", ypos=0.97, x=med * 1.05)
-        if name == "rho_true" and berger_rho is not None:
-            k = gaussian_kde(berger_rho)
-            x = np.linspace(np.min(berger_rho), np.max(berger_rho), 400)
+        if name == "rho_true" and rho_true_dist is not None:
+            k = gaussian_kde(rho_true_dist)
+            x = np.linspace(np.min(rho_true_dist), np.max(rho_true_dist), 400)
             ax.plot(x, k(x), color="k", lw=STYLE["line_lw"], ls="-",
-                    label="Berger et al. 2023", zorder=5)
+                    label="Isochrone Prior", zorder=5)
         if name == "b":
-            bf = meta.get("B_FIXED", 0.0); bs = meta.get("B_SIGMA", 0.1)
-            dist = _truncnorm((0.0 - bf) / bs, (1.0 - bf) / bs, loc=bf, scale=bs)
-            x = np.linspace(0, 1, 400)
-            ax.plot(x, dist.pdf(x), color="k", lw=STYLE["line_lw"], ls="-",
-                    label="Masuda et al. 2024", zorder=5)
+            if b_obs_dist is not None:
+                k = gaussian_kde(b_obs_dist)
+                x = np.linspace(np.min(b_obs_dist), np.max(b_obs_dist), 400)
+                ax.plot(x, k(x), color="k", lw=STYLE["line_lw"], ls="-",
+                        label="Observable $b_{obs}$", zorder=5)
+            else:
+                bf = meta.get("B_FIXED", 0.0); bs = meta.get("B_SIGMA", 0.1)
+                dist = _truncnorm((0.0 - bf) / bs, (1.0 - bf) / bs, loc=bf, scale=bs)
+                x = np.linspace(0, 1, 400)
+                ax.plot(x, dist.pdf(x), color="k", lw=STYLE["line_lw"], ls="-",
+                        label="Masuda et al. 2024", zorder=5)
         _style_ax(ax, xlabel=lbl, title=PARAM_META.get(name, {}).get("desc", name), legend=False)
     fig.suptitle(f"Marginal posteriors — {PLANET_LABELS.get(planet, planet)}",
                  fontsize=STYLE["title_size"] + 2, y=1.02)
@@ -699,7 +705,7 @@ def plot_marginals(run, berger_rho=None, paths=None):
 # ══════════════════════════════════════════════════════════════════════════
 #  Corner plot
 # ══════════════════════════════════════════════════════════════════════════
-def plot_corner(run, paths=None, ax_grid=None, title=True, save=True):
+def plot_corner(run, rho_true_dist=None, b_obs_dist=None, paths=None, ax_grid=None, title=True, save=True):
     """Joint-posterior corner plot, drawn by ``dynesty.plotting.cornerplot``.
 
     dynesty is the only backend: it works from the *weighted* nested-sampling output
@@ -734,12 +740,26 @@ def plot_corner(run, paths=None, ax_grid=None, title=True, save=True):
         return None, None
 
     labels = [param_meta(n)["label"] for n in run["param_names"]]
+    span = []
+    for i, name in enumerate(run["param_names"]):
+        if name == "b":
+            span.append((0.0, 1.0))
+        elif name == "rho_true" and rho_true_dist is not None:
+            post_samples = run["chain"][:, i]
+            min_val = min(np.min(rho_true_dist), np.min(post_samples))
+            max_val = max(np.max(rho_true_dist), np.max(post_samples))
+            pad = 0.05 * (max_val - min_val)
+            span.append((float(min_val - pad), float(max_val + pad)))
+        else:
+            span.append(0.9999999)
+
     kwargs = dict(
         labels=labels, show_titles=True,
         title_kwargs={"fontsize": STYLE["tick_size"] + 10},
         quantiles=STYLE["corner_quantiles"],
         color=planet_color(run["planet"], "corner"),
         smooth=STYLE["corner_smooth"],
+        span=span,
     )
     if ax_grid is not None:
         # dynesty takes an existing grid as a (figure, axes) tuple.
@@ -751,6 +771,43 @@ def plot_corner(run, paths=None, ax_grid=None, title=True, save=True):
             ax.tick_params(axis='both', which='major', labelsize=STYLE['label_size'] + 5)
             ax.xaxis.label.set_size(STYLE['label_size'] + 5)
             ax.yaxis.label.set_size(STYLE['label_size'] + 5)
+
+    meta = run.get("meta", {})
+    for i, name in enumerate(run["param_names"]):
+        ax = _axes[i, i]
+        if ax is None:
+            continue
+            
+        tax = ax.twinx()
+        tax.set_yticks([])
+        tax.set_ylim(0, 1.1)
+        
+        plotted = False
+        if name == "rho_true" and rho_true_dist is not None:
+            k = gaussian_kde(rho_true_dist)
+            x = np.linspace(np.min(rho_true_dist), np.max(rho_true_dist), 400)
+            y = k(x)
+            tax.plot(x, y / np.max(y), color="k", lw=STYLE["line_lw"], ls=":", zorder=5)
+            plotted = True
+            
+        if name == "b":
+            if b_obs_dist is not None:
+                k = gaussian_kde(b_obs_dist)
+                x = np.linspace(np.min(b_obs_dist), np.max(b_obs_dist), 400)
+                y = k(x)
+                tax.plot(x, y / np.max(y), color="k", lw=STYLE["line_lw"], ls=":", zorder=5)
+                plotted = True
+            else:
+                bf = meta.get("B_FIXED", 0.0)
+                bs = meta.get("B_SIGMA", 0.1)
+                dist = _truncnorm((0.0 - bf) / bs, (1.0 - bf) / bs, loc=bf, scale=bs)
+                x = np.linspace(0, 1, 400)
+                y = dist.pdf(x)
+                tax.plot(x, y / np.max(y), color="k", lw=STYLE["line_lw"], ls=":", zorder=5)
+                plotted = True
+            
+        if not plotted:
+            tax.remove()
 
     if title:
         planet_label = PLANET_LABELS.get(run["planet"], run["planet"])
@@ -1043,7 +1100,13 @@ def _bestfit_medians_line(run, include_metrics=True):
 
     logz_str = ""
     if include_metrics and run.get("logz") is not None and np.isfinite(run["logz"]):
-        logz_str = rf" ($\ln \mathcal{{Z}} = {run['logz']:.3f}$)"
+        logz_str = rf" ($\ln \mathcal{{Z}} = {run['logz']:.3f}"
+        if run.get("logl") is not None and len(run.get("param_names", [])) > 0:
+            max_logl = np.max(run["logl"])
+            k = len(run["param_names"])
+            aic = 2 * k - 2 * max_logl
+            logz_str += rf", \mathrm{{AIC}} = {aic:.1f}"
+        logz_str += "$)"
 
     return (
         rf"Medians: "
@@ -1117,7 +1180,7 @@ def _ring_inset_rect(ndim, ring_frac=None, pad=0.01, top=1.0):
     return [x0, y0, frac, frac]
 
 
-def plot_results_panel_inset(run, paths=None, ring_frac=None, pad=0.01,
+def plot_results_panel_inset(run, rho_true_dist=None, b_obs_dist=None, paths=None, ring_frac=None, pad=0.01,
                              run_tag_suffix="corner", title=True):
     """Square corner plot with the inferred ring geometry inset in the upper-right.
 
@@ -1141,7 +1204,7 @@ def plot_results_panel_inset(run, paths=None, ring_frac=None, pad=0.01,
     """
     pnames = list(run["param_names"])
     ndim = len(pnames)
-    fig, axes = plot_corner(run, paths=None, title=False, save=False)
+    fig, axes = plot_corner(run, rho_true_dist=rho_true_dist, b_obs_dist=b_obs_dist, paths=None, title=False, save=False)
     if fig is None:
         return None
 

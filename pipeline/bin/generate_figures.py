@@ -201,8 +201,18 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
 
+        rho_true_dist = None
+        if case_paths.rho_true_samples.exists():
+            rho_true_dist = np.loadtxt(case_paths.rho_true_samples) / 1000.0
+            
+        b_obs_dist = None
+        try:
+            b_obs_dist = ttv_get(planet).get("b")
+        except Exception:
+            pass
+
         if "corner" in kinds:
-            fig = plot.plot_results_panel_inset(run, paths=None, title=True)
+            fig = plot.plot_results_panel_inset(run, rho_true_dist=rho_true_dist, b_obs_dist=b_obs_dist, paths=None, title=True)
             if fig is None:
                 status["skipped"].append("corner")
             else:
