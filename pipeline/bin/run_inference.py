@@ -29,8 +29,11 @@ import importlib.util
 import itertools
 import json
 import multiprocessing as mp
+import os
 import sys
 import time
+import traceback
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
@@ -318,18 +321,36 @@ def build_run_list(cfg_mod, ns_cfg):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# WORKER  (top-level so ProcessPoolExecutor can pickle it)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def _worker(payload):
+    """Entry point for a subprocess in the ProcessPoolExecutor."""
+    try:
+        return run_one(**payload)
+    except Exception as exc:
+        return {"status": "FAILED", "run_tag": payload.get("run_tag", "?"),
+                "duration": 0, "error": str(exc), "tb": traceback.format_exc()}
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # MAIN
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def main():
+    cpu = os.cpu_count() or 4
     ap = argparse.ArgumentParser(
         description="Photo-Ring pipeline — pure-Python dynesty sweep (no notebooks)")
     ap.add_argument("--config",   default="run_config.py",
                     help="Run-config .py file (default: run_config.py)")
     ap.add_argument("--case",     default=None,
                     help="Override the case directory from the config")
-    ap.add_argument("--n-procs",  type=int, default=1,
-                    help="Worker processes for the dynesty pool (default: 1)")
+    ap.add_argument("--jobs",     type=int, default=1,
+                    help="Concurrent independent runs (default: 1). "
+                         "--n-procs is split across jobs to avoid oversubscription.")
+    ap.add_argument("--n-procs",  type=int, default=min(6, max(1, cpu // 2)),
+                    help=f"Total worker processes for dynesty pools (default: min(6, cpu/2)={min(6, max(1, cpu//2))}). "
+                         "Split evenly across --jobs.")
     ap.add_argument("--nlive",    type=int, default=None,
                     help="Override nlive (default: from NS_CONFIG_BASE)")
     ap.add_argument("--dlogz",    type=float, default=None,
@@ -351,11 +372,13 @@ def main():
         sys.exit(1)
     cfg_mod = _load_config(cfg_path)
 
+    # ── split n_procs across concurrent jobs ──────────────────────────────────
+    n_procs_each = max(1, args.n_procs // args.jobs) if args.jobs > 1 else args.n_procs
+
     # ── NS config (base + overrides) ──────────────────────────────────────────
     ns_cfg = dict(NS_CONFIG_BASE)
-    use_pool = args.n_procs > 1
-    ns_cfg["use_pool"] = use_pool
-    ns_cfg["n_procs"]  = args.n_procs
+    ns_cfg["use_pool"] = n_procs_each > 1
+    ns_cfg["n_procs"]  = n_procs_each
     if args.nlive is not None:  ns_cfg["nlive"] = args.nlive
     if args.dlogz is not None:  ns_cfg["dlogz"] = args.dlogz
     if args.seed  is not None:  ns_cfg["seed"]  = args.seed
@@ -369,52 +392,81 @@ def main():
 
     print(f"\n{'=' * 64}")
     print(f"  Photo-Ring inference — case '{case}' — {total} runs  |  {datetime.now():%Y-%m-%d %H:%M}")
-    print(f"  n_procs={args.n_procs}  nlive={ns_cfg['nlive']}  dlogz={ns_cfg['dlogz']}")
+    print(f"  jobs={args.jobs}  n_procs/run={n_procs_each}  (--n-procs {args.n_procs})")
+    print(f"  nlive={ns_cfg['nlive']}  dlogz={ns_cfg['dlogz']}")
     print(f"  Python: {sys.executable}")
     print(f"  Results -> {Path(case).resolve() / 'results'}")
     print(f"{'=' * 64}\n")
 
+    # ── build per-run payloads ────────────────────────────────────────────────
+    payloads = [
+        dict(
+            case          = run["case"],
+            planet        = run["planet"],
+            model_cfg     = run["model_cfg"],
+            kde_cfg       = run["kde_cfg"],
+            ns_cfg        = ns_cfg,
+            run_tag       = run["run_tag"],
+            forward_model = run["forward_model"],
+            skip_ppc      = args.no_ppc,
+            force         = args.force,
+            verbose       = (args.jobs == 1),   # suppress per-iteration prints when parallel
+        )
+        for run in runs
+    ]
+
     results_log = []
     t_start = time.time()
 
-    for i, run in enumerate(runs, 1):
-        tag = run["run_tag"]
-        print(f"[{i:>3}/{total}]  {tag}")
-
-        if args.dry_run:
-            print(f"  [DRY]  {tag}\n")
-            results_log.append({"status": "dry", "run_tag": tag})
-            continue
-
-        try:
-            res = run_one(
-                case          = run["case"],
-                planet        = run["planet"],
-                model_cfg     = run["model_cfg"],
-                kde_cfg       = run["kde_cfg"],
-                ns_cfg        = ns_cfg,
-                run_tag       = tag,
-                forward_model = run["forward_model"],
-                skip_ppc      = args.no_ppc,
-                force         = args.force,
-                verbose       = True,
-            )
-        except Exception as exc:
-            import traceback
-            print(f"  [FAIL] {exc}")
-            traceback.print_exc()
-            res = {"status": "FAILED", "run_tag": tag, "duration": 0}
-
-        results_log.append(res)
-        status = res["status"]
-        if status == "ok":
+    def _announce(i, tag, res):
+        st = res["status"]
+        prefix = f"[{i:>3}/{total}]  {tag}"
+        if st == "ok":
             lz = res.get("logz", float("nan"))
-            print(f"  [OK]   {_fmt(res['duration'])}  logZ={lz:+.2f}  -> {res['npz']}")
-        elif status == "skipped":
-            print(f"  [SKIP] already exists")
-        elif status == "FAILED":
-            print(f"  [FAIL]")
+            print(f"{prefix}\n  [OK]   {_fmt(res['duration'])}  logZ={lz:+.2f}  -> {res.get('npz','')}", flush=True)
+        elif st == "skipped":
+            print(f"{prefix}\n  [SKIP] already exists", flush=True)
+        elif st == "dry":
+            print(f"{prefix}\n  [DRY]", flush=True)
+        else:
+            tb = res.get("tb", "")
+            if tb:
+                print(tb, flush=True)
+            print(f"{prefix}\n  [FAIL] {res.get('error', '')}", flush=True)
         print()
+
+    # ── sequential (jobs=1) or parallel (jobs>1) ──────────────────────────────
+    if args.jobs == 1 or args.dry_run:
+        for i, (payload, run) in enumerate(zip(payloads, runs), 1):
+            tag = run["run_tag"]
+            if args.dry_run:
+                _announce(i, tag, {"status": "dry", "run_tag": tag})
+                results_log.append({"status": "dry", "run_tag": tag})
+                continue
+            res = _worker(payload)
+            results_log.append(res)
+            _announce(i, tag, res)
+    else:
+        try:
+            ctx = mp.get_context("fork")
+        except ValueError:
+            ctx = mp.get_context()
+        print(f"Dispatching {total} runs with ProcessPoolExecutor(jobs={args.jobs})...\n",
+              flush=True)
+        with ProcessPoolExecutor(max_workers=args.jobs, mp_context=ctx) as ex:
+            futs = {ex.submit(_worker, pl): (i, run["run_tag"])
+                    for i, (pl, run) in enumerate(zip(payloads, runs), 1)}
+            done = 0
+            for fut in as_completed(futs):
+                done += 1
+                i, tag = futs[fut]
+                try:
+                    res = fut.result()
+                except Exception as exc:
+                    res = {"status": "FAILED", "run_tag": tag, "duration": 0,
+                           "error": str(exc)}
+                results_log.append(res)
+                _announce(i, tag, res)
 
     ok      = sum(1 for r in results_log if r["status"] == "ok")
     skipped = sum(1 for r in results_log if r["status"] == "skipped")
@@ -430,4 +482,5 @@ def main():
 
 
 if __name__ == "__main__":
+    mp.freeze_support()   # needed on macOS/Windows with spawn context
     main()
