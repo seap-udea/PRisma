@@ -161,7 +161,7 @@ $\hat{p}(\mathbf{y})$ & KDE estimate of \photofit posterior  \\
 \end{tabular}
 \end{table}
 
-Planetary rings are not fully opaque. To describe their opacity, we adopt a wavelength-independent normal attenuation $\alpha$. This parameter is then used to derive a blocking factor $\beta = 1 - \alpha^{1/\cos i_R}$ \citep{Barnes2004}, which incorporates both blocking and absorption effects and scales the ring’s contribution to the total occulting area according to its inclination.
+Planetary rings are not fully opaque. To describe their opacity, we adopt a wavelength-independent normal attenuation $\alpha$\footnote{The normal attenuation $\alpha$ is related to the normal optical depth $\tau$ via $\alpha = \exp(-\tau)$. We prefer the parameterization in terms of $\alpha$ because it is strictly bounded between $0$ and $1$. This improves numerical stability during Bayesian inference and mitigates the pathological behavior of $\tau$ in the high-opacity regime ($\tau \gg 1$), where very large variations in optical depth produce only negligible changes in the forward model.}. This parameter is then used to derive a blocking factor $\beta = 1 - \alpha^{1/\cos i_R}$ \citep{Barnes2004}, which incorporates both blocking and absorption effects and scales the ring's contribution to the total occulting area according to its inclination.
 
 Given these inputs, our forward model computes two classes of observables.  First, it evaluates the effective occulting area $A_{\rm eff}$ and the corresponding transit depth:
 
