@@ -69,7 +69,7 @@ def make_table():
                 lnZ_str = f"{lnZ:.2f}"
                 
                 import urllib.parse
-                base_url = "https://github.com/seap-udea/PRisma/blob/main/pipeline/kepler_51/results/exorings/explore_radius_alpha/figures/"
+                base_url = "https://github.com/seap-udea/PRisma/blob/master/pipeline/kepler_51/results/exorings/explore_radius_alpha/figures/"
                 pdf_fname = f"kepler_51_{planet}_cat1_GoldenSample_{score.get('zkey', '')}-{tag}_corner.png"
                 ppc_fname = f"kepler_51_{planet}_cat1_GoldenSample_{score.get('zkey', '')}-{tag}_ppc.png"
                 pdf_url = base_url + urllib.parse.quote(pdf_fname)
