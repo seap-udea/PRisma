@@ -329,24 +329,14 @@ def generate_markdown(results_dir: Path, case: str, planet: str, results: list):
         
     print(f"Generated markdown report at {md_path}")
 
-def main():
-    parser = argparse.ArgumentParser(description="Classify Photo-Ring retrievals based on a decision tree.")
-    parser.add_argument("results_dir", nargs="?", type=Path, 
-                        default=Path(__file__).resolve().parent.parent / "kepler_51" / "results" / "exorings",
-                        help="Directory containing the .npz files.")
-    parser.add_argument("--report", action="store_true", help="Generate the markdown visual report.")
-    parser.add_argument("--force", action="store_true", help="Force rescoring all files. By default, only new files are scored.")
-    args = parser.parse_args()
-    
-    results_dir = args.results_dir
-    
+def process_directory(results_dir: Path, report: bool, force: bool, ttv_cache_dict: dict):
     npz_files = list(results_dir.glob("*.npz"))
     if not npz_files:
         print(f"Error: No NPZ files found in {results_dir}")
         return
 
     existing_results = {}
-    if not args.force:
+    if not force:
         for json_file in results_dir.glob("scoring_*.json"):
             try:
                 with open(json_file, "r") as f:
@@ -357,10 +347,9 @@ def main():
             except Exception as e:
                 print(f"Warning: Could not read {json_file}: {e}")
 
-    ttv_cache_dict = {}
     results = []
     for i, f in enumerate(npz_files, 1):
-        if not args.force and f.name in existing_results:
+        if not force and f.name in existing_results:
             print(f"[{i:03d}/{len(npz_files)}] Skipping {f.name} (already scored)")
             results.append(existing_results[f.name])
             continue
@@ -407,8 +396,41 @@ def main():
             print(f"  {cat}: {cnt}")
             
         # Generate markdown report only if requested
-        if args.report:
+        if report:
             generate_markdown(results_dir, case, planet, group)
+
+def main():
+    parser = argparse.ArgumentParser(description="Classify Photo-Ring retrievals based on a decision tree.")
+    parser.add_argument("results_dir", nargs="?", type=str, 
+                        default=None,
+                        help="Directory or sub-directory containing the .npz files.")
+    parser.add_argument("--report", action="store_true", help="Generate the markdown visual report.")
+    parser.add_argument("--force", action="store_true", help="Force rescoring all files. By default, only new files are scored.")
+    parser.add_argument("--recursive", action="store_true", help="Recursively score all subdirectories with results.")
+    args = parser.parse_args()
+    
+    base_results = Path(__file__).resolve().parent.parent / "kepler_51" / "results" / "exorings"
+    ttv_cache_dict = {}
+
+    if args.recursive:
+        dirs_with_npz = {f.parent for f in base_results.rglob("*.npz")}
+        if not dirs_with_npz:
+            print(f"Error: No NPZ files found in {base_results} or its subdirectories.")
+            return
+        for d in sorted(dirs_with_npz):
+            print(f"\n{'='*60}\nScoring directory: {d}\n{'='*60}")
+            process_directory(d, args.report, args.force, ttv_cache_dict)
+    else:
+        if args.results_dir is None:
+            target_dir = base_results
+        else:
+            target_dir = Path(args.results_dir)
+            if not target_dir.is_absolute() and not target_dir.exists():
+                candidate = base_results / args.results_dir
+                if candidate.exists():
+                    target_dir = candidate
+
+        process_directory(target_dir, args.report, args.force, ttv_cache_dict)
 
 if __name__ == '__main__':
     main()
