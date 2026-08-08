@@ -24,8 +24,8 @@ PLANETS = ["b", "d"]
 
 # Specific fixed values for rho_true (only applies if RHO_TRUE_FREE=False)
 RHO_FIXED_RUNS = [
-    {"label": "MLR", "value": 2.0},
     {"label": "BM",  "value": 1.9},
+    {"label": "MLR", "value": 2.0},
     {"label": "BP1", "value": 2.1},
     {"label": "BP2", "value": 2.3},
 ]

@@ -1,0 +1,19 @@
+[
+  {
+    "file": "kepler_51_d_NS_exorings_kde_delta-T14-T23-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_alphaFREE_pFREE.npz",
+    "case": "kepler_51",
+    "planet": "d",
+    "tag": "kepler_51_d_NS_exorings_kde_delta-T14-T23-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_alphaFREE_pFREE",
+    "raw_z1": 1.7486628622546276,
+    "z1_min": 2.7439735005193695,
+    "z_crit": 1.9102934279219679,
+    "fe_p16": 1.2803364100413144,
+    "angle_peaks": 1.0,
+    "err_rho_true": 0.1482966629377095,
+    "logz": 6.552385665655181,
+    "max_logl": 18.025882383006977,
+    "aic": -22.051764766013953,
+    "category": "[Excellent] Golden Sample",
+    "zkey": "ord93448-lnZ_+06.55"
+  }
+]

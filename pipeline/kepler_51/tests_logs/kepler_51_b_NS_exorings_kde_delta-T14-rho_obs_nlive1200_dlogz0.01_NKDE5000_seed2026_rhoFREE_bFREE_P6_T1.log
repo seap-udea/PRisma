@@ -1,4 +1,0 @@
-[14:40:52] START kepler_51_b_NS_exorings_kde_delta-T14-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_P6_T1  n_procs=6
-  NDIM=5  params=['fe', 'ir', 'theta', 'rho_true', 'b']  L_KDE=['delta', 'T14', 'rho_obs']
-  lnZ=-708.398±0.003  runtime=0.1s  N=1200
-  PLATEAU: prior never left log(FLOAT_TINY) — not saving.

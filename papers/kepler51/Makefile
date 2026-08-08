@@ -7,7 +7,7 @@
 #   make clean           → remove LaTeX intermediates (keeps the PDF)
 #   make distclean       → clean + remove the PDF
 
-MAIN          := main-v1r
+MAIN          := main-v1re
 LATEXMK       ?= latexmk
 LATEXMK_FLAGS ?= -pdf -interaction=nonstopmode -halt-on-error -file-line-error
 
