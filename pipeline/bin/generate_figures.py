@@ -66,8 +66,9 @@ CATEGORY_MAPPING = {
     "[Degenerate] Ringless": "cat4_Ringless",
     "[Rejected] Unphysical Nuisance": "cat5_UnphysicalNuisance",
     "[Rejected] Poor Individual Fit": "cat6_PoorIndividualFit",
-    "[Rejected] Poor Fit": "cat7_PoorFit",
-    "[Rejected] Missing PPC": "cat8_MissingPPC"
+    "[Rejected] Poor Critical Fit": "cat7_PoorCriticalFit",
+    "[Rejected] Poor Fit": "cat8_PoorFit",
+    "[Rejected] Missing PPC": "cat9_MissingPPC"
 }
 
 
