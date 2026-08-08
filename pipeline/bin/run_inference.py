@@ -151,7 +151,7 @@ def _fmt(seconds):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def run_one(case, planet, model_cfg, kde_cfg, ns_cfg,
-            run_tag, forward_model, skip_ppc=False, force=False, verbose=True):
+            run_tag, forward_model, run_suffix="", skip_ppc=False, force=False, verbose=True):
     """Execute a single nested-sampling run and save .npz + _meta.json.
 
     Returns
@@ -161,6 +161,9 @@ def run_one(case, planet, model_cfg, kde_cfg, ns_cfg,
     """
     paths = pr.CasePaths(case, pipeline_dir=Path.cwd())
     results_dir = paths.results_dir(forward_model)
+    if run_suffix:
+        results_dir = results_dir / run_suffix
+        results_dir.mkdir(parents=True, exist_ok=True)
     npz_path  = results_dir / f"{run_tag}.npz"
     json_path = results_dir / f"{run_tag}_meta.json"
 
@@ -257,7 +260,7 @@ def run_one(case, planet, model_cfg, kde_cfg, ns_cfg,
 # RUN LIST BUILDER  (mirrors run_sweep_configurable.py logic)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def build_run_list(cfg_mod, ns_cfg):
+def build_run_list(cfg_mod, ns_cfg, run_suffix=""):
     """Return a list of run-spec dicts from a loaded config module."""
     planets           = getattr(cfg_mod, "PLANETS",             ["b", "d"])
     kde_variants      = getattr(cfg_mod, "KDE_VARIANTS",        [])
@@ -328,6 +331,7 @@ def build_run_list(cfg_mod, ns_cfg):
                         kde_cfg=kde_cfg,
                         forward_model=fm,
                         run_tag=tag,
+                        run_suffix=run_suffix,
                     ))
     return runs
 
@@ -383,6 +387,12 @@ def main():
         print(f"Error: config file '{cfg_path}' not found.", file=sys.stderr)
         sys.exit(1)
     cfg_mod = _load_config(cfg_path)
+    
+    cfg_name = cfg_path.name
+    if cfg_name.startswith("run_config-") and cfg_name.endswith(".py"):
+        run_suffix = cfg_name[len("run_config-"):-len(".py")]
+    else:
+        run_suffix = ""
 
     # ── split n_procs across concurrent jobs ──────────────────────────────────
     n_procs_each = max(1, args.n_procs // args.jobs) if args.jobs > 1 else args.n_procs
@@ -396,7 +406,7 @@ def main():
     if args.seed  is not None:  ns_cfg["seed"]  = args.seed
 
     # ── build run list ────────────────────────────────────────────────────────
-    runs  = build_run_list(cfg_mod, ns_cfg)
+    runs  = build_run_list(cfg_mod, ns_cfg, run_suffix=run_suffix)
     total = len(runs)
 
     default_case = getattr(cfg_mod, "DEFAULT_CASE", "kepler_51")
@@ -407,7 +417,10 @@ def main():
     print(f"  jobs={args.jobs}  n_procs/run={n_procs_each}  (--n-procs {args.n_procs})")
     print(f"  nlive={ns_cfg['nlive']}  dlogz={ns_cfg['dlogz']}")
     print(f"  Python: {sys.executable}")
-    print(f"  Results -> {Path(case).resolve() / 'results'}")
+    out_dir = Path(case).resolve() / 'results'
+    if run_suffix:
+        out_dir = out_dir / "<forward_model>" / run_suffix
+    print(f"  Results -> {out_dir}")
     print(f"{'=' * 64}\n")
 
     # ── build per-run payloads ────────────────────────────────────────────────
@@ -420,6 +433,7 @@ def main():
             ns_cfg        = ns_cfg,
             run_tag       = run["run_tag"],
             forward_model = run["forward_model"],
+            run_suffix    = run.get("run_suffix", ""),
             skip_ppc      = args.no_ppc,
             force         = args.force,
             verbose       = (args.jobs == 1),   # suppress per-iteration prints when parallel
