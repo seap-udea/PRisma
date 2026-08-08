@@ -120,14 +120,10 @@ $\rho_{\star,\mathrm{true}}$ & Independent stellar density [g\,cm$^{-3}$] \\
 \hline
 \multicolumn{2}{l}{\textit{Ringed planet parameters of the forward model}} \\
 $p$ & $R_p/R_\star$, scaled true planetary radius [--] \\
-$f_i$ & Inner ring radius [$p$] \\
-$f_e$ & Outer ring radius [$p$] \\
-% $f_{e,\mathrm{max}}$ & Stability upper limit on outer ring radius [$p$] \\
-$i_R$ & Projected ring inclination [deg] \\
-$\theta_R$ & Projected ring tilt angle [deg] \\
-$\alpha$ & Ring normal attenuation [--] \\
-$\beta$ & Ring blocking factor [--] \\
-$A_\mathrm{eff}$ & Effective occulting area [$\pi R_\star^2$] \\
+$f_i, f_e$ & Inner and outer ring radius [$p$] \\
+$i_R, \theta_R$ & Projected ring inclination and tilt [deg] \\
+$\alpha$ & $\exp{-\tau}$, Ring normal attenuation [--] \\
+$\tau$ & Ring normal opacity [--] \\
 \hline
 \multicolumn{2}{l}{\textit{Derived parameters of the forward model}} \\
 $(a/R_{\star})_\mathrm{geo}$ & Geometric scaled semi-major axis[--] \\
@@ -648,23 +644,21 @@ In \autoref{fig:full_ppcs_planet}, we present and compare the marginal posterior
 
 \begin{figure*}[t]
     \centering
-    % \hfill
-    % \begin{minipage}[t]{0.42\textwidth}
-    %     \centering
-    %     \includegraphics[width=0.95\linewidth]{figures/ppc_planet_b_vertical.png}
-    % \end{minipage}
-    % \hfill
-    % \begin{minipage}[t]{0.42\textwidth}
-    %     \centering
-    %     \includegraphics[width=0.95\linewidth]{figures/ppc_planet_d_vertical.png}
-    % \end{minipage}
-    % \hfill
-    \includegraphics[width=0.5\linewidth]{figures/ppc_planet_b_vertical.png}
-    \includegraphics[width=0.5\linewidth]{figures/ppc_planet_d_vertical.png}
+    \includegraphics[width=0.65\linewidth]{figures/ppc_planet_b_vertical.png}
+    \includegraphics[width=0.65\linewidth]{figures/ppc_planet_d_vertical.png}
     \caption{Posterior predictive checks (PPCs) for \exoplanet{Kepler-51}{b} and \exoplanet{Kepler-51}{d} in the full-set retrieval setup. PPCs compare the model-predicted distribution (blue) with the photometrically derived posterior (grey) for each transit observable. The reported values of $W_1$ and $E$ (see text) quantify the self-consistent goodness-of-fit between the ringed-planet model and the observed transit observables.%RF
     }
     \label{fig:full_ppcs_planet}
 \end{figure*}
+
+\subsection{Grid search}
+\label{sec:grid_search}
+
+Después de ver la solución del full-set retrieval, varias características llaman la atención del espacio en e que vive el problema. Para comenzar en ambos planetar observamos regiones del espacio en el que hay uno o dos radios planetarios (tercera fila de los corner plots) que presentan probabilidades mayores que los demás. En el caso por ejemplo de \exoplanet{Kepler-51}{b} por ejemplo notamos que hay un radio cerca al mínimo (primer pico en el marginal plot de la tercera fila de la figura \autoref{fig:full_ring_corner_b}) que al observar el marginal posterior distribution $p$-$f_e$ se corresponde además con una anillo grande $f_e\approx 5$ (segundo pico en el marginal posterior arriba) y con una opacidad no muy grande (máximo en el panel $\alpha$-$p$ en la tercera fila). La otra ``solución'' es la de un planeta con un radio casi igual al inferido por el modelo ringless (segundo pico del marginal de la segunda fila). Como es de esperarse, en este caso el radio del anillo puede ser muy pequeño (primer pico en el marginal arriba de la primera fila) y la opacidad casi cualquiera (isla en el marginal $\alpha$-$p$ de la tercera fila).
+
+Esta situación nos sugiere que podemos buscar en regiones restringidas del espacio de parámetros en donde parecen concentrarse soluciones interesantes al problema, en lugar de asumir que la mediana de las propiedades es indicativa del mejor ajuste. Para explorar estas regiones del espacio de parámetros hemos realizado un grid search. Para ello hemos preparado retrievals en los que se fija el valor del radio planetario $p$ y el $tau$ en una malla de 5(valores del $p$)x3(valores de $\alpha$). 
+
+\input{tab_grid_golden}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
