@@ -68,6 +68,14 @@ def make_table():
                 lnZ = score.get("logz", 0.0)
                 lnZ_str = f"{lnZ:.2f}"
                 
+                import urllib.parse
+                base_url = "https://github.com/seap-udea/PRisma/blob/main/pipeline/kepler_51/results/exorings/explore_radius_alpha/figures/"
+                pdf_fname = f"kepler_51_{planet}_cat1_GoldenSample_{score.get('zkey', '')}-{tag}_corner.png"
+                ppc_fname = f"kepler_51_{planet}_cat1_GoldenSample_{score.get('zkey', '')}-{tag}_ppc.png"
+                pdf_url = base_url + urllib.parse.quote(pdf_fname)
+                ppc_url = base_url + urllib.parse.quote(ppc_fname)
+                links_str = f"\\href{{{pdf_url}}}{{pdf}} \\textbar \\href{{{ppc_url}}}{{ppc}}"
+                
                 rows.append({
                     "planet": planet,
                     "p_comb": p_comb,
@@ -80,6 +88,7 @@ def make_table():
                     "rho_p": rho_p_str,
                     "lnZ": lnZ,
                     "lnZ_str": lnZ_str,
+                    "links_str": links_str,
                     "p_val": p_val,
                     "fe_val": fe_val
                 })
@@ -98,11 +107,11 @@ def make_table():
     latex.append("\\caption{Golden Sample retrievals from the radius-alpha grid search for \\exoplanet{Kepler-51}{b} and \\exoplanet{Kepler-51}{d}.}")
     latex.append("\\label{tab:grid_golden}")
     latex.append("\\setlength{\\tabcolsep}{4pt}")
-    latex.append("\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{}}")
+    latex.append("\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{}}")
     latex.append("\\toprule")
-    latex.append("& \\multicolumn{7}{c}{Input selection} & Other & Metrics \\\\")
-    latex.append("\\cmidrule(lr){2-8} \\cmidrule(lr){9-9} \\cmidrule(lr){10-10}")
-    latex.append("Planet & $p\\;[R_\\star]\\;(R_\\oplus)$ & $f_e\\;[R_p]$ & $i_R\\;[^\\circ]$ & $\\theta_R\\;[^\\circ]$ & $\\alpha$ & $\\rho_{\\star,\\mathrm{true}}\\:[\\mathrm{g\\,cm^{-3}}]$ & $b$ & $\\rho_p\\:[\\mathrm{g\\,cm^{-3}}]$ & $\\ln \\mathcal{Z}$ \\\\")
+    latex.append("& \\multicolumn{7}{c}{Input selection} & Other & Metrics & Joint pdf \\\\")
+    latex.append("\\cmidrule(lr){2-8} \\cmidrule(lr){9-9} \\cmidrule(lr){10-10} \\cmidrule(lr){11-11}")
+    latex.append("Planet & $p\\;[R_\\star]\\;(R_\\oplus)$ & $f_e\\;[R_p]$ & $i_R\\;[^\\circ]$ & $\\theta_R\\;[^\\circ]$ & $\\alpha$ & $\\rho_{\\star,\\mathrm{true}}\\:[\\mathrm{g\\,cm^{-3}}]$ & $b$ & $\\rho_p\\:[\\mathrm{g\\,cm^{-3}}]$ & $\\ln \\mathcal{Z}$ & Plot link \\\\")
     latex.append("\\midrule")
     
     current_planet = None
@@ -117,7 +126,7 @@ def make_table():
         else:
             planet_col = ""
             
-        row_str = f"{planet_col} & {r['p_comb']} & {r['fe']} & {r['ir']} & {r['theta']} & {r['alpha']} & {r['rho_star']} & {r['b']} & {r['rho_p']} & {r['lnZ_str']} \\\\"
+        row_str = f"{planet_col} & {r['p_comb']} & {r['fe']} & {r['ir']} & {r['theta']} & {r['alpha']} & {r['rho_star']} & {r['b']} & {r['rho_p']} & {r['lnZ_str']} & {r['links_str']} \\\\"
         latex.append(row_str)
         
     latex.append("\\bottomrule")
