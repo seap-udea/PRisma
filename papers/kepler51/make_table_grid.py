@@ -85,6 +85,10 @@ def make_table():
     # Sort by planet then lnZ descending
     rows.sort(key=lambda x: (x["planet"], -x["lnZ"]))
     
+    # Count rows per planet
+    counts = {"b": sum(1 for r in rows if r["planet"] == "b"),
+              "d": sum(1 for r in rows if r["planet"] == "d")}
+    
     latex = []
     latex.append("\\begin{table*}[t]")
     latex.append("\\centering")
@@ -92,22 +96,29 @@ def make_table():
     latex.append("\\caption{Golden Sample retrievals from the radius-alpha grid search for \\exoplanet{Kepler-51}{b} and \\exoplanet{Kepler-51}{d}.}")
     latex.append("\\label{tab:grid_golden}")
     latex.append("\\setlength{\\tabcolsep}{4pt}")
-    latex.append("\\begin{tabular*}{1.0\\textwidth}{@{\\extracolsep{\\fill}} lccccccccc}")
-    latex.append("\\hline")
-    latex.append("\\hline")
+    latex.append("\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{\\hspace{0.3em}} c @{}}")
+    latex.append("\\toprule")
+    latex.append("& \\multicolumn{7}{c}{Input selection} & Other & Metrics \\\\")
+    latex.append("\\cmidrule(lr){2-8} \\cmidrule(lr){9-9} \\cmidrule(lr){10-10}")
     latex.append("Planet & $p\\;[R_\\star]\\;(R_\\oplus)$ & $f_e\\;[R_p]$ & $i_R\\;[^\\circ]$ & $\\theta_R\\;[^\\circ]$ & $\\alpha$ & $\\rho_{\\star,\\mathrm{true}}\\:[\\mathrm{g\\,cm^{-3}}]$ & $b$ & $\\rho_p\\:[\\mathrm{g\\,cm^{-3}}]$ & $\\ln \\mathcal{Z}$ \\\\")
-    latex.append("\\hline")
+    latex.append("\\midrule")
     
     current_planet = None
-    for r in rows:
-        pl = "b" if r["planet"] == "b" else "d"
-        pl_name = f"\\exoplanet{{Kepler-51}}{{{pl}}}"
-        
-        row_str = f"{pl_name} & {r['p_comb']} & {r['fe']} & {r['ir']} & {r['theta']} & {r['alpha']} & {r['rho_star']} & {r['b']} & {r['rho_p']} & {r['lnZ_str']} \\\\"
+    for i, r in enumerate(rows):
+        if r["planet"] != current_planet:
+            if current_planet is not None:
+                latex.append("\\midrule")
+            current_planet = r["planet"]
+            pl_name = f"\\exoplanet{{Kepler-51}}{{{current_planet}}}"
+            count = counts[current_planet]
+            planet_col = f"\\multirow{{{count}}}{{*}}{{\\rotatebox{{90}}{{{pl_name}}}}}"
+        else:
+            planet_col = ""
+            
+        row_str = f"{planet_col} & {r['p_comb']} & {r['fe']} & {r['ir']} & {r['theta']} & {r['alpha']} & {r['rho_star']} & {r['b']} & {r['rho_p']} & {r['lnZ_str']} \\\\"
         latex.append(row_str)
         
-    latex.append("\\hline")
-    latex.append("\\hline")
+    latex.append("\\bottomrule")
     latex.append("\\end{tabular*}")
     latex.append("\\end{table*}")
     
