@@ -305,6 +305,9 @@ def main(argv: list[str] | None = None) -> int:
         "npz", nargs="*",
         help="One or more .npz files (shell-expanded globs OK), or a results directory.",
     )
+    ap.add_argument("--system", default="kepler_51", help="System case (default: kepler_51)")
+    ap.add_argument("--setup", help="Setup suffix subdirectory to read results from.")
+    ap.add_argument("--recursive", action="store_true", help="Recursively find all .npz files in results/exorings/ subdirectories.")
     ap.add_argument(
         "--only", choices=FIGURE_KINDS, action="append", default=None,
         help="Restrict to one figure kind (repeatable). Default: all three.",
@@ -337,11 +340,35 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Done: {n} file(s) renamed.")
         return 0
 
-    if not args.npz:
-        ap.error("npz paths required (or use --renumber)")
+    if not args.npz and not args.setup and not args.recursive:
+        ap.error("npz paths required (or use --setup/--recursive/--renumber)")
 
     kinds = set(args.only) if args.only else set(FIGURE_KINDS)
-    npz_files = _resolve_npz_args(args.npz)
+    
+    npz_files = []
+    if args.npz:
+        npz_files.extend(_resolve_npz_args(args.npz))
+        
+    if args.setup or args.recursive:
+        base_results = _PIPELINE / args.system / "results" / "exorings"
+        if args.recursive:
+            npz_files.extend(list(base_results.rglob("*.npz")))
+        elif args.setup:
+            setup_dir = base_results / args.setup
+            if not setup_dir.exists():
+                print(f"Error: Setup directory {setup_dir} does not exist.", file=sys.stderr)
+                return 1
+            npz_files.extend(list(setup_dir.glob("*.npz")))
+
+    # Remove duplicates but keep order
+    seen = set()
+    unique_npz = []
+    for f in npz_files:
+        if f.resolve() not in seen:
+            unique_npz.append(f)
+            seen.add(f.resolve())
+    npz_files = unique_npz
+
     if not npz_files:
         print("No .npz files found.", file=sys.stderr)
         return 1
