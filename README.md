@@ -6,11 +6,11 @@
 
 If you use this code or results, please cite:
 
-> Numpaque, S., Zuluaga, J. I., Kipping, D., & Alvarado-Montes, J. A. *Probing Exoplanetary Rings with Asterodensity Profiling: A PhotoRing Analysis of Kepler-51*. In preparation.
+> Zuluaga, J. I., Numpaque, S., Kipping, D., & Alvarado-Montes, J. A. *Probing Exoplanetary Rings with Asterodensity Profiling: A PhotoRing Analysis of Kepler-51*. In preparation.
 
 ```bibtex
 @misc{NumpaqueZuluaga2026PRisma,
-  author        = {Numpaque, Sebasti{\'a}n and Zuluaga, Jorge I.
+  author        = {Zuluaga, Jorge I. and Numpaque, Sebasti{\'a}n
                    and Kipping, David and Alvarado-Montes, Jaime A.},
   title         = {Probing Exoplanetary Rings with Asterodensity Profiling:
                    A PhotoRing Analysis of Kepler-51},
@@ -131,8 +131,8 @@ The human authors assert that all scientific ideas, the overall project concepti
 
 ## Authors
 
-- **Sebastián Numpaque** — [david.rodriguez1@udea.edu.co](mailto:david.rodriguez1@udea.edu.co) · [ORCID 0009-0000-5697-3416](https://orcid.org/0009-0000-5697-3416)
 - **Jorge I. Zuluaga** — [jorge.zuluaga@udea.edu.co](mailto:jorge.zuluaga@udea.edu.co) · [ORCID 0000-0002-6140-3116](https://orcid.org/0000-0002-6140-3116)
+- **Sebastián Numpaque** — [david.rodriguez1@udea.edu.co](mailto:david.rodriguez1@udea.edu.co) · [ORCID 0009-0000-5697-3416](https://orcid.org/0009-0000-5697-3416)
 
 **Affiliation:** [SEAP/FACom](https://www.udea.edu.co), Instituto de Física – FCEN, Universidad de Antioquia, Calle 70 No. 52-21, Medellín, Colombia.
 
