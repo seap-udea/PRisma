@@ -55,7 +55,7 @@ def make_table():
                 p_earth_str = "{:.2f}".format(R_p_earth)
                 p_comb = f"{p_str}\\;({p_earth_str})"
                 
-                fe_str, _ = get_param(meta, "fe", tag, "{:.2f}")
+                fe_str, fe_val = get_param(meta, "fe", tag, "{:.2f}")
                 ir_str, _ = get_param(meta, "ir", tag, "{:.1f}")
                 theta_str, _ = get_param(meta, "theta", tag, "{:.1f}")
                 alpha_str, _ = get_param(meta, "alpha", tag, "{:.2f}")
@@ -79,11 +79,13 @@ def make_table():
                     "b": b_str,
                     "rho_p": rho_p_str,
                     "lnZ": lnZ,
-                    "lnZ_str": lnZ_str
+                    "lnZ_str": lnZ_str,
+                    "p_val": p_val,
+                    "fe_val": fe_val
                 })
                 
-    # Sort by planet then lnZ descending
-    rows.sort(key=lambda x: (x["planet"], -x["lnZ"]))
+    # Sort by planet then lnZ descending, then p_val descending, then fe_val descending
+    rows.sort(key=lambda x: (x["planet"], -x["lnZ"], -x["p_val"], -x["fe_val"]))
     
     # Count rows per planet
     counts = {"b": sum(1 for r in rows if r["planet"] == "b"),
