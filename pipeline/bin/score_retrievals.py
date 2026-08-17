@@ -314,8 +314,8 @@ def generate_markdown(results_dir: Path, case: str, planet: str, results: list):
             lines.append(f"- **Category**: {r.get('category', cat)}")
             lines.append("")
             
-            corner_img = urllib.parse.quote(find_figure(results_dir, r['tag'], "corner"))
-            ppc_img = urllib.parse.quote(find_figure(results_dir, r['tag'], "ppc"))
+            corner_img = urllib.parse.quote(find_figure(results_dir, r['tag'], "corner"), safe='/+')
+            ppc_img = urllib.parse.quote(find_figure(results_dir, r['tag'], "ppc"), safe='/+')
             
             lines.append(f"![Corner Plot]({corner_img})")
             lines.append("")

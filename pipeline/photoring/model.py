@@ -22,6 +22,7 @@ from __future__ import annotations
 import numpy as np
 from scipy.stats import truncnorm as _truncnorm
 from scipy.stats import gaussian_kde
+from scipy.stats import norm as _norm
 
 from exorings.forward import forward_observables, forward_observables_legacy
 from geotrans.model import geotrans2_model
@@ -54,7 +55,7 @@ class PhotoRingModel:
     """
 
     def __init__(self, ttv, rho_true_gcc_samples, model_config, kde_config,
-                 rho_grid=None, rho_cdf=None, p_fixed=None):
+                 rho_grid=None, rho_cdf=None, p_fixed=None, rho_true_dist=None):
         self.ttv = ttv
         self.model_config = dict(model_config)
         self.kde_config = dict(kde_config)
@@ -75,11 +76,35 @@ class PhotoRingModel:
 
         # ── rho_true prior ────────────────────────────────────────────────
         self.RHO_TRUE_FREE = bool(model_config["RHO_TRUE_FREE"])
-        self.rho_true_prior_kde = gaussian_kde(self.rho_true_gcc_samples)
-        self.RHO_TRUE_MIN = float(self.rho_true_gcc_samples.min())
-        self.RHO_TRUE_MAX = float(self.rho_true_gcc_samples.max())
-        self.RHO_TRUE_MEAN = float(np.mean(self.rho_true_gcc_samples))
-        self.RHO_TRUE_STD = float(np.std(self.rho_true_gcc_samples))
+        self.rho_true_dist = dict(rho_true_dist) if rho_true_dist is not None else None
+        self.rho_true_is_gaussian = (
+            self.rho_true_dist is not None
+            and "mean" in self.rho_true_dist
+            and "sigma" in self.rho_true_dist
+        )
+        self.rho_true_dist_name = (
+            self.rho_true_dist.get("name", "custom") if self.rho_true_dist else "Berger et al. 2023"
+        )
+
+        if self.rho_true_is_gaussian:
+            self._rho_norm = _norm(
+                loc=float(self.rho_true_dist["mean"]),
+                scale=float(self.rho_true_dist["sigma"]),
+            )
+            self.RHO_TRUE_MEAN = float(self.rho_true_dist["mean"])
+            self.RHO_TRUE_STD = float(self.rho_true_dist["sigma"])
+            self.RHO_TRUE_MIN = max(0.0, self.RHO_TRUE_MEAN - 5.0 * self.RHO_TRUE_STD)
+            self.RHO_TRUE_MAX = self.RHO_TRUE_MEAN + 5.0 * self.RHO_TRUE_STD
+            # KDE from synthetic samples (backward compat for any code that reads it)
+            self.rho_true_prior_kde = gaussian_kde(self.rho_true_gcc_samples)
+        else:
+            self._rho_norm = None
+            self.rho_true_prior_kde = gaussian_kde(self.rho_true_gcc_samples)
+            self.RHO_TRUE_MIN = float(self.rho_true_gcc_samples.min())
+            self.RHO_TRUE_MAX = float(self.rho_true_gcc_samples.max())
+            self.RHO_TRUE_MEAN = float(np.mean(self.rho_true_gcc_samples))
+            self.RHO_TRUE_STD = float(np.std(self.rho_true_gcc_samples))
+
         _rtf = model_config.get("RHO_TRUE_FIXED", None)
         self.RHO_TRUE_FIXED = float(_rtf) if _rtf is not None else self.RHO_TRUE_MEAN
         self.rho_grid = None if rho_grid is None else np.asarray(rho_grid, dtype=float)
@@ -181,11 +206,16 @@ class PhotoRingModel:
             out.append(alpha)
 
         if self.RHO_TRUE_FREE:
-            if self.rho_grid is None or self.rho_cdf is None:
-                raise RuntimeError(
-                    "prior_transform needs rho_grid/rho_cdf when RHO_TRUE_FREE. "
-                    "Build them with photoring.rho_cdf and pass to PhotoRingModel.")
-            rho_true = float(np.interp(u[i], self.rho_cdf, self.rho_grid)); i += 1
+            if self.rho_true_is_gaussian:
+                # Gaussian prior: use the analytical inverse CDF (ppf)
+                rho_true = float(self._rho_norm.ppf(np.clip(u[i], 1e-8, 1 - 1e-8))); i += 1
+            else:
+                # Empirical KDE prior: interpolate the tabulated CDF
+                if self.rho_grid is None or self.rho_cdf is None:
+                    raise RuntimeError(
+                        "prior_transform needs rho_grid/rho_cdf when RHO_TRUE_FREE. "
+                        "Build them with photoring.rho_cdf and pass to PhotoRingModel.")
+                rho_true = float(np.interp(u[i], self.rho_cdf, self.rho_grid)); i += 1
             out.append(rho_true)
 
         if self.B_FREE:
@@ -223,7 +253,10 @@ class PhotoRingModel:
             rho = d["rho_true"]
             if rho < self.RHO_TRUE_MIN or rho > self.RHO_TRUE_MAX:
                 return -np.inf
-            log_p += float(np.log(float(self.rho_true_prior_kde(np.array([rho]))[0]) + 1e-300))
+            if self.rho_true_is_gaussian:
+                log_p += float(self._rho_norm.logpdf(rho))
+            else:
+                log_p += float(np.log(float(self.rho_true_prior_kde(np.array([rho]))[0]) + 1e-300))
 
         if self.B_FREE:
             b = d["b"]

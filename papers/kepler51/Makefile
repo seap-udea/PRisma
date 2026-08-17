@@ -7,7 +7,7 @@
 #   make clean           → remove LaTeX intermediates (keeps the PDF)
 #   make distclean       → clean + remove the PDF
 
-MAIN          := main-v1re
+MAIN          := main-v1rs
 LATEXMK       ?= latexmk
 LATEXMK_FLAGS ?= -pdf -interaction=nonstopmode -halt-on-error -file-line-error
 
@@ -29,7 +29,7 @@ NOTEBOOKS := \
 	PRisma-Observables.ipynb \
 	PRisma-ContoursPR.ipynb \
 	PRisma-PRErrors.ipynb \
-	PRisma-RingSummaryTable.ipynb \
+	PRisma-Tables.ipynb \
 	PRisma-CornerPlots.ipynb \
 	PRisma-PPCs.ipynb
 
@@ -42,7 +42,7 @@ NBCONVERT_FLAGS := \
 
 all: $(MAIN).pdf
 
-$(MAIN).pdf: $(MAIN).tex tab_ring_summary.tex tab_ppc_all.tex references.bib aastex701.cls aasjournalv7.bst
+$(MAIN).pdf: $(MAIN).tex tab_full_set.tex tab_grid_golden.tex references.bib aastex701.cls aasjournalv7.bst
 	$(LATEXMK) $(LATEXMK_FLAGS) $(MAIN).tex
 
 # Sync preferred chains from the latest parallel sweep into reference_runs/.
@@ -69,7 +69,7 @@ notebooks: reference-runs
 			|| { echo "ERROR: $$nb failed" >&2; exit 1; }; \
 	done
 	@echo ""
-	@echo "Notebooks done. Figures in figures/; tables: tab_ring_summary.tex tab_ppc_all.tex"
+	@echo "Notebooks done. Figures in figures/; tables: tab_full_set.tex tab_grid_golden.tex"
 
 artifacts: notebooks
 

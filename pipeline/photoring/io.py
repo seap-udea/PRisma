@@ -39,7 +39,7 @@ def load_observables(path):
     )
 
 
-def load_case_data(paths, planet):
+def load_case_data(paths, planet, rho_true_dist=None):
     """Load everything :class:`~photoring.model.PhotoRingModel` needs for one planet.
 
     Parameters
@@ -48,13 +48,25 @@ def load_case_data(paths, planet):
         Resolved case paths.
     planet : str
         Planet key (e.g. ``'b'`` or ``'d'``).
+    rho_true_dist : dict, optional
+        Configurable distribution for the ``rho_true`` nuisance parameter.
+
+        - *Gaussian* (e.g. Masuda et al. 2024): ``dict(name=..., mean=..., sigma=...)``.
+          Synthetic samples and an analytical CDF are generated on the fly.
+        - *Empirical / file-based* (e.g. Berger et al. 2023):
+          ``dict(name=..., pdf=..., file=...)``.  The ``pdf`` directory and ``file``
+          name are resolved relative to the case root.
+        - ``None`` (default): fall back to loading ``rho_true_samples.dat`` and
+          ``rho_grid_cdf.txt`` from the standard ``CasePaths`` locations (Berger et al. 2023).
 
     Returns
     -------
     dict
         ``ttv`` (dict), ``rho_true_gcc_samples`` (ndarray), ``rho_grid``/``rho_cdf``
-        (ndarray or ``None``), ``P_fixed`` (float).
+        (ndarray or ``None``), ``P_fixed`` (float), ``rho_true_dist`` (dict or ``None``).
     """
+    from scipy.stats import norm as _norm
+
     obs_file = paths.observables_file(planet)
     if not obs_file.exists():
         raise FileNotFoundError(
@@ -62,12 +74,45 @@ def load_case_data(paths, planet):
             f"Run notebook 01 first, or place a derived-observables .dat there.")
     ttv = load_observables(obs_file)
 
-    rho_true = np.loadtxt(paths.rho_true_samples) / 1000.0  # kg/m^3 -> g/cm^3
+    # ── rho_true prior data ──────────────────────────────────────────────
+    if rho_true_dist is not None and "mean" in rho_true_dist and "sigma" in rho_true_dist:
+        # Gaussian prior (e.g. Masuda et al. 2024)
+        mu = float(rho_true_dist["mean"])
+        sig = float(rho_true_dist["sigma"])
+        rng = np.random.default_rng(42)
+        rho_true = rng.normal(mu, sig, size=100_000)
+        rho_true = rho_true[rho_true > 0]  # physical: density > 0
+        # Analytical CDF on a fine grid spanning mean ± 5σ
+        rho_lo = max(0.0, mu - 5.0 * sig)
+        rho_hi = mu + 5.0 * sig
+        rho_grid = np.linspace(rho_lo, rho_hi, 20_000)
+        rho_cdf = _norm.cdf(rho_grid, loc=mu, scale=sig)
+        # Normalise to [0, 1] over the grid (handles truncation at 0)
+        rho_cdf = (rho_cdf - rho_cdf[0]) / (rho_cdf[-1] - rho_cdf[0])
 
-    rho_grid = rho_cdf = None
-    if paths.rho_cdf_file.exists():
-        loaded = np.loadtxt(paths.rho_cdf_file, skiprows=1)
-        rho_grid, rho_cdf = loaded[:, 0], loaded[:, 1]
+    elif rho_true_dist is not None and "pdf" in rho_true_dist and "file" in rho_true_dist:
+        # File-based prior (e.g. Berger et al. 2023) with explicit paths
+        rho_dir = paths.root / rho_true_dist["pdf"]
+        samples_file = rho_dir / "rho_true_samples.dat"
+        cdf_file = rho_dir / rho_true_dist["file"]
+
+        if samples_file.exists():
+            rho_true = np.loadtxt(samples_file) / 1000.0  # kg/m^3 -> g/cm^3
+        else:
+            rho_true = np.loadtxt(paths.rho_true_samples) / 1000.0
+
+        rho_grid = rho_cdf = None
+        if cdf_file.exists():
+            loaded = np.loadtxt(cdf_file, skiprows=1)
+            rho_grid, rho_cdf = loaded[:, 0], loaded[:, 1]
+
+    else:
+        # Default: load from standard CasePaths locations (Berger et al. 2023)
+        rho_true = np.loadtxt(paths.rho_true_samples) / 1000.0  # kg/m^3 -> g/cm^3
+        rho_grid = rho_cdf = None
+        if paths.rho_cdf_file.exists():
+            loaded = np.loadtxt(paths.rho_cdf_file, skiprows=1)
+            rho_grid, rho_cdf = loaded[:, 0], loaded[:, 1]
 
     return dict(
         ttv=ttv,
@@ -75,6 +120,7 @@ def load_case_data(paths, planet):
         rho_grid=rho_grid,
         rho_cdf=rho_cdf,
         P_fixed=float(np.median(ttv["P_days"])),
+        rho_true_dist=rho_true_dist,
     )
 
 

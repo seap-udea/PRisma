@@ -202,9 +202,16 @@ def generate_for_run(npz_path: Path, kinds: set[str], ttv_get,
     try:
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        rho_true_dist = None
-        if case_paths.rho_true_samples.exists():
-            rho_true_dist = np.loadtxt(case_paths.rho_true_samples) / 1000.0
+        # Determine the rho_true prior distribution for overlays.
+        # If the run used a Gaussian dist, pass the dict directly to the plotting
+        # functions; otherwise fall back to loading the samples file from disk.
+        meta_rho_dist = run.get("meta", {}).get("rho_true_dist")
+        if isinstance(meta_rho_dist, dict) and "mean" in meta_rho_dist and "sigma" in meta_rho_dist:
+            rho_true_dist = meta_rho_dist
+        else:
+            rho_true_dist = None
+            if case_paths.rho_true_samples.exists():
+                rho_true_dist = np.loadtxt(case_paths.rho_true_samples) / 1000.0
             
         b_obs_dist = None
         try:

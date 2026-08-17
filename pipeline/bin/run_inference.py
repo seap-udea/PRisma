@@ -104,12 +104,14 @@ def _free_tag(rho_free, b_free, alpha_free=False, p_free=True):
 
 
 def _build_run_tag(case, planet, observables, rho_free, b_free, alpha_free,
-                   p_free, forward_model, ns_cfg, run_label=None):
+                   p_free, forward_model, ns_cfg, run_label=None, rho_dist_label=None):
     kt  = "-".join(observables)
     ft  = _free_tag(rho_free, b_free, alpha_free, p_free)
     tag = (f"{case}_{planet}_NS_{forward_model.lower()}_kde_{kt}"
            f"_nlive{ns_cfg['nlive']}_dlogz{ns_cfg['dlogz']}"
            f"_NKDE{N_KDE}_seed{ns_cfg['seed']}{ft}")
+    if rho_dist_label:
+        tag += f"_rho{rho_dist_label}"
     if run_label:
         tag += f"_{run_label}"
     return tag
@@ -151,7 +153,8 @@ def _fmt(seconds):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def run_one(case, planet, model_cfg, kde_cfg, ns_cfg,
-            run_tag, forward_model, run_suffix="", skip_ppc=False, force=False, verbose=True):
+            run_tag, forward_model, run_suffix="", skip_ppc=False, force=False, verbose=True,
+            rho_true_dist=None, **kwargs):
     """Execute a single nested-sampling run and save .npz + _meta.json.
 
     Returns
@@ -176,13 +179,14 @@ def run_one(case, planet, model_cfg, kde_cfg, ns_cfg,
     paths.ensure_outputs(forward_model)
 
     # ── load data ────────────────────────────────────────────────────────────
-    data = pr.load_case_data(paths, planet)
+    data = pr.load_case_data(paths, planet, rho_true_dist=rho_true_dist)
 
     # ── build model ──────────────────────────────────────────────────────────
     model = pr.PhotoRingModel(
         data["ttv"], data["rho_true_gcc_samples"], model_cfg, kde_cfg,
         rho_grid=data["rho_grid"], rho_cdf=data["rho_cdf"],
         p_fixed=data["P_fixed"],
+        rho_true_dist=rho_true_dist,
     )
 
     if verbose:
@@ -230,6 +234,8 @@ def run_one(case, planet, model_cfg, kde_cfg, ns_cfg,
         p_max=float(model.p_max),
         p_mean_ref=float(model.p_mean_ref),
         P_fixed_days=float(model.P_fixed),
+        rho_true_dist=model.rho_true_dist,
+        rho_true_dist_name=model.rho_true_dist_name,
         logz=float(result["logz"]),
         logz_err=float(result["logz_err"]),
         n_iter=int(result["n_iter"]),
@@ -271,6 +277,14 @@ def build_run_list(cfg_mod, ns_cfg, run_suffix=""):
     p_fixed_runs      = getattr(cfg_mod, "P_FIXED_RUNS",        [])
     alpha_fixed_runs  = getattr(cfg_mod, "ALPHA_FIXED_RUNS",    [])
     rho_fixed_runs    = getattr(cfg_mod, "RHO_FIXED_RUNS",      [])
+    rho_true_dist     = getattr(cfg_mod, "RHO_TRUE_DIST",       None)
+
+    # Build a short label from the dist name for the run tag
+    rho_dist_label = None
+    if rho_true_dist is not None:
+        _name = rho_true_dist.get("name", "")
+        # Extract first author surname: "Masuda et al. 2024" -> "Masuda"
+        rho_dist_label = _name.split()[0] if _name else "custom"
 
     runs = []
     combos = itertools.product(planets, kde_variants, free_variants,
@@ -322,7 +336,7 @@ def build_run_list(cfg_mod, ns_cfg, run_suffix=""):
                     tag = _build_run_tag(
                         getattr(cfg_mod, "DEFAULT_CASE", "kepler_51"),
                         planet, obs, rho_free, b_free, alpha_free, p_free, fm,
-                        ns_cfg, run_label,
+                        ns_cfg, run_label, rho_dist_label=rho_dist_label,
                     )
                     runs.append(dict(
                         case=getattr(cfg_mod, "DEFAULT_CASE", "kepler_51"),
@@ -332,6 +346,7 @@ def build_run_list(cfg_mod, ns_cfg, run_suffix=""):
                         forward_model=fm,
                         run_tag=tag,
                         run_suffix=run_suffix,
+                        rho_true_dist=rho_true_dist,
                     ))
     return runs
 
@@ -437,6 +452,7 @@ def main():
             skip_ppc      = args.no_ppc,
             force         = args.force,
             verbose       = (args.jobs == 1),   # suppress per-iteration prints when parallel
+            rho_true_dist = run.get("rho_true_dist"),
         )
         for run in runs
     ]

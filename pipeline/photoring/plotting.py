@@ -37,6 +37,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import AutoMinorLocator
 from scipy.stats import gaussian_kde, truncnorm as _truncnorm
 from scipy.stats import wasserstein_distance, ks_2samp, energy_distance
+from scipy.stats import norm as _norm_dist
 
 try:
     from dynesty import plotting as _dyplot
@@ -49,6 +50,52 @@ try:
     HAS_CORNER = True
 except ImportError:
     HAS_CORNER = False
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  rho_true prior helper — supports both samples arrays and Gaussian dicts
+# ══════════════════════════════════════════════════════════════════════════
+def _rho_prior_overlay(rho_true_dist):
+    """Return ``(x, y, label)`` for the rho_true prior overlay.
+
+    ``rho_true_dist`` can be:
+    - A dict with ``mean`` and ``sigma`` keys → Gaussian PDF.
+    - A 1-D array of samples → KDE density.
+    - ``None`` → returns ``(None, None, None)``.
+    """
+    if rho_true_dist is None:
+        return None, None, None
+    if isinstance(rho_true_dist, dict):
+        if "mean" in rho_true_dist and "sigma" in rho_true_dist:
+            mu = float(rho_true_dist["mean"])
+            sig = float(rho_true_dist["sigma"])
+            x = np.linspace(mu - 5 * sig, mu + 5 * sig, 400)
+            y = _norm_dist.pdf(x, loc=mu, scale=sig)
+            label = rho_true_dist.get("name", "Gaussian Prior")
+            return x, y, label
+        # File-based dict without inline data — caller must resolve to samples first
+        return None, None, None
+    # Assume array of samples
+    samples = np.asarray(rho_true_dist, dtype=float).ravel()
+    k = gaussian_kde(samples)
+    x = np.linspace(np.min(samples), np.max(samples), 400)
+    y = k(x)
+    label = "Isochrone Prior"
+    return x, y, label
+
+
+def _rho_prior_range(rho_true_dist):
+    """Return ``(lo, hi)`` for span computation, or ``(None, None)``."""
+    if rho_true_dist is None:
+        return None, None
+    if isinstance(rho_true_dist, dict):
+        if "mean" in rho_true_dist and "sigma" in rho_true_dist:
+            mu = float(rho_true_dist["mean"])
+            sig = float(rho_true_dist["sigma"])
+            return mu - 5 * sig, mu + 5 * sig
+        return None, None
+    samples = np.asarray(rho_true_dist, dtype=float).ravel()
+    return float(np.min(samples)), float(np.max(samples))
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -181,7 +228,7 @@ PAPER_STYLE = {
 }
 
 # Default per-planet display names. Override per case with :func:`set_case_labels`.
-PLANET_LABELS = {"b": "Kepler-51 b", "c": "Kepler-51 c", "d": "Kepler-51 d"}
+PLANET_LABELS = {"b": "Kepler-51b", "c": "Kepler-51c", "d": "Kepler-51d"}
 
 # ══════════════════════════════════════════════════════════════════════════
 #  Metadata: one table per concept
@@ -364,7 +411,7 @@ def _style_ax(ax, xlabel="", ylabel="Density", title="", legend=True):
         # identity legend does not collide with the figure title on PPC panels.
         id_h, id_l, other_h, other_l = [], [], [], []
         for h, lab in zip(handles, labels):
-            if lab in ("Photo", "Posterior"):
+            if lab in ("PhotoFIT", "Posterior"):
                 id_h.append(h); id_l.append(lab)
             else:
                 other_h.append(h); other_l.append(lab)
@@ -629,7 +676,7 @@ def plot_ppc(run, ttv, obs_keys=None, paths=None):
     for i, (ax, (key, emp, pred, lbl)) in enumerate(zip(axes, ordered)):
         _lim = np.percentile(np.concatenate([emp, pred]), [0.5, 99.5])
         # Histogram identity (Photo / Posterior) only on the first panel.
-        photo_lbl = "Photo" if i == 0 else None
+        photo_lbl = "PhotoFIT" if i == 0 else None
         post_lbl = "Posterior" if i == 0 else None
         _hist1d(ax, emp, STYLE["c_data"], photo_lbl, alpha=0.55)
         _hist1d(ax, pred, col, post_lbl, alpha=0.65)
@@ -679,10 +726,10 @@ def plot_marginals(run, rho_true_dist=None, b_obs_dist=None, paths=None):
         _vline(ax, p84, STYLE["c_interval"], ls="--", alpha=0.6)
         _annotate_stats(ax, v, "k", xpos="left", ypos=0.97, x=med * 1.05)
         if name == "rho_true" and rho_true_dist is not None:
-            k = gaussian_kde(rho_true_dist)
-            x = np.linspace(np.min(rho_true_dist), np.max(rho_true_dist), 400)
-            ax.plot(x, k(x), color="k", lw=STYLE["line_lw"], ls="-",
-                    label="Isochrone Prior", zorder=5)
+            x_rho, y_rho, lbl_rho = _rho_prior_overlay(rho_true_dist)
+            if x_rho is not None:
+                ax.plot(x_rho, y_rho, color="k", lw=STYLE["line_lw"], ls="-",
+                        label=lbl_rho, zorder=5)
         if name == "b":
             if b_obs_dist is not None:
                 k = gaussian_kde(b_obs_dist)
@@ -747,8 +794,13 @@ def plot_corner(run, rho_true_dist=None, b_obs_dist=None, paths=None, ax_grid=No
             span.append((0.0, 1.0))
         elif name == "rho_true" and rho_true_dist is not None:
             post_samples = run["chain"][:, i]
-            min_val = min(np.min(rho_true_dist), np.min(post_samples))
-            max_val = max(np.max(rho_true_dist), np.max(post_samples))
+            rho_lo, rho_hi = _rho_prior_range(rho_true_dist)
+            if rho_lo is not None:
+                min_val = min(rho_lo, np.min(post_samples))
+                max_val = max(rho_hi, np.max(post_samples))
+            else:
+                min_val = np.min(post_samples)
+                max_val = np.max(post_samples)
             pad = 0.05 * (max_val - min_val)
             span.append((float(min_val - pad), float(max_val + pad)))
         else:
@@ -785,11 +837,10 @@ def plot_corner(run, rho_true_dist=None, b_obs_dist=None, paths=None, ax_grid=No
         
         plotted = False
         if name == "rho_true" and rho_true_dist is not None:
-            k = gaussian_kde(rho_true_dist)
-            x = np.linspace(np.min(rho_true_dist), np.max(rho_true_dist), 400)
-            y = k(x)
-            tax.plot(x, y / np.max(y), color="k", lw=STYLE["line_lw"], ls=":", zorder=5)
-            plotted = True
+            x_rho, y_rho, _ = _rho_prior_overlay(rho_true_dist)
+            if x_rho is not None:
+                tax.plot(x_rho, y_rho / np.max(y_rho), color="k", lw=STYLE["line_lw"], ls=":", zorder=5)
+                plotted = True
             
         if name == "b":
             if b_obs_dist is not None:

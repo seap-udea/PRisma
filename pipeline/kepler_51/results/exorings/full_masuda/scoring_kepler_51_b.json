@@ -1,0 +1,19 @@
+[
+  {
+    "file": "kepler_51_b_NS_exorings_kde_delta-T14-T23-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_alphaFREE_pFREE_rhoMasuda.npz",
+    "case": "kepler_51",
+    "planet": "b",
+    "tag": "kepler_51_b_NS_exorings_kde_delta-T14-T23-rho_obs_nlive1200_dlogz0.01_NKDE5000_seed2026_rhoFREE_bFREE_alphaFREE_pFREE_rhoMasuda",
+    "raw_z1": 1.2050278108865835,
+    "z1_min": 2.5919544682992166,
+    "z_crit": 1.7276095631657096,
+    "fe_p16": 1.4114340505523635,
+    "angle_peaks": 1.0,
+    "err_rho_true": 0.011763174842223922,
+    "logz": 7.9228124605367265,
+    "max_logl": 21.004148509912856,
+    "aic": -28.00829701982571,
+    "category": "[Rejected] Poor Fit",
+    "zkey": "ord92077-lnZ_+07.92"
+  }
+]
