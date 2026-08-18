@@ -1,8 +1,18 @@
 [
 	{
+		"id": "main",
+		"title": "Figures from the main text",
+		"path": "gallery/",
+		"start_with": null,
+		"configuration": {
+			"preview": true,
+			"grid": true,
+		}
+	},
+	{
 		"id": "golden_samples",
 		"title": "Kepler-51 b and d potential ring configurations",
-		"path": "pipeline/kepler_51/results/exorings/explore_radius_alpha/figures/",
+		"path": "pipeline/kepler_51/results/exorings/explore_radius_alpha_masuda/figures/",
 		"start_with": null,
 		"configuration": {
 			"preview": true,
