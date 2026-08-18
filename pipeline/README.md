@@ -179,7 +179,14 @@ Finally, to create lightweight `.webp` thumbnails for a web gallery, run the gal
 bash bin/seap-udea-gallery.sh
 ```
 
-This script reads `.seap-udea-gallery.json` and populates the `pipeline/<case>/results/figures/.gallery/` directory with optimized preview images.
+This script reads `.seap-udea-gallery.json` and populates each configured gallery path's `.gallery/` subdirectory with optimized preview images.
+
+Gallery URLs (after push):
+
+- Grid-search figures: `https://seap-udea.github.io/gallery/?repo=PRisma&id=golden_samples`
+- Main-text figures: `https://seap-udea.github.io/gallery/?repo=PRisma&id=main`
+
+The `id` query parameter selects a section from `.seap-udea-gallery.json`; omitting it loads the first section only.
 
 ---
 

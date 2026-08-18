@@ -1,6 +1,8 @@
 # PRisma: PhotoRing inference and modeling algorithm
 
-**PRisma** is an open-source Bayesian pipeline for detecting and characterizing exoplanetary rings via the **PhotoRing (PR) effect** — an asterodensity-profiling signature in which unmodeled rings bias the stellar density inferred from a transit. The repository ships the full inference stack (forward models, likelihood, nested sampling) and a complete worked application to the Kepler-51 “super-puff” planets, including the notebooks, reference chains, tables, and figures that underlie the accompanying manuscript.
+**PRisma** is an open-source Bayesian pipeline for detecting and characterizing exoplanetary rings via the **PhotoRing (PR) effect** — an asterodensity-profiling signature in which unmodeled rings bias the stellar density inferred from a transit. The repository ships the full inference stack (forward models, likelihood, nested sampling) and a complete worked application to the Kepler-51 “super-puff” planets, including versioned reference chains under `pipeline/kepler_51/results/exorings/`, the notebooks, tables, and figures that underlie the accompanying manuscript.
+
+The current reference setup adopts **Masuda et al. (2024)** stellar parameters ($R_\star=0.869\,R_\odot$, $M_{b,d}=6.9\,M_\oplus$) and a Gaussian prior on the true stellar density, $\rho_{\star,\mathrm{true}}\sim\mathcal{N}(2.08,\,0.08)\,\mathrm{g\,cm^{-3}}$. Full-set retrievals live in [`pipeline/kepler_51/results/exorings/full_masuda/`](pipeline/kepler_51/results/exorings/full_masuda/); the radius–opacity grid search in [`explore_radius_alpha_masuda/`](pipeline/kepler_51/results/exorings/explore_radius_alpha_masuda/).
 
 ## Citing this work
 
@@ -51,7 +53,7 @@ The geometric PhotoRing framework itself was introduced in:
 
 ### The PhotoRing (PR) effect
 
-Asterodensity profiling compares the mean stellar density inferred from transit observables — depth $\delta$, durations $T_{14}$ and $T_{23}$, impact parameter, and period — with an independent estimate of the star’s true density $\rho_{\star,\mathrm{true}}$ (e.g. from isochrones). When an unmodeled phenomenon distorts the light curve, the transit-inferred density $\rho_{\star,\mathrm{obs}}$ disagrees with $\rho_{\star,\mathrm{true}}$.
+Asterodensity profiling compares the mean stellar density inferred from transit observables — depth $\delta$, durations $T_{14}$ and $T_{23}$, impact parameter, and period — with an independent estimate of the star’s true density $\rho_{\star,\mathrm{true}}$ (here, a Gaussian prior informed by Masuda et al. 2024). When an unmodeled phenomenon distorts the light curve, the transit-inferred density $\rho_{\star,\mathrm{obs}}$ disagrees with $\rho_{\star,\mathrm{true}}$.
 
 Planetary rings are one such phenomenon. A ringed planet occults a larger projected area than a bare planet of the same physical size, so the fitted radius is overestimated and the contact times are shifted. These biases propagate into $\rho_{\star,\mathrm{obs}}$, producing the **PhotoRing (PR) effect** (Zuluaga et al. 2015). The PR diagnostic is conventionally written
 
@@ -71,7 +73,9 @@ The contour map below shows how PR varies with ring orientation ($\cos i_R$, $\t
 
 ### Bayesian retrieval and products
 
-PRisma turns that geometric idea into a full Bayesian retrieval. A deterministic forward model (`exorings`) maps a ringed-planet configuration — outer radius $f_e$, ring inclination $i_R$, tilt $\theta_R$, planet-to-star radius ratio $p$, optical depth $\tau$, plus optional nuisance parameters $\rho_{\star,\mathrm{true}}$ and $b$ — onto predicted transit observables. Those predictions are compared to empirical observable posteriors (from TTV photometry) through a KDE likelihood. Nested sampling (`dynesty`) explores the posterior and returns the Bayesian evidence.
+PRisma turns that geometric idea into a full Bayesian retrieval. A deterministic forward model (`exorings`) maps a ringed-planet configuration — outer radius $f_e$, ring inclination $i_R$, tilt $\theta_R$, planet-to-star radius ratio $p$, ring opacity $\alpha=\exp(-\tau)$, plus optional nuisance parameters $\rho_{\star,\mathrm{true}}$ and $b$ — onto predicted transit observables. Those predictions are compared to empirical observable posteriors (from TTV photometry) through a KDE likelihood on $(\delta,\,T_{14},\,T_{23},\,\rho_{\star,\mathrm{obs}})$. Nested sampling (`dynesty`) explores the posterior and returns the Bayesian evidence.
+
+Each run writes a compressed chain (`.npz`) and sidecar metadata (`_meta.json`) that records the sampler settings, posterior summaries, and—when parameters are held fixed—the explicit values used in the forward model (e.g. `P_FIXED_VALUE` and `ALPHA_FIXED` for grid-search runs). Plotting and table generation read these fields so fixed inputs match the inference configuration.
 
 Primary products of each retrieval:
 
@@ -79,21 +83,21 @@ Primary products of each retrieval:
 2. **Corner plots** summarizing the joint posterior, optionally with an inset of the median ring geometry.
 3. **Posterior predictive checks (PPCs)** comparing predicted vs. observed distributions of $\delta$, $T_{14}$, $T_{23}$, $\rho_{\star,\mathrm{obs}}$, and $b_{\mathrm{obs}}$.
 
-Examples for Kepler-51 d (all-free retrieval with likelihood $\mathcal{L}_{\mathrm{KDE}}[\delta,\,T_{14},\,\rho_{\star,\mathrm{obs}}]$):
+**Kepler-51 full-set example (planet d).** All ring parameters and nuisances are free; $\rho_{\star,\mathrm{true}}$ follows the Masuda et al. (2024) Gaussian prior above. Posterior medians: $f_e=1.73\,R_p$, $i_R=70.9^\circ$, $\theta_R=67.3^\circ$, $p=0.081$, $\alpha=0.34$, $\rho_{\star,\mathrm{true}}=2.14\,\mathrm{g\,cm^{-3}}$, $b=0.28$; $\ln\mathcal{Z}=6.94$. Under the same mass assumption, this corresponds to $R_p\simeq7.7\,R_\oplus$ and $\rho_p\simeq0.08\,\mathrm{g\,cm^{-3}}$—roughly a factor of two above the ringless TTV-inferred density ($\rho_p\simeq0.04\,\mathrm{g\,cm^{-3}}$). Planet b shows a similar $\sim\times2$ shift in the full-set retrieval ($R_p\simeq5.5\,R_\oplus$, $\rho_p\simeq0.23\,\mathrm{g\,cm^{-3}}$ vs. $0.11\,\mathrm{g\,cm^{-3}}$ ringless).
 
 <p align="center">
-  <img src="gallery/final_planetd_panel_reduced.png" alt="Corner plot for Kepler-51 d" width="560"/>
+  <img src="gallery/final_planetd_panel_.png" alt="Corner plot for Kepler-51 d (full-set retrieval)" width="640"/>
 </p>
 
-<p align="center"><em>Figure — Joint posterior (corner plot) for Kepler-51 d, with the median ring geometry inset.</em></p>
+<p align="center"><em>Figure — Joint posterior for Kepler-51 d (all-free retrieval; likelihood $\mathcal{L}_{\mathrm{KDE}}[\delta,\,T_{14},\,T_{23},\,\rho_{\star,\mathrm{obs}}]$; nuisances $\rho_{\star,\mathrm{true}}$ and $b$ free; Masuda et al. 2024 prior on $\rho_{\star,\mathrm{true}}$). Medians listed in the panel header; ring inset shows the projected median geometry.</em></p>
 
 <p align="center">
   <img src="gallery/ppc_planet_d_vertical.png" alt="Posterior predictive check for Kepler-51 d" width="420"/>
 </p>
 
-<p align="center"><em>Figure — Posterior predictive check for Kepler-51 d. Grey: photometric (TTV) observables; teal: predictions drawn from the posterior.</em></p>
+<p align="center"><em>Figure — Posterior predictive check for the same Kepler-51 d retrieval ($\langle z_1\rangle=1.60$). Grey: TTV-derived observable KDEs; teal: posterior predictive draws. Header lists the same median ring parameters as the corner plot.</em></p>
 
-> 💡 **Explore more figures and results in the [PRisma Image Gallery](https://seap-udea.github.io/gallery/?repo=PRisma).**
+> 💡 **Explore more figures in the [PRisma Image Gallery](https://seap-udea.github.io/gallery/?repo=PRisma&id=golden_samples)** (Kepler-51 grid-search corner/PPC figures; Masuda et al. 2024 stellar density). [Main-text figures](https://seap-udea.github.io/gallery/?repo=PRisma&id=main) are in a separate gallery section.
 
 ---
 
@@ -101,16 +105,14 @@ Examples for Kepler-51 d (all-free retrieval with likelihood $\mathcal{L}_{\math
 
 | Path | Role |
 |---|---|
-| [`gallery/`](gallery/) | Frozen copies of the figures embedded in this README (independent of regenerable `papers/*/figures/`). |
+| [`gallery/`](gallery/) | Frozen copies of the figures embedded in this README (independent of regenerable `papers/*/figures/`). Synced from the Masuda et al. (2024) reference runs in `full_masuda/`. |
 | [`papers/`](papers/) | Manuscript material, organized by paper. |
-| [`papers/kepler51/`](papers/kepler51/) | Kepler-51 paper: LaTeX source, `PRisma-*.ipynb` notebooks, `figures/`, and generated tables (`tab_*.tex`). Running `make notebooks` regenerates figures and tables from the versioned chains under `pipeline/kepler_51/results/`. |
+| [`papers/kepler51/`](papers/kepler51/) | Kepler-51 paper: LaTeX source, `PRisma-*.ipynb` notebooks, `figures/`, and generated tables (`tab_*.tex`). Running `make notebooks` regenerates figures and tables from the versioned chains under `pipeline/kepler_51/results/exorings/full_masuda/` and `explore_radius_alpha_masuda/`. |
 | [`pipeline/`](pipeline/) | The PRisma algorithm: packages and scripts that implement the PR Bayesian pipeline. |
-| [`pipeline/photoring/`](pipeline/photoring/) | Core analysis package — observables, likelihood, priors, inference, I/O, plotting. |
+| [`pipeline/photoring/`](pipeline/photoring/) | Core analysis package — observables, likelihood, priors, inference, I/O, plotting (`fixed_p_from_meta`, metadata-aware corner/PPC annotations). |
 | [`pipeline/exorings/`](pipeline/exorings/) | Closed-form ringed-transit forward model (default). |
 | [`pipeline/geotrans/`](pipeline/geotrans/) | Independent numerical ring-transit model (validation / diagrams). |
-| [`pipeline/kepler_51/`](pipeline/kepler_51/) | Bundled case study: TTV inputs, observable posteriors, $\rho_{\star,\mathrm{true}}$ samples, and versioned result chains. |
-| [`pipeline/run_sweep_parallel.py`](pipeline/run_sweep_parallel.py) | Parallel dynesty campaign runner (preferred). |
-| [`.legacy/`](.legacy/) | Superseded exploratory material kept for provenance. |
+| [`pipeline/kepler_51/`](pipeline/kepler_51/) | Bundled case study: TTV inputs, observable posteriors, and versioned result chains (`full_masuda/`, `explore_radius_alpha_masuda/`, …). |
 
 ---
 
