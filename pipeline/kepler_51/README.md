@@ -39,10 +39,11 @@ kepler_51/
 Configs whose prior never intersects the KDE support are reported as `[PLATEAU]` and are
 **not** written under `results/` (log only). That is why there are more logs than `.npz` files.
 
-Manuscript figures/tables do **not** read this tree directly for the preferred solution: they
-use copies under [`papers/kepler51/reference_runs/`](../../papers/kepler51/reference_runs/)
-(`make reference-runs` / `make notebooks`). Diagnostic `figures/` under this case directory
-(if present) are gitignored and unused by the paper.
+Manuscript figures/tables read the preferred chains directly from
+[`results/exorings/full_masuda/`](results/exorings/full_masuda/) and
+[`results/exorings/explore_radius_alpha_masuda/`](results/exorings/explore_radius_alpha_masuda/)
+(`make notebooks` in [`papers/kepler51/`](../../papers/kepler51/)). Diagnostic `figures/`
+under this case directory (if present) are gitignored and unused by the paper.
 
 ## Retrieval grid
 
@@ -107,7 +108,7 @@ Then rebuild paper products:
 
 ```bash
 cd ../papers/kepler51
-make notebooks    # sync reference_runs/ from results/, execute PRisma-*.ipynb
+make notebooks    # execute PRisma-*.ipynb (reads results/exorings/*_masuda/)
 make              # compile main-v1r.pdf
 ```
 

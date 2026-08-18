@@ -1,26 +1,31 @@
-\begin{table}[htb!]
+\begin{table}[t]
 \centering
+\footnotesize
 \caption{Full-set retrieval results for \exoplanet{Kepler-51}{b} and \exoplanet{Kepler-51}{d}. The table reports the median values and the 16th and 84th percentiles for the ring geometry parameters, nuisance parameters, and selected derived physical properties. We assume a stellar radius of $0.869\,R_\odot$ \citep{Berger2023} and a planetary mass of $6.9\,M_\oplus$ for both planets \citep{Masuda2024}. For comparison, under a ringless model, the inferred planetary radii are $6.85\,R_\oplus$ (\exoplanet{Kepler-51}{b}) and $9.36\,R_\oplus$ (\exoplanet{Kepler-51}{d}), yielding anomalous densities of $0.11\,\mathrm{g\,cm^{-3}}$ and $0.038\,\mathrm{g\,cm^{-3}}$, respectively.}
 \label{tab:full_set_results}
-\begin{tabular}{lcc}
-\toprule
+\setlength{\tabcolsep}{3pt} % Default is 6pt
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}lcc}
+\hline
+\hline
 Parameter & \exoplanet{Kepler-51}{b} & \exoplanet{Kepler-51}{d} \\
-\midrule
-\multicolumn{3}{l}{\textit{Ring geometry}} \\
-$f_e$ [$R_p$] & $1.53^{+3.11}_{-0.40}$ & $1.84^{+5.25}_{-0.56}$ \\
-$i_R$ [$^\circ$] & $69.8^{+13.1}_{-11.0}$ & $63.7^{+15.0}_{-21.8}$ \\
-$\theta_R$ [$^\circ$] & $73.8^{+12.7}_{-20.2}$ & $71.1^{+11.8}_{-20.2}$ \\
-$p$ & $0.0664^{+0.0036}_{-0.0408}$ & $0.0721^{+0.0210}_{-0.0392}$ \\
-$\alpha$ & $0.236^{+0.361}_{-0.165}$ & $0.473^{+0.325}_{-0.312}$ \\
-\midrule
+\hline
+\multicolumn{3}{c}{\textit{Ring geometry}} \\
+$f_e$ [$R_p$] & $1.93^{+1.82}_{-0.52}$ & $1.73^{+5.46}_{-0.56}$ \\
+$i_R$ [$^\circ$] & $65.8^{+10.6}_{-13.6}$ & $70.9^{+11.0}_{-18.5}$ \\
+$\theta_R$ [$^\circ$] & $78.8^{+8.1}_{-10.7}$ & $67.3^{+12.9}_{-10.4}$ \\
+$p$ & $0.0577^{+0.0084}_{-0.0228}$ & $0.0813^{+0.0133}_{-0.0540}$ \\
+$\alpha$ & $0.327^{+0.289}_{-0.220}$ & $0.337^{+0.362}_{-0.212}$ \\
+\hline
 \multicolumn{3}{l}{\textit{Nuisance parameters}} \\
-$\rho_{\star,\mathrm{true}}$ [$\mathrm{g\,cm^{-3}}$] & $2.31^{+0.14}_{-0.35}$ & $2.16^{+0.20}_{-0.18}$ \\
-$b$ & $0.229^{+0.157}_{-0.111}$ & $0.271^{+0.084}_{-0.147}$ \\
+$\rho_{\star,\mathrm{true}}$ [$\mathrm{g\,cm^{-3}}$] & $2.11^{+0.10}_{-0.09}$ & $2.14^{+0.06}_{-0.07}$ \\
+$b$ & $0.329^{+0.036}_{-0.048}$ & $0.284^{+0.036}_{-0.038}$ \\
 \midrule
 \multicolumn{3}{l}{\textit{Derived parameters}} \\
-$R_p$ [$R_\oplus$] & 6.30 & 6.84 \\
-$\rho_p$ [$\mathrm{g\,cm^{-3}}$] & 0.152 & 0.119 \\
-\bottomrule
-\end{tabular}
+$R_p$ [$R_\oplus$] & 5.47 & 7.71 \\
+$\rho_p$ [$\mathrm{g\,cm^{-3}}$] & 0.232 & 0.083 \\
+\hline
+\hline
+\end{tabular*}
 \end{table}
 

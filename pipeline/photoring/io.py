@@ -11,9 +11,13 @@ Centralises every read/write the pipeline does so the notebooks never touch a ra
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import numpy as np
+
+# Grid-search labels (_P1, _P3, …) map to fractions between p_min and p_mean_ref.
+_P_GRID_FRACTIONS = {"1": 0.1, "3": 0.3, "5": 0.5, "7": 0.7, "9": 0.9}
 
 # Column order of the derived-observables files (output of step 1).
 #   p, delta, aR, rho_obs[kg/m^3], P[days], b, i_orb, T14[h], T23[h]
@@ -292,6 +296,26 @@ def load_run(npz_path):
         runtime_s=meta.get("runtime_s", 0),
         kde_obs=meta.get("kde_observables", []),
     )
+
+
+def fixed_p_from_meta(meta):
+    """Return the fixed planetary radius ratio ``p`` for a grid run.
+
+    Prefer ``P_FIXED_VALUE`` saved in metadata; otherwise reconstruct from the
+    ``_P*`` grid label in ``run_tag`` when ``P_FREE`` is false.
+    """
+    if "P_FIXED_VALUE" in meta:
+        return float(meta["P_FIXED_VALUE"])
+    run_tag = meta.get("run_tag", "")
+    if not meta.get("P_FREE", True) and "_P" in run_tag:
+        m = re.search(r"_P([13579])(?:_|$)", run_tag)
+        if m:
+            frac = _P_GRID_FRACTIONS.get(m.group(1))
+            if frac is not None:
+                p_min = float(meta.get("p_min", 0.0))
+                p_max = float(meta.get("p_mean_ref", meta.get("p_max", p_min)))
+                return p_min + frac * (p_max - p_min)
+    return float(meta.get("p_min", meta.get("p_mean_ref", 0.08)))
 
 
 def discover_runs(results_dir, run_tags=None):

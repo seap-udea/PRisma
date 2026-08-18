@@ -103,7 +103,7 @@ Examples for Kepler-51 d (all-free retrieval with likelihood $\mathcal{L}_{\math
 |---|---|
 | [`gallery/`](gallery/) | Frozen copies of the figures embedded in this README (independent of regenerable `papers/*/figures/`). |
 | [`papers/`](papers/) | Manuscript material, organized by paper. |
-| [`papers/kepler51/`](papers/kepler51/) | Kepler-51 paper: LaTeX source, `PRisma-*.ipynb` notebooks, `figures/`, `reference_runs/`, and generated tables (`tab_*.tex`). Running `make notebooks` regenerates figures and tables from the versioned chains. |
+| [`papers/kepler51/`](papers/kepler51/) | Kepler-51 paper: LaTeX source, `PRisma-*.ipynb` notebooks, `figures/`, and generated tables (`tab_*.tex`). Running `make notebooks` regenerates figures and tables from the versioned chains under `pipeline/kepler_51/results/`. |
 | [`pipeline/`](pipeline/) | The PRisma algorithm: packages and scripts that implement the PR Bayesian pipeline. |
 | [`pipeline/photoring/`](pipeline/photoring/) | Core analysis package — observables, likelihood, priors, inference, I/O, plotting. |
 | [`pipeline/exorings/`](pipeline/exorings/) | Closed-form ringed-transit forward model (default). |

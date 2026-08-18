@@ -7,6 +7,9 @@
 \newcommand\latex{La\TeX}
 \newcommand{\PRisma}{\texttt{PRisma}}
 \graphicspath{{figures/}}
+\usepackage{cancel}
+% \cancel cannot break across lines, so full deleted sentences use ulem's \sout via \cut
+\usepackage[normalem]{ulem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MACROS
@@ -37,6 +40,20 @@
 \definecolor{numpaque}{rgb}{0.018, 0.388, 0.378} % 
 \newcommand{\Numpaque}[1]{\textcolor{numpaque}{#1}}%
 
-%\definecolor{attention}{rgb}{1,0,0} % 
-\definecolor{attention}{rgb}{0,0,0} % 
+\definecolor{attention}{rgb}{1,0,0} % 
+%\definecolor{attention}{rgb}{0,0,0} % 
 \newcommand{\attention}[1]{\textcolor{attention}{#1}}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REVISION MARKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \cut{} marks removed text; \attention{} marks added text.
+% To produce a clean version: \renewcommand{\cut}[1]{} and make \attention a no-op.
+% aastex701 overwrites ulem's \sout with an \hbox version that cannot break across
+% lines, so restore ulem's own definition under a private name.
+% Fragile commands (\autoref, \ref, \citep) inside \cut must be wrapped in \mbox{}.
+\makeatletter
+\UL@protected\def\PRsout{\leavevmode\bgroup\ULdepth=-.55ex\ULset}
+\makeatother
+\definecolor{cutcolor}{rgb}{0.45,0.45,0.45}
+\DeclareRobustCommand{\cut}[1]{\textcolor{cutcolor}{\PRsout{#1}}}

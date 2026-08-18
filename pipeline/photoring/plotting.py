@@ -887,7 +887,8 @@ def _get_ring_diagram_values(run):
     # If a parameter is fixed, it is absent from ``param_names``/``chain``.
     # Use the explicit fixed values saved in metadata so annotations/ring inset
     # reflect the actual run configuration.
-    p_fixed = meta.get("P_FIXED_VALUE", meta.get("p_min", meta.get("p_mean_ref", 0.08)))
+    from photoring.io import fixed_p_from_meta
+    p_fixed = fixed_p_from_meta(meta)
     alpha_fixed = meta.get("ALPHA_FIXED")
     tau_fixed = meta.get("TAU_FIXED", 0.5)
 
