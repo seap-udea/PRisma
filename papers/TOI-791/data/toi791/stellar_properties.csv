@@ -1,0 +1,9 @@
+parameter,value,unit
+ra_deg,118.4347574,deg
+dec_deg,-69.7017359,deg
+effective_temperature,6294.0,K
+stellar_mass,1.28,M_sun
+stellar_radius,1.474,R_sun
+surface_gravity,3.71,dex cgs
+metallicity,-0.14,dex
+catalog_density,0.689992,g cm^-3
