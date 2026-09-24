@@ -1,0 +1,41 @@
+group,parameter,value,err_plus,err_minus,unit,source
+planet,period,106.14468,0.00022,0.00021,day,Ulmer-Moll+2025 Table 3
+planet,t0_bjd,2459153.5934,0.0006,0.0007,BJD,Ulmer-Moll+2025 Table 3
+planet,rp_over_rstar,0.0967,0.0006,0.0006,,Ulmer-Moll+2025 Table 3
+planet,impact_parameter,0.704,0.015,0.016,R_star,Ulmer-Moll+2025 Table 3
+planet,sqrt_e_cos_omega,-0.02,0.06,0.06,,Ulmer-Moll+2025 Table 3
+planet,sqrt_e_sin_omega,-0.31,0.06,0.04,,Ulmer-Moll+2025 Table 3
+planet,eccentricity,0.098,0.028,0.03,,Ulmer-Moll+2025 Table 3
+planet,omega,266.0,12.0,12.0,deg,Ulmer-Moll+2025 Table 3
+planet,rv_semiamplitude,28.8,1.4,1.5,m/s,Ulmer-Moll+2025 Table 3
+star,rho_star,1258.0,79.0,80.0,kg/m3,Ulmer-Moll+2025 Table 3
+activity,cycle_period,1140.0,82.0,75.0,day,Ulmer-Moll+2025 Table 3
+activity,cycle_rv_semiamplitude,20.0,2.0,1.9,m/s,Ulmer-Moll+2025 Table 3
+derived,planet_radius_rj,1.002,0.009,0.009,R_J,Ulmer-Moll+2025 Table 3
+derived,planet_radius_re,11.24,0.1,0.1,R_Earth,Ulmer-Moll+2025 Table 3
+derived,planet_mass_mj,0.7,0.04,0.04,M_J,Ulmer-Moll+2025 Table 3
+derived,planet_mass_me,222.0,13.0,13.0,M_Earth,Ulmer-Moll+2025 Table 3
+derived,inclination,89.55,0.04,0.04,deg,Ulmer-Moll+2025 Table 3
+derived,semi_major_axis,0.45,0.01,0.01,au,Ulmer-Moll+2025 Table 3
+derived,transit_duration_t14,8.26,0.06,0.06,hour,Ulmer-Moll+2025 Table 3
+derived,equilibrium_temperature,400.0,40.0,70.0,K,Ulmer-Moll+2025 Table 3
+TESS,limb_darkening_q1,0.322,0.034,0.033,,Ulmer-Moll+2025 Table 3
+TESS,limb_darkening_q2,0.248,0.029,0.026,,Ulmer-Moll+2025 Table 3
+NGTS,limb_darkening_q1,0.378,0.035,0.032,,Ulmer-Moll+2025 Table 3
+NGTS,limb_darkening_q2,0.259,0.026,0.029,,Ulmer-Moll+2025 Table 3
+TESS,offset,-9e-05,9e-05,0.0001,relative flux,Ulmer-Moll+2025 Table 3
+TESS,jitter,3.7,21.5,3.3,ppm,Ulmer-Moll+2025 Table 3
+NGTS1,offset,0.00113,0.00022,0.00023,relative flux,Ulmer-Moll+2025 Table 3
+NGTS1,jitter,5623.0,155.0,154.0,ppm,Ulmer-Moll+2025 Table 3
+NGTS2,offset,-0.00295,8e-05,9e-05,relative flux,Ulmer-Moll+2025 Table 3
+NGTS2,jitter,6522.0,112.0,108.0,ppm,Ulmer-Moll+2025 Table 3
+TESS,gp_amplitude,0.00026,8e-05,5e-05,relative flux,Ulmer-Moll+2025 Table 3
+TESS,gp_timescale,1.7,0.7,0.5,day,Ulmer-Moll+2025 Table 3
+CHIRON,rv_offset,-4.845,0.004,0.004,km/s,Ulmer-Moll+2025 Table 3
+CORALIE,rv_offset,-3.4151,0.0027,0.0025,km/s,Ulmer-Moll+2025 Table 3
+FEROS,rv_offset,-3.421,0.004,0.005,km/s,Ulmer-Moll+2025 Table 3
+HARPS,rv_offset,-3.3942,0.002,0.002,km/s,Ulmer-Moll+2025 Table 3
+CHIRON,rv_jitter,3.0,4.0,2.0,m/s,Ulmer-Moll+2025 Table 3
+CORALIE,rv_jitter,6.0,4.0,3.0,m/s,Ulmer-Moll+2025 Table 3
+FEROS,rv_jitter,14.0,5.0,4.0,m/s,Ulmer-Moll+2025 Table 3
+HARPS,rv_jitter,7.8,1.2,1.1,m/s,Ulmer-Moll+2025 Table 3

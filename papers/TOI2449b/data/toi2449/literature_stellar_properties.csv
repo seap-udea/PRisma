@@ -1,0 +1,24 @@
+parameter,value,err_plus,err_minus,unit,source
+ra,04:31:56.25,,,hms,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+dec,-34:27:19.92,,,dms,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+pm_ra,10.076,0.013,0.013,mas/yr,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+pm_dec,-58.496,0.016,0.016,mas/yr,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+parallax,6.451,0.013,0.013,mas,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+distance,155.01,0.31,0.31,pc,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+V,10.416,0.005,0.005,mag,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+B,11.003,0.077,0.077,mag,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+G,10.2924,0.0003,0.0003,mag,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+TESS,9.899,0.006,0.006,mag,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+J,9.407,0.026,0.026,mag,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+H,9.149,0.027,0.027,mag,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+Ks,9.073,0.025,0.025,mag,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+teff,6021,62.0,62.0,K,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+logg,4.4,0.02,0.02,dex (cgs),Ulmer-Moll+2025 Table 2 / Sec. 3.1
+microturbulence,1.13,0.02,0.02,km/s,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+feh,-0.03,0.04,0.04,dex,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+vsini,5.3,0.5,0.5,km/s,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+rotation_period,16,3.0,3.0,day,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+logRHK,-4.9,,,dex,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+age,2.5,1.4,1.5,Gyr,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+radius,1.065,0.007,0.007,R_sun,Ulmer-Moll+2025 Table 2 / Sec. 3.1
+mass,1.079,0.045,0.048,M_sun,Ulmer-Moll+2025 Table 2 / Sec. 3.1

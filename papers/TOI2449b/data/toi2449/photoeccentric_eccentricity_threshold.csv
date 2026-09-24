@@ -1,0 +1,6 @@
+quantity,value,interpretation
+maximum e for p_PE < 0.05,0.05648333564441,"Below this eccentricity, PE is incapable of explaining the anomaly in >95% of density draws"
+e required by central Psi,0.09490227004066804,Minimum eccentricity needed to reproduce the median density anomaly at optimal omega
+Psi reachable at e threshold and omega=270 deg,0.8439765617160453,Corresponds to the upper 95% boundary of the observed density deficit
+joint-fit posterior probability e < threshold,0.09168333333333334,Fraction of the published joint-fit eccentricity posterior in the ring-favorable regime
+PE feasibility at joint-fit median e,0.57743,Fraction of density draws geometrically explainable by PE at the published median eccentricity

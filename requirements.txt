@@ -4,6 +4,9 @@ scipy
 pandas
 astropy
 
+# Lightkurve
+lightkurve
+
 # Bayesian inference
 emcee
 dynesty

@@ -1,0 +1,92 @@
+J/A+A/703/A258      TOI-2449 b radial velocity curves        (Ulmer-Moll+, 2025)
+================================================================================
+Detection and characterisation of a 106-day transiting Jupiter:
+TOI-2449 b/NGTS-36 b.
+    Ulmer-Moll S., Gill S., Brahm R., Claringbold A., Lendl M., Al Moulla K.,
+    Anderson D., Battley M., Bayliss D., Bonfanti A., Bouchy F., Briceno C.,
+    Bryant E.M., Burleigh M.R., Collins K.A., Deline A., Dumusque X.,
+    Eberhardt J., Espinoza N., Falk B., Faria J.P., Fernandez Fernandez J.,
+    Figueira P., Fridlund M., Furlan E., Goad M.R., Goeke R.F., Hagelberg J.,
+    Hawthorn F., Helled R., Henning T., Hobson M., Howell S.B.,
+    Jafariyazani M., Jenkins J.M., Jenkins J.S., Jones M.I., Jordan A.,
+    Kendall A., Law N., Littlefield C., Mann A.W., McCormac J., Mordasini C.,
+    Moyano M., Osborn H., Pezzotti C., Psaridi A., Quinn S.N., Rodel T.,
+    Rodriguez J.E., Rojas F., Saha S., Schlecker M., Seager S., Sousa S.G.,
+    Tala Pinto M., Trifonov T., Udry S., Vines J.I., Viviani G., Watson C.A.,
+    Wheatley P.J., Wilson T.G., Winn J.N., Zhou G., Ziegler C.
+   <Astron. Astrophys. 703, A258 (2025)>
+   =2025A&A...703A.258U
+================================================================================
+ADC_Keywords: Stars, double and multiple ; Stars, dwarfs ; Exoplanets ;
+              Radial velocities ; Photometry ; Optical
+Keywords: methods: data analysis - planets and satellites: detection -
+          planets and satellites: gaseous planets -
+          planets and satellites: individual: TOI-2449b
+
+Abstract:
+    Only a handful of transiting giant exoplanets with orbital periods
+    longer than 100 days are known. These warm exoplanets are valuable
+    objects as their radius and mass can be measured leading to an
+    in-depth characterisation of the planet's properties. Thanks to low
+    levels of stellar irradiation and large orbital distances, the
+    atmospheric properties and orbital parameters of warm exoplanets
+    remain relatively unaltered by their host star, giving new insights
+    into planetary formation and evolution. We aim at extending the sample
+    of warm giant exoplanets with precise radii and masses. Our goal is to
+    identify suitable candidates in the Transiting Exoplanet Survey
+    Satellite (TESS) data and perform follow-up observations with
+    ground-based instruments. We use the Next Generation Transit Survey
+    (NGTS) to detect additional transits of planetary candidates in order
+    to pinpoint their orbital period. We also monitored the target with
+    several high-resolution spectrographs to measure the planetary mass
+    and eccentricity. We report the discovery of a 106-day period
+    Jupiter-sized planet around the G-type star TOI-2449/NGTS-36. We
+    jointly modelled the photometric and radial velocity data and find
+    that the planet has a mass of 0.70M_{jup}_ and a radius of
+    1.002R_{jup}_. The planetary orbit has a semi-major axis of 0.449au
+    and is slightly eccentric. We detect an additional 3-year signal in
+    the radial velocity data likely due to the stellar magnetic cycle.
+    Based on the planetary evolution models considered here, we find that
+    TOI-2449 b/NGTS-36 b contains 11 Me of heavy elements and has a
+    marginal planet-to-star metal enrichment of 3.3. Assuming a
+    Jupiter-like Bond albedo, TOI-2449 b/NGTS-36 b has an equilibrium
+    temperature of 400K and is a good target for understanding nitrogen
+    chemistry in cooler atmospheres.
+
+Description:
+    Radial velocity measurements of TOI-2449 taken with the
+    high-resolution spectrographs CHIRON, CORALIE, FEROS, and HARPS. Table
+    includes the date of observation, the radial velocity and its
+    associated error, and the spectrograph used to measure the radial
+    velocity.
+
+Objects:
+    ------------------------------------------------------
+       RA   (2000)   DE        Designation(s)
+    ------------------------------------------------------
+    04 31 56.24  -34 27 19.01  TOI-2449 = TIC 170729775
+    ------------------------------------------------------
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName      Lrecl  Records   Explanations
+--------------------------------------------------------------------------------
+ReadMe            80        .   This file
+table1.dat        41      168   Radial velocities of TOI-2449
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table1.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1- 15  F15.7 d       BJD       Barycentric Julian date
+  17- 26  F10.7 km/s    RV        Radial velocity
+  28- 33  F6.4  km/s  e_RV        Radial velocity error
+  35- 41  A7    ---     Inst      Name of the instrument
+                                   (CHIRON, CORALIE, FEROS or HARPS)
+--------------------------------------------------------------------------------
+Acknowledgements:
+    Solene Ulmer-Moll, ulmer-moll(at)strw.leidenuniv.nl
+
+================================================================================
+(End)                                        Patricia Vannier [CDS]  29-Sep-2025
