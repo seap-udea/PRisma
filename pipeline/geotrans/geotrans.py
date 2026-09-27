@@ -343,7 +343,7 @@ def apparent_from_intrinsic(ir,phir,iorb):
     Mir=rotMat([1,0,0],-ir)
     Mrs=dot(Mi,dot(Mpr,Mir))
     rz=dot(Mrs,[0.0,0.0,1.0])
-    ieff=arccos(abs(rz[2]))
+    ieff=arccos(min(1.0, abs(rz[2])))
     teff=-sign(rz[0])*ARCTAN(abs(rz[0]),abs(rz[1]))
     return ieff,teff
 
@@ -365,6 +365,9 @@ def apparent_to_intrinsic(ir_deg,theta_deg,iorb):
     (ir_rad, phir_rad) or None
         ``None`` if the nonlinear solve does not converge.
     """
+    if abs(ir_deg) < 1e-5:
+        return -iorb, 0.0
+
     ieff_t,teff_t=ir_deg*DEG,theta_deg*DEG
 
     def _residual(x):
@@ -618,10 +621,10 @@ def cIc(F1,F2):
     x=C[0];y=C[1]
     D=MAG(C)
     r2=r**2;R2=R**2;D2=D**2
-    dis=sqrt(\
-        -D2**2-2*D2*r2+2*D2*R2-\
-             r2**2+2*r2*R2+4*r2*x**2+\
-             4*r2*y**2-R2**2)
+    disc_val = (-D2**2-2*D2*r2+2*D2*R2-
+                r2**2+2*r2*R2+4*r2*x**2+
+                4*r2*y**2-R2**2)
+    dis=sqrt(max(0.0, disc_val))
     det=-2*r*y
     den=D2+r2-2*r*C[0]-R2
     t1=mod(2*arctan2(+dis+det,den),2*pi)
@@ -876,7 +879,8 @@ def planeQuad(Ps):
     p=MAG(P2.pos-P4.pos)
     q=MAG(P1.pos-P3.pos)
     s=sum(S)/2
-    Aq=sqrt(prod(s-S)-0.25*(a*c+b*d+p*q)*(a*c+b*d-p*q))
+    radicand = prod(s-S)-0.25*(a*c+b*d+p*q)*(a*c+b*d-p*q)
+    Aq=sqrt(max(0.0, radicand))
     return Aq
 
 def montecarloArea(Fs,oper,Npoints=1E3,excl=1):
@@ -1083,7 +1087,13 @@ def convexPolygon(Ps):
         A2=convexQuad((Ps[0],Ps[3],Ps[4],Ps[5]),shapes=[0,+1,+1,+1])
         A=A1+A2
     else:
-        print("An excessive number of polygon sides.")
+        if VERBOSE[3]:print(f"{nP} points: general polygon.")
+        A = 0.0
+        for i in range(1, nP - 1):
+            s0 = 1 if i == 1 else 0
+            s1 = 1
+            s2 = 1 if i + 1 == nP - 1 else 0
+            A += convexTriangle((Ps[0], Ps[i], Ps[i+1]), shapes=[s0, s1, s2])
     return A
         
 def leafArea(Ps):
@@ -2096,7 +2106,7 @@ def updatePlanetRings(S,phir=123,ir=123):
     rx=dot(S.Mrs,[1.0,0.0,0.0])
     ry=dot(S.Mrs,[0.0,1.0,0.0])
     rz=dot(S.Mrs,[0.0,0.0,1.0])
-    S.ieff=arccos(abs(dot(rz,[0,0,1])))
+    S.ieff=arccos(min(1.0, abs(dot(rz,[0,0,1]))))
     S.teff=-sign(rz[0])*ARCTAN(abs(rz[0]),abs(rz[1]))
 
     #//////////////////////////////////////////////////
@@ -3090,7 +3100,7 @@ class RingedSystem(object):
         rx=dot(self.Mrs,[1.0,0.0,0.0])
         ry=dot(self.Mrs,[0.0,1.0,0.0])
         rz=dot(self.Mrs,[0.0,0.0,1.0])
-        self.ieff=arccos(abs(dot(rz,[0,0,1])))
+        self.ieff=arccos(min(1.0, abs(dot(rz,[0,0,1]))))
         self.teff=-sign(rz[0])*ARCTAN(abs(rz[0]),abs(rz[1]))
 
         #//////////////////////////////////////////////////
