@@ -2507,9 +2507,17 @@ def secureArange(x1,x2,dx):
     xs=concatenate((xs,[x2]))
     return xs
 
-def fluxLimbTime(t,Ar,S,areas=areaStriping):
+def fluxLimbTime(t,Ar,S,areas=areaStriping,flip=True):
     #UPDATE POSITION
-    updatePosition(S,t)
+    # Note: geotrans' orbital coordinate system places the transit chord at y = -b,
+    # which inverts the ingress/egress profile for tilted rings compared to standard
+    # sky-plane conventions (y = +b, exorings/pyPplusS).
+    # Evaluating the orbit at 2*S.tcen - t reflects the trajectory across mid-transit,
+    # aligning ingress and egress with standard sky-plane models without touching
+    # the underlying intersection geometry.
+    t_eval = 2*S.tcen - t if flip else t
+    updatePosition(S,t_eval)
+    S.t = t
     if VERBLIMB:print("\nTime: ",(t-S.tcen)/HOUR)
     if VERBLIMB:print("Center: ",S.Planet.C)
 
