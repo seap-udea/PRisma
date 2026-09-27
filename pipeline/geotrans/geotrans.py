@@ -2332,9 +2332,11 @@ def stripArea(S,Rlow,Rup):
     scaleFigure(Ringe,1./Rlow)
     scaleFigure(Ringi,1./Rlow)
     #print "Scaled figures = ",Planet.a,Ringe.a,Ringi.a
+    block=getattr(S,'block',1.0)
     S=dict2obj(dict(Planet=Planet,
                     Ringext=Ringe,
-                    Ringint=Ringi))
+                    Ringint=Ringi,
+                    block=block))
     Es=transitArea(S)
     Alow=Es[0]
     #print "Scaled area = ",Alow
@@ -2347,7 +2349,8 @@ def stripArea(S,Rlow,Rup):
     #print "Scaled figures = ",Planet.a,Ringe.a,Ringi.a
     S=dict2obj(dict(Planet=Planet,
                     Ringext=Ringe,
-                    Ringint=Ringi))
+                    Ringint=Ringi,
+                    block=block))
     Es=transitArea(S)
     Aup=Es[0]
     #print "Scaled area up = ",Aup
@@ -2364,9 +2367,11 @@ def areaStriping(S,ds):
     Planet=copyObject(S.Planet)
     Ringe=copyObject(S.Ringext)
     Ringi=copyObject(S.Ringint)
+    block=getattr(S,'block',1.0)
     S=dict2obj(dict(Planet=Planet,
                     Ringext=Ringe,
-                    Ringint=Ringi))
+                    Ringint=Ringi,
+                    block=block))
     
     dp=1.0
     Ap=0
@@ -2407,9 +2412,11 @@ def areaStriping(S,ds):
     Planet=copyObject(S.Planet)
     Ringe=copyObject(S.Ringext)
     Ringi=copyObject(S.Ringint)
+    block=getattr(S,'block',1.0)
     S=dict2obj(dict(Planet=Planet,
                     Ringext=Ringe,
-                    Ringint=Ringi))
+                    Ringint=Ringi,
+                    block=block))
     
     dp=1.0
     Ap=0
